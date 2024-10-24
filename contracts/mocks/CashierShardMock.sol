@@ -33,4 +33,11 @@ contract CashierShardMock is ICashierTypes {
         targetStatus; // Silence the compilation warning about unused variable
         err = REGISTER_OPERATION_UNEXPECTED_ERROR;
     }
+
+    /**
+     * @dev Simulates real CashierShard contract.
+     */
+    function isShard() external pure returns(bool) {
+        return true;
+    }
 }
