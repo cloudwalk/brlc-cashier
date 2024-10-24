@@ -55,6 +55,12 @@ interface ICashierErrors {
     /// @dev Thrown if the maximum number of shards is exceeded.
     error Cashier_ShardCountExcess();
 
+    /// @dev Thrown if the contract is not a shard contract.
+    error Cashier_NotShardContract();
+
+    /// @dev Thrown if the contract is not a root contract.
+    error Cashier_NotRootContract();
+
     /**
      * @dev Thrown if the shard contract returns an unexpected error.
      * @param err The error code returned by the shard contract.
@@ -364,6 +370,11 @@ interface ICashierPrimary is ICashierTypes {
      * @dev Returns the address of the underlying token.
      */
     function underlyingToken() external view returns (address);
+
+    /**
+      * @dev Determines whether the contract is the cashier root contract.
+     */
+    function isRoot() external pure returns (bool);
 }
 
 /**

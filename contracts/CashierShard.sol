@@ -16,6 +16,7 @@ import { CashierShardStorage } from "./CashierShardStorage.sol";
  * @dev The contract responsible for storing sharded cash-in and cash-out operations.
  */
 contract CashierShard is CashierShardStorage, OwnableUpgradeable, UUPSUpgradeable, ICashierShard {
+
     // ------------------ Initializers ---------------------------- //
 
     /**
@@ -264,6 +265,15 @@ contract CashierShard is CashierShardStorage, OwnableUpgradeable, UUPSUpgradeabl
         return cashOutOperations;
     }
 
+    // ------------------ Pure functions -------------------------- //
+
+    /**
+    * @inheritdoc ICashierShardPrimary
+    */
+    function isShard() external pure returns(bool) {
+        return true;
+    }
+
     // ------------------ Internal functions ---------------------- //
 
     /**
@@ -314,6 +324,24 @@ contract CashierShard is CashierShardStorage, OwnableUpgradeable, UUPSUpgradeabl
      * @custom:oz-upgrades-unsafe-allow-reachable delegatecall
      */
     function upgradeTo(address newImplementation) external {
+        _validateShardContract(newImplementation);
         upgradeToAndCall(newImplementation, "");
+    }
+
+    /**
+     * @dev Validates the provided shard.
+     * @param shard The cashier shard contract address.
+     */
+    function _validateShardContract(address shard) internal pure {
+        bool success;
+        try ICashierShard(shard).isShard() returns (bool result) {
+            success = result;
+        } catch {
+            success = false;
+        }
+
+        if (!success) {
+            revert Cashier_NotShardContract();
+        }
     }
 }

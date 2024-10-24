@@ -20,6 +20,9 @@ interface ICashierShardErrors {
  * @dev The primary part of the cashier shard contract interface.
  */
 interface ICashierShardPrimary is ICashierTypes {
+    /// @dev Thrown if the contract is not a shard contract.
+    error Cashier_NotShardContract();
+
     /**
      * @dev Possible function errors of the shard contract.
      *
@@ -154,6 +157,11 @@ interface ICashierShardPrimary is ICashierTypes {
      * @return operations The data of the cash-out operations in the form of a structure.
      */
     function getCashOuts(bytes32[] memory txIds) external view returns (CashOutOperation[] memory operations);
+
+    /**
+      * @dev Determines whether the contract is the cashier shard contract.
+     */
+    function isShard() external pure returns (bool);
 }
 
 /**

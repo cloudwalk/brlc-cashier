@@ -15,6 +15,7 @@ import { ICashier } from "./interfaces/ICashier.sol";
 import { ICashierPrimary } from "./interfaces/ICashier.sol";
 import { ICashierConfiguration } from "./interfaces/ICashier.sol";
 import { ICashierShard } from "./interfaces/ICashierShard.sol";
+import { CashierShard } from "./CashierShard.sol";
 import { ICashierShardPrimary } from "./interfaces/ICashierShard.sol";
 import { ICashierHook } from "./interfaces/ICashierHook.sol";
 import { ICashierHookable } from "./interfaces/ICashierHookable.sol";
@@ -380,6 +381,7 @@ contract Cashier is
 
         uint256 count = shards.length;
         for (uint256 i; i < count; i++) {
+            _validateShardContract(shards[i]);
             _shards.push(ICashierShard(shards[i]));
             emit ShardAdded(shards[i]);
         }
@@ -408,6 +410,7 @@ contract Cashier is
             uint256 k = fromIndex + i;
             address oldShard = address(_shards[k]);
             address newShard = shards[i];
+            _validateShardContract(newShard);
             _shards[k] = ICashierShard(newShard);
             emit ShardReplaced(newShard, oldShard);
         }
@@ -596,6 +599,15 @@ contract Cashier is
         return _cashOutHookConfigs[txId];
     }
 
+    // ------------------ Pure functions -------------------------- //
+
+    /**
+    * @inheritdoc ICashierPrimary
+    */
+    function isRoot()  external pure returns(bool) {
+        return true;
+    }
+
     // ------------------ Internal functions ---------------------- //
 
     /**
@@ -706,6 +718,48 @@ contract Cashier is
     }
 
     /**
+     * @dev Validates the provided shard.
+     * @param shard The cashier shard contract address.
+     */
+    function _validateShardContract(address shard) internal pure {
+        if (shard == address(0)) {
+            revert Cashier_ShardAddressZero();
+        }
+
+        bool success;
+        try ICashierShard(shard).isShard() returns (bool result) {
+            success = result;
+        } catch {
+            success = false;
+        }
+
+        if (!success) {
+            revert Cashier_NotShardContract();
+        }
+    }
+
+    /**
+     * @dev Validates the provided root.
+     * @param root The cashier root contract address.
+     */
+    function _validateRootContract(address root) internal pure {
+        if (root == address(0)) {
+            revert Cashier_RootAddressZero();
+        }
+
+        bool success;
+        try ICashier(root).isRoot() returns (bool result) {
+            success = result;
+        } catch {
+            success = false;
+        }
+
+        if (!success) {
+            revert Cashier_NotRootContract();
+        }
+    }
+
+    /**
      * @dev Checks the error code returned by the shard contract and reverts with the appropriate error message.
      * @param err The error code returned by the shard contract.
      */
@@ -811,6 +865,7 @@ contract Cashier is
      * @custom:oz-upgrades-unsafe-allow-reachable delegatecall
      */
     function upgradeTo(address newImplementation) external {
+        _validateRootContract(newImplementation);
         upgradeToAndCall(newImplementation, "");
     }
 
@@ -819,11 +874,10 @@ contract Cashier is
      * @param newImplementation The address of the new shard implementation.
      */
     function upgradeShardsTo(address newImplementation) external onlyRole(OWNER_ROLE) {
-        if (newImplementation == address(0)) {
-            revert Cashier_ShardAddressZero();
-        }
+        _validateShardContract(newImplementation);
 
         for (uint256 i = 0; i < _shards.length; i++) {
+
             _shards[i].upgradeTo(newImplementation);
         }
     }
@@ -834,13 +888,8 @@ contract Cashier is
      * @param newShardImplementation The address of the new shard implementation.
      */
     function upgradeRootAndShardsTo(address newRootImplementation, address newShardImplementation) external {
-        if (newRootImplementation == address(0)) {
-            revert Cashier_RootAddressZero();
-        }
-        if (newShardImplementation == address(0)) {
-            revert Cashier_ShardAddressZero();
-        }
-
+        _validateRootContract(newRootImplementation);
+        _validateShardContract(newShardImplementation);
         upgradeToAndCall(newRootImplementation, "");
 
         for (uint256 i = 0; i < _shards.length; i++) {
