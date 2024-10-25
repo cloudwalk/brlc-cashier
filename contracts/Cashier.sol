@@ -366,6 +366,43 @@ contract Cashier is
     }
 
     /**
+     * @inheritdoc ICashierPrimary
+     *
+     * @dev Requirements:
+     *
+     * - The contract must not be paused.
+     * - The caller must have the {CASHIER_ROLE} role.
+     * - The `account`, `amount` and `txId` values must not be zero.
+     * - The cash-out operation with the provided `txId` must have the `Nonexistent` or `Reversed` status.
+     * - If the cash-out operation has the `Reversed` status its `account` field must equal the `account` argument.
+     */
+    function forceCashOut(
+        address account,
+        uint256 amount,
+        bytes32 txId
+    ) external whenNotPaused onlyRole(CASHIER_ROLE) {
+        _validateAccountAmountTxId(account, amount, txId);
+
+        (uint256 err, uint256 flags) = _shard(txId).registerForcedCashOut(account, amount, txId);
+        _checkShardError(err);
+
+        emit ForcedCashOut(account, txId, amount);
+
+        if (flags & CASH_OUT_FLAG_SOME_HOOK_CONFIGURED != 0) {
+            _callCashOutHookIfConfigured(txId, uint256(HookIndex.CashOutRequestBefore));
+            IERC20(_token).safeTransferFrom(account, address(this), amount);
+            _callCashOutHookIfConfigured(txId, uint256(HookIndex.CashOutRequestAfter));
+
+            _callCashOutHookIfConfigured(txId, uint256(HookIndex.CashOutConfirmationBefore));
+            IERC20Mintable(_token).burn(amount);
+            _callCashOutHookIfConfigured(txId, uint256(HookIndex.CashOutConfirmationAfter));
+        } else {
+            IERC20(_token).safeTransferFrom(account, address(this), amount);
+            IERC20Mintable(_token).burn(amount);
+        }
+    }
+
+    /**
      * @inheritdoc ICashierConfiguration
      *
      * @dev Requirements:

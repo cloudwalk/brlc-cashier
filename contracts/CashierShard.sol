@@ -139,7 +139,7 @@ contract CashierShard is CashierShardStorage, OwnableUpgradeable, UUPSUpgradeabl
      *
      * - The caller must be the owner or an admin.
      * - The cash-out operation with the provided `txId` must have the `Nonexistent` or `Reversed` status.
-     * - If the cash-out operation has the `Reversed` status its account address must equal the `from` argument.
+     * - If the cash-out operation has the `Reversed` status its account address must equal the `account` argument.
      */
     function registerInternalCashOut(
         address account, // Tools: This comment prevents Prettier from formatting into a single line.
@@ -147,6 +147,23 @@ contract CashierShard is CashierShardStorage, OwnableUpgradeable, UUPSUpgradeabl
         bytes32 txId
     ) external onlyOwnerOrAdmin returns (uint256, uint256) {
         return _registerCashOut(account, amount, txId, CashOutStatus.Internal);
+    }
+
+    /**
+     * @inheritdoc ICashierShardPrimary
+     *
+     * @dev Requirements:
+     *
+     * - The caller must be the owner or an admin.
+     * - The cash-out operation with the provided `txId` must have the `Nonexistent` or `Reversed` status.
+     * - If the cash-out operation has the `Reversed` status its account address must equal the `account` argument.
+     */
+    function registerForcedCashOut(
+        address account, // Tools: This comment prevents Prettier from formatting into a single line.
+        uint256 amount,
+        bytes32 txId
+    ) external onlyOwnerOrAdmin returns (uint256, uint256) {
+        return _registerCashOut(account, amount, txId, CashOutStatus.Forced);
     }
 
     /**
@@ -272,8 +289,8 @@ contract CashierShard is CashierShardStorage, OwnableUpgradeable, UUPSUpgradeabl
      * @param amount The amount of tokens to be received.
      * @param txId The off-chain transaction identifier of the related operation.
      * @param newStatus The new status of the operation to set.
-     * @return err The error code if the operation fails, otherwise None.
-     * @return flags The flags field of the stored cash-out operation structure.
+     * @return The error code if the operation fails, otherwise None.
+     * @return The flags field of the stored cash-out operation structure.
      */
     function _registerCashOut(
         address account, // Tools: this comment prevents Prettier from formatting into a single line.
@@ -282,21 +299,22 @@ contract CashierShard is CashierShardStorage, OwnableUpgradeable, UUPSUpgradeabl
         CashOutStatus newStatus
     ) internal returns (uint256, uint8) {
         CashOutOperation storage operation = _cashOutOperations[txId];
-        CashOutStatus oldStatus = operation.status;
 
-        uint256 err;
-        if (oldStatus == CashOutStatus.Pending || oldStatus == CashOutStatus.Confirmed) {
-            err = uint256(Error.InappropriateCashOutStatus);
-        } else if (oldStatus == CashOutStatus.Reversed && operation.account != account) {
-            err = uint256(Error.InappropriateCashOutAccount);
-        } else {
-            err = uint256(Error.None);
-            operation.account = account;
-            operation.amount = uint64(amount);
-            operation.status = newStatus;
+        if (operation.status != CashOutStatus.Nonexistent) {
+            if (operation.status == CashOutStatus.Reversed) {
+                if (operation.account != account) {
+                    return (uint256(Error.InappropriateCashOutAccount), operation.flags);
+                }
+            } else {
+                return (uint256(Error.InappropriateCashOutStatus), operation.flags);
+            }
         }
 
-        return (err, operation.flags);
+        operation.account = account;
+        operation.amount = uint64(amount);
+        operation.status = newStatus;
+
+        return (uint256(Error.None), operation.flags);
     }
 
     /**

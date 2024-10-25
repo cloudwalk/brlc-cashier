@@ -93,6 +93,20 @@ interface ICashierShardPrimary is ICashierTypes {
     ) external returns (uint256 err, uint256 flags);
 
     /**
+     * @dev Registers a forced cash-out operation.
+     * @param account The address of the account.
+     * @param amount The amount of the cash-out operation.
+     * @param txId The off-chain identifier of the cash-out operation.
+     * @return err The error code if the operation fails, otherwise {Error.None}.
+     * @return flags The flags field of the stored cash-out operation structure.
+     */
+    function registerForcedCashOut(
+        address account, // Tools: This comment prevents Prettier from formatting into a single line.
+        uint256 amount,
+        bytes32 txId
+    ) external returns (uint256 err, uint256 flags);
+
+    /**
      * @dev Processes a cash-out operation.
      * @param txId The off-chain identifier of the cash-out operation.
      * @return err The error code if the operation fails, otherwise {Error.None}.

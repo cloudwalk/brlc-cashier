@@ -57,13 +57,15 @@ interface ICashierTypes {
      * - Reversed = 2 ----- The operation was reversed.
      * - Confirmed = 3 ---- The operation was confirmed.
      * - Internal = 4 ----- The operation executed internally
+     * - Forced = 5 ------- The operation was forcibly executed.
      */
     enum CashOutStatus {
         Nonexistent,
         Pending,
         Reversed,
         Confirmed,
-        Internal
+        Internal,
+        Forced
     }
 
     /**
