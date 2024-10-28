@@ -914,7 +914,6 @@ contract Cashier is
         _validateShardContract(newImplementation);
 
         for (uint256 i = 0; i < _shards.length; i++) {
-
             _shards[i].upgradeTo(newImplementation);
         }
     }
