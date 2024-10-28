@@ -174,6 +174,18 @@ interface ICashierPrimary is ICashierTypes {
         uint256 amount
     );
 
+    /**
+     * @dev Emitted when a forced cash-out operation is initiated.
+     * @param account The account that owns the tokens to cash-out.
+     * @param txId The off-chain transaction identifier.
+     * @param amount The amount of tokens to cash-out.
+     */
+    event ForcedCashOut(
+        address indexed account,
+        bytes32 indexed txId,
+        uint256 amount
+    );
+
     // ------------------ Functions ------------------------------- //
 
     /**
@@ -303,6 +315,25 @@ interface ICashierPrimary is ICashierTypes {
     function makeInternalCashOut(
         address from, // Tools: this comment prevents Prettier from formatting into a single line.
         address to,
+        uint256 amount,
+        bytes32 txId
+    ) external;
+
+    /**
+     * @dev Initiates a forced cash-out operation.
+     *
+     * Burns tokens from the account.
+     * This function is expected to be called by a limited number of accounts
+     * that are allowed to process cash-out operations.
+     *
+     * Emits a {ForcedCashOut} event.
+     *
+     * @param account The account on that behalf the operation is made.
+     * @param amount The amount of tokens to be cash-outed.
+     * @param txId The off-chain transaction identifier of the related operation.
+     */
+    function forceCashOut(
+        address account,
         uint256 amount,
         bytes32 txId
     ) external;
