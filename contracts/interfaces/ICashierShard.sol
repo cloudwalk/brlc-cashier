@@ -10,6 +10,9 @@ import { ICashierTypes } from "./ICashierTypes.sol";
  * @dev Defines the custom errors used in the cashier shard contract.
  */
 interface ICashierShardErrors {
+    /// @dev Thrown if the contract is not a shard contract.
+    error CashierShard_ContractNotShard();
+
     /// @dev Thrown if the caller is not an admin.
     error CashierShard_Unauthorized();
 }
@@ -20,9 +23,6 @@ interface ICashierShardErrors {
  * @dev The primary part of the cashier shard contract interface.
  */
 interface ICashierShardPrimary is ICashierTypes {
-    /// @dev Thrown if the contract is not a shard contract.
-    error Cashier_NotShardContract();
-
     /**
      * @dev Possible function errors of the shard contract.
      *
@@ -175,7 +175,7 @@ interface ICashierShardPrimary is ICashierTypes {
     /**
       * @dev Determines whether the contract is the cashier shard contract.
      */
-    function isShard() external pure returns (bool);
+    function isCashierShard() external pure returns (bool);
 }
 
 /**

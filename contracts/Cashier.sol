@@ -641,7 +641,7 @@ contract Cashier is
     /**
     * @inheritdoc ICashierPrimary
     */
-    function isRoot()  external pure returns(bool) {
+    function isCashierRoot()  external pure returns(bool) {
         return true;
     }
 
@@ -764,14 +764,14 @@ contract Cashier is
         }
 
         bool success;
-        try ICashierShard(shard).isShard() returns (bool result) {
+        try ICashierShard(shard).isCashierShard() returns (bool result) {
             success = result;
         } catch {
             success = false;
         }
 
         if (!success) {
-            revert Cashier_NotShardContract();
+            revert CashierShard_ContractNotShard();
         }
     }
 
@@ -785,14 +785,14 @@ contract Cashier is
         }
 
         bool success;
-        try ICashier(root).isRoot() returns (bool result) {
+        try ICashier(root).isCashierRoot() returns (bool result) {
             success = result;
         } catch {
             success = false;
         }
 
         if (!success) {
-            revert Cashier_NotRootContract();
+            revert Cashier_ContractNotRoot();
         }
     }
 
@@ -892,6 +892,7 @@ contract Cashier is
      * @param newImplementation The address of the new implementation.
      */
     function _authorizeUpgrade(address newImplementation) internal view override onlyRole(OWNER_ROLE) {
+        _validateRootContract(newImplementation);
         newImplementation; // Suppresses a compiler warning about the unused variable.
     }
 
@@ -902,7 +903,6 @@ contract Cashier is
      * @custom:oz-upgrades-unsafe-allow-reachable delegatecall
      */
     function upgradeTo(address newImplementation) external {
-        _validateRootContract(newImplementation);
         upgradeToAndCall(newImplementation, "");
     }
 
@@ -911,7 +911,9 @@ contract Cashier is
      * @param newImplementation The address of the new shard implementation.
      */
     function upgradeShardsTo(address newImplementation) external onlyRole(OWNER_ROLE) {
-        _validateShardContract(newImplementation);
+        if (newImplementation == address(0)) {
+            revert Cashier_ShardAddressZero();
+        }
 
         for (uint256 i = 0; i < _shards.length; i++) {
             _shards[i].upgradeTo(newImplementation);
@@ -924,8 +926,10 @@ contract Cashier is
      * @param newShardImplementation The address of the new shard implementation.
      */
     function upgradeRootAndShardsTo(address newRootImplementation, address newShardImplementation) external {
-        _validateRootContract(newRootImplementation);
-        _validateShardContract(newShardImplementation);
+        if (newShardImplementation == address(0)) {
+            revert Cashier_ShardAddressZero();
+        }
+
         upgradeToAndCall(newRootImplementation, "");
 
         for (uint256 i = 0; i < _shards.length; i++) {

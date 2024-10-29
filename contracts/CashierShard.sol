@@ -286,7 +286,7 @@ contract CashierShard is CashierShardStorage, OwnableUpgradeable, UUPSUpgradeabl
     /**
     * @inheritdoc ICashierShardPrimary
     */
-    function isShard() external pure returns(bool) {
+    function isCashierShard() external pure returns(bool) {
         return true;
     }
 
@@ -331,6 +331,7 @@ contract CashierShard is CashierShardStorage, OwnableUpgradeable, UUPSUpgradeabl
      * @param newImplementation The address of the new implementation.
      */
     function _authorizeUpgrade(address newImplementation) internal view override onlyOwnerOrAdmin {
+        _validateShardContract(newImplementation);
         newImplementation; // Suppresses a compiler warning about the unused variable.
     }
 
@@ -341,7 +342,6 @@ contract CashierShard is CashierShardStorage, OwnableUpgradeable, UUPSUpgradeabl
      * @custom:oz-upgrades-unsafe-allow-reachable delegatecall
      */
     function upgradeTo(address newImplementation) external {
-        _validateShardContract(newImplementation);
         upgradeToAndCall(newImplementation, "");
     }
 
@@ -351,14 +351,14 @@ contract CashierShard is CashierShardStorage, OwnableUpgradeable, UUPSUpgradeabl
      */
     function _validateShardContract(address shard) internal pure {
         bool success;
-        try ICashierShard(shard).isShard() returns (bool result) {
+        try ICashierShard(shard).isCashierShard() returns (bool result) {
             success = result;
         } catch {
             success = false;
         }
 
         if (!success) {
-            revert Cashier_NotShardContract();
+            revert CashierShard_ContractNotShard();
         }
     }
 }
