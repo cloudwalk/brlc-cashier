@@ -803,6 +803,23 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       await expect(connect(anotherCashierShard, user).upgradeToAndCall(user.address, "0x"))
         .to.be.revertedWithCustomError(anotherCashierShard, REVERT_ERROR_IF_UNAUTHORIZED);
     });
+
+    it("Is reverted if the provided root implementation is not the root contract", async () => {
+      const { cashierRoot, cashierShards } = await setUpFixture(deployContracts);
+      const wrongRootImplementationAddress = await getImplementationAddress(cashierShards[0]);
+
+      await expect(connect(cashierRoot, deployer).upgradeToAndCall(wrongRootImplementationAddress, "0x"))
+        .to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_NOT_ROOT_CONTRACT);
+    });
+
+    it("Is reverted if the provided shard implementation is not the shard contract", async () => {
+      const { cashierRoot, cashierShards } = await setUpFixture(deployContracts);
+      const anotherCashierShard: Contract = await upgrades.deployProxy(cashierShardFactory, [deployer.address]);
+      const wrongShardImplementationAddress = await getImplementationAddress(cashierRoot);
+
+      await expect(connect(anotherCashierShard, deployer).upgradeToAndCall(wrongShardImplementationAddress, "0x"))
+        .to.be.revertedWithCustomError(anotherCashierShard, REVERT_ERROR_IF_NOT_SHARD_CONTRACT);
+    });
   });
 
   describe("Function 'upgradeTo()'", async () => {
