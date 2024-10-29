@@ -43,23 +43,23 @@ interface ICashierErrors {
     /// @dev Thrown if the cash-out operation with the provided txId has an inappropriate status.
     error Cashier_CashOutStatusInappropriate();
 
+    /// @dev Thrown if the contract is not a cashier root contract.
+    error Cashier_ContractNotRoot();
+
     /// @dev Thrown if the provided release time for the premint operation is inappropriate.
     error Cashier_PremintReleaseTimeInappropriate();
 
     /// @dev Thrown if the provided root address is zero.
     error Cashier_RootAddressZero();
 
+    /// @dev Thrown if the contract is not a cashier shard contract.
+    error Cashier_ShardAddressNotShard();
+
     /// @dev Thrown if the provided shard address is zero.
     error Cashier_ShardAddressZero();
 
     /// @dev Thrown if the maximum number of shards is exceeded.
     error Cashier_ShardCountExcess();
-
-    /// @dev Thrown if the contract is not a cashier shard contract.
-    error CashierShard_ContractNotShard();
-
-    /// @dev Thrown if the contract is not a cashier root contract.
-    error Cashier_ContractNotRoot();
 
     /**
      * @dev Thrown if the shard contract returns an unexpected error.

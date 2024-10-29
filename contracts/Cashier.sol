@@ -771,7 +771,7 @@ contract Cashier is
         }
 
         if (!success) {
-            revert CashierShard_ContractNotShard();
+            revert Cashier_ShardAddressNotShard();
         }
     }
 
