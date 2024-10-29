@@ -216,6 +216,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
   const REVERT_ERROR_IF_CASH_IN_STATUS_INAPPROPRIATE = "Cashier_CashInStatusInappropriate";
   const REVERT_ERROR_IF_CASH_OUT_ACCOUNT_INAPPROPRIATE = "Cashier_CashOutAccountInappropriate";
   const REVERT_ERROR_IF_CASH_OUT_STATUS_INAPPROPRIATE = "Cashier_CashOutStatusInappropriate";
+  const REVERT_ERROR_IF_CONTRACT_NOT_ROOT = "Cashier_ContractNotRoot";
+  const REVERT_ERROR_IF_CONTRACT_NOT_SHARD = "CashierShard_ContractNotShard";
   const REVERT_ERROR_IF_HOOK_CALLABLE_CONTRACT_ADDRESS_ZERO = "Cashier_HookCallableContractAddressZero";
   const REVERT_ERROR_IF_HOOK_CALLABLE_CONTRACT_ADDRESS_NON_ZERO = "Cashier_HookCallableContractAddressNonZero";
   const REVERT_ERROR_IF_HOOK_FLAGS_ALREADY_REGISTERED = "Cashier_HookFlagsAlreadyRegistered";
@@ -223,14 +225,13 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
   const REVERT_ERROR_IF_PREMINT_RELEASE_TIME_INAPPROPRIATE = "Cashier_PremintReleaseTimeInappropriate";
   const REVERT_ERROR_IF_ROOT_ADDRESS_IS_ZERO = "Cashier_RootAddressZero";
   const REVERT_ERROR_IF_SHARD_ADDRESS_IS_ZERO = "Cashier_ShardAddressZero";
+  const REVERT_ERROR_IF_SHARD_ADDRESS_NOT_SHARD = "Cashier_ShardAddressNotShard";
   const REVERT_ERROR_IF_SHARD_COUNT_EXCESS = "Cashier_ShardCountExcess";
   const REVERT_ERROR_IF_SHARD_REPLACEMENT_COUNT_EXCESS = "Cashier_ShardReplacementCountExcess";
   const REVERT_ERROR_IF_TOKEN_ADDRESS_IS_ZERO = "Cashier_TokenAddressZero";
   const REVERT_ERROR_IF_TOKEN_MINTING_FAILURE = "Cashier_TokenMintingFailure";
   const REVERT_ERROR_IF_TRANSACTION_ID_IS_ZERO = "Cashier_TxIdZero";
   const REVERT_ERROR_IF_SHARD_ERROR_UNEXPECTED = "Cashier_ShardErrorUnexpected";
-  const REVERT_ERROR_IF_NOT_SHARD_CONTRACT = "CashierShard_ContractNotShard";
-  const REVERT_ERROR_IF_NOT_ROOT_CONTRACT = "Cashier_ContractNotRoot";
 
   // Events of the contracts under test
   const EVENT_NAME_CASH_IN = "CashIn";
@@ -809,7 +810,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       const wrongRootImplementationAddress = await getImplementationAddress(cashierShards[0]);
 
       await expect(connect(cashierRoot, deployer).upgradeToAndCall(wrongRootImplementationAddress, "0x"))
-        .to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_NOT_ROOT_CONTRACT);
+        .to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_CONTRACT_NOT_ROOT);
     });
 
     it("Is reverted if the provided shard implementation is not the shard contract", async () => {
@@ -818,7 +819,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       const wrongShardImplementationAddress = await getImplementationAddress(cashierRoot);
 
       await expect(connect(anotherCashierShard, deployer).upgradeToAndCall(wrongShardImplementationAddress, "0x"))
-        .to.be.revertedWithCustomError(anotherCashierShard, REVERT_ERROR_IF_NOT_SHARD_CONTRACT);
+        .to.be.revertedWithCustomError(anotherCashierShard, REVERT_ERROR_IF_CONTRACT_NOT_SHARD);
     });
   });
 
@@ -855,7 +856,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       const wrongRootImplementationAddress = await getImplementationAddress(cashierShards[0]);
 
       await expect(cashierRoot.upgradeTo(wrongRootImplementationAddress))
-        .to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_NOT_ROOT_CONTRACT);
+        .to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_CONTRACT_NOT_ROOT);
     });
 
     it("Is reverted if the provided shard implementation is not the shard contract", async () => {
@@ -864,7 +865,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       const wrongShardImplementationAddress = await getImplementationAddress(cashierRoot);
 
       await expect(anotherCashierShard.upgradeTo(wrongShardImplementationAddress))
-        .to.be.revertedWithCustomError(anotherCashierShard, REVERT_ERROR_IF_NOT_SHARD_CONTRACT);
+        .to.be.revertedWithCustomError(anotherCashierShard, REVERT_ERROR_IF_CONTRACT_NOT_SHARD);
     });
   });
 
@@ -941,7 +942,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
 
       await expect(
         cashierRoot.addShards([wrongShardAddress])
-      ).to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_NOT_SHARD_CONTRACT);
+      ).to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_SHARD_ADDRESS_NOT_SHARD);
     });
   });
 
@@ -1038,7 +1039,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       await proveTx(cashierRoot.addShards(shardAddresses));
       await expect(
         cashierRoot.replaceShards(0, [wrongShardAddress])
-      ).to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_NOT_SHARD_CONTRACT);
+      ).to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_SHARD_ADDRESS_NOT_SHARD);
     });
   });
 
@@ -1077,12 +1078,17 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
     });
 
     it("Is reverted if the shard implementation address is not a shard contract", async () => {
-      const { cashierRoot } = await setUpFixture(deployAndConfigureContracts);
+      const { cashierRoot, cashierShards } = await setUpFixture(deployAndConfigureContracts);
       const wrongShardImplementationAddress = await getImplementationAddress(cashierRoot);
 
+      try {
+        await cashierRoot.upgradeShardsTo(wrongShardImplementationAddress);
+      } catch (error) {
+        console.log("Revert error:", error);
+      }
       await expect(
         cashierRoot.upgradeShardsTo(wrongShardImplementationAddress)
-      ).to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_NOT_SHARD_CONTRACT);
+      ).to.be.revertedWithCustomError(cashierShards[0], REVERT_ERROR_IF_CONTRACT_NOT_SHARD);
     });
   });
 
@@ -1176,11 +1182,11 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
           wrongRootImplementationAddress,
           targetShardImplementationAddress
         )
-      ).to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_NOT_ROOT_CONTRACT);
+      ).to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_CONTRACT_NOT_ROOT);
     });
 
     it("Is reverted if the shard implementation address is not a cashier shard contract", async () => {
-      const { cashierRoot } = await setUpFixture(deployAndConfigureContracts);
+      const { cashierRoot, cashierShards } = await setUpFixture(deployAndConfigureContracts);
       const targetRootImplementationAddress = await getImplementationAddress(cashierRoot);
       const wrongShardImplementationAddress = targetRootImplementationAddress || ""; // Suppress linter warnings
 
@@ -1189,7 +1195,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
           targetRootImplementationAddress,
           wrongShardImplementationAddress
         )
-      ).to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_NOT_SHARD_CONTRACT);
+      ).to.be.revertedWithCustomError(cashierShards[0], REVERT_ERROR_IF_CONTRACT_NOT_SHARD);
     });
   });
 
