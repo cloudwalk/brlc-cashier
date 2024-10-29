@@ -224,8 +224,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
   const REVERT_ERROR_IF_TOKEN_MINTING_FAILURE = "Cashier_TokenMintingFailure";
   const REVERT_ERROR_IF_TRANSACTION_ID_IS_ZERO = "Cashier_TxIdZero";
   const REVERT_ERROR_IF_SHARD_ERROR_UNEXPECTED = "Cashier_ShardErrorUnexpected";
-  const REVERT_ERROR_IF_NOT_SHARD_CONTRACT = "Cashier_NotShardContract";
-  const REVERT_ERROR_IF_NOT_ROOT_CONTRACT = "Cashier_NotRootContract";
+  const REVERT_ERROR_IF_NOT_SHARD_CONTRACT = "CashierShard_ContractNotShard";
+  const REVERT_ERROR_IF_NOT_ROOT_CONTRACT = "Cashier_ContractNotRoot";
 
   // Events of the contracts under test
   const EVENT_NAME_CASH_IN = "CashIn";
@@ -251,8 +251,6 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
   let tokenMockFactory: ContractFactory;
   let cashierHookMockFactory: ContractFactory;
   let cashierShardMockFactory: ContractFactory;
-  let notCashierMockFactory: ContractFactory;
-  let notCashierShardMockFactory: ContractFactory;
   let deployer: HardhatEthersSigner;
   let cashier: HardhatEthersSigner;
   let hookAdmin: HardhatEthersSigner;
@@ -283,10 +281,6 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
     cashierHookMockFactory = cashierHookMockFactory.connect(deployer);
     cashierShardMockFactory = await ethers.getContractFactory("CashierShardMock");
     cashierShardMockFactory = cashierShardMockFactory.connect(deployer);
-    notCashierMockFactory = await ethers.getContractFactory("NotCashierMock");
-    notCashierMockFactory = notCashierMockFactory.connect(deployer);
-    notCashierShardMockFactory = await ethers.getContractFactory("NotCashierShardMock");
-    notCashierShardMockFactory = notCashierShardMockFactory.connect(deployer);
   });
 
   async function deployTokenMock(): Promise<Contract> {
@@ -834,21 +828,19 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
     });
 
     it("Is reverted if the provided root implementation is not the root contract", async () => {
-      const { cashierRoot } = await setUpFixture(deployContracts);
-      const mockNotCashier = await notCashierMockFactory.deploy() as Contract;
-      await mockNotCashier.waitForDeployment();
+      const { cashierRoot, cashierShards } = await setUpFixture(deployContracts);
 
-      await expect(cashierRoot.upgradeTo(mockNotCashier.getAddress()))
+      await expect(cashierRoot.upgradeTo(cashierShards[0].getAddress()))
         .to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_NOT_ROOT_CONTRACT);
     });
 
     it("Is reverted if the provided shard implementation is not the shard contract", async () => {
       const { cashierRoot, cashierShards } = await setUpFixture(deployContracts);
-      const mockNotCashierShard = await notCashierShardMockFactory.deploy() as Contract;
-      await mockNotCashierShard.waitForDeployment();
 
-      await expect(cashierShards[0].upgradeTo(mockNotCashierShard.getAddress()))
-        .to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_NOT_SHARD_CONTRACT);
+      const anotherCashierShard: Contract = await upgrades.deployProxy(cashierShardFactory, [deployer.address]);
+
+      await expect(connect(anotherCashierShard, deployer).upgradeTo(await cashierRoot.getAddress()))
+        .to.be.revertedWithCustomError(anotherCashierShard, REVERT_ERROR_IF_NOT_SHARD_CONTRACT);
     });
   });
 
@@ -919,15 +911,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
 
     it("Is reverted if the provided contract is not a shard contract", async () => {
       const { cashierRoot } = await setUpFixture(deployContracts);
-      const mockNotCashierShard = await notCashierShardMockFactory.deploy() as Contract;
-      await mockNotCashierShard.waitForDeployment();
-
       await expect(
         cashierRoot.addShards([cashierRoot.getAddress()])
-      ).to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_NOT_SHARD_CONTRACT);
-
-      await expect(
-        cashierRoot.addShards([mockNotCashierShard.getAddress()])
       ).to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_NOT_SHARD_CONTRACT);
     });
   });
@@ -1017,16 +1002,9 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
 
     it("Is reverted if the provided contract is not a shard contract", async () => {
       const { cashierRoot, cashierShards } = await setUpFixture(deployContracts);
-      const mockNotCashierShard = await notCashierShardMockFactory.deploy() as Contract;
-      await mockNotCashierShard.waitForDeployment();
-
       await proveTx(cashierRoot.addShards(cashierShards));
       await expect(
         cashierRoot.replaceShards(0, [cashierRoot.getAddress()])
-      ).to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_NOT_SHARD_CONTRACT);
-
-      await expect(
-        cashierRoot.replaceShards(0, [mockNotCashierShard.getAddress()])
       ).to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_NOT_SHARD_CONTRACT);
     });
   });
@@ -1065,14 +1043,9 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
 
     it("Is reverted if the shard implementation address is not a shard contract", async () => {
       const { cashierRoot } = await setUpFixture(deployAndConfigureContracts);
-      const mockNotCashierShard = await notCashierShardMockFactory.deploy() as Contract;
-      await mockNotCashierShard.waitForDeployment();
 
       await expect(
         cashierRoot.upgradeShardsTo(await cashierRoot.getAddress())
-      ).to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_NOT_SHARD_CONTRACT);
-      await expect(
-        cashierRoot.upgradeShardsTo(await mockNotCashierShard.getAddress())
       ).to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_NOT_SHARD_CONTRACT);
     });
   });
@@ -1171,8 +1144,6 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
 
     it("Is reverted if the shard implementation address is not a shard contract", async () => {
       const { cashierRoot } = await setUpFixture(deployAndConfigureContracts);
-      const mockNotCashierShard = await notCashierShardMockFactory.deploy() as Contract;
-      await mockNotCashierShard.waitForDeployment();
       const targetRootImplementation: Contract = await cashierFactory.deploy() as Contract;
       await targetRootImplementation.waitForDeployment();
       const targetRootImplementationAddress = getAddress(targetRootImplementation);
@@ -1183,20 +1154,10 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
           cashierRoot.getAddress()
         )
       ).to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_NOT_SHARD_CONTRACT);
-      await expect(
-        cashierRoot.upgradeRootAndShardsTo(
-          targetRootImplementationAddress,
-          mockNotCashierShard.getAddress()
-        )
-      ).to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_NOT_SHARD_CONTRACT);
     });
 
     it("Is reverted if the provided root implementation is not the cashier root contract", async () => {
       const { cashierRoot } = await setUpFixture(deployAndConfigureContracts);
-
-      const targetMockNotCashier = await notCashierMockFactory.deploy() as Contract;
-      await targetMockNotCashier.waitForDeployment();
-      const targetMockImplementationAddress = getAddress(targetMockNotCashier);
 
       const targetShardImplementation: Contract = await cashierShardFactory.deploy() as Contract;
       await targetShardImplementation.waitForDeployment();
@@ -1204,7 +1165,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
 
       await expect(
         cashierRoot.upgradeRootAndShardsTo(
-          targetMockImplementationAddress,
+          targetShardImplementationAddress,
           targetShardImplementationAddress
         )
       ).to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_NOT_ROOT_CONTRACT);
@@ -2426,17 +2387,17 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
     });
   });
 
-  describe("Function 'isRoot()'", async () => {
+  describe("Function 'isCashierRoot()'", async () => {
     it("Returns expected value", async () => {
       const { cashierRoot } = await setUpFixture(deployAndConfigureContracts);
-      await expect(await cashierRoot.isRoot()).to.equal(true);
+      await expect(await cashierRoot.isCashierRoot()).to.equal(true);
     });
   });
 
-  describe("Function 'isShard()'", async () => {
+  describe("Function 'isCashierShard()'", async () => {
     it("Returns expected value", async () => {
       const { cashierRoot, cashierShards } = await setUpFixture(deployAndConfigureContracts);
-      await expect(await cashierShards[0].isShard()).to.equal(true);
+      await expect(await cashierShards[0].isCashierShard()).to.equal(true);
     });
   });
 
