@@ -152,6 +152,11 @@ function checkEquality<T extends Record<string, unknown>>(actualObject: T, expec
   });
 }
 
+async function getImplementationAddress(contract: Contract): Promise<string> {
+  const contractAddress = getAddress(contract);
+  return upgrades.erc1967.getImplementationAddress(contractAddress);
+}
+
 async function getImplementationAddresses(contracts: Contract[]): Promise<string[]> {
   const implementationAddressPromises: Promise<string>[] = [];
   for (const contract of contracts) {
@@ -301,6 +306,18 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
     return cashierHookMock;
   }
 
+  async function deployShardContracts(cashierRoot: Contract, shardCount: number = 3): Promise<Contract[]> {
+    const cashierShards: Contract[] = [];
+    for (let i = 0; i < shardCount; ++i) {
+      let cashierShard: Contract = await upgrades.deployProxy(cashierShardFactory, [getAddress(cashierRoot)]);
+      await cashierShard.waitForDeployment();
+      cashierShard = connect(cashierShard, deployer); // Explicitly specifying the initial account
+      cashierShards.push(cashierShard);
+    }
+
+    return cashierShards;
+  }
+
   async function deployContracts(): Promise<Fixture> {
     const tokenMock = await deployTokenMock();
     const cashierHookMock = await deployCashierHookMock();
@@ -321,18 +338,6 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       tokenMock,
       cashierHookMock
     };
-  }
-
-  async function deployShardContracts(cashierRoot: Contract, shardCount: number = 3): Promise<Contract[]> {
-    const cashierShards: Contract[] = [];
-    for (let i = 0; i < shardCount; ++i) {
-      let cashierShard: Contract = await upgrades.deployProxy(cashierShardFactory, [getAddress(cashierRoot)]);
-      await cashierShard.waitForDeployment();
-      cashierShard = connect(cashierShard, deployer); // Explicitly specifying the initial account
-      cashierShards.push(cashierShard);
-    }
-
-    return cashierShards;
   }
 
   async function deployAndConfigureContracts(): Promise<Fixture> {
@@ -813,33 +818,35 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
 
     it("Is reverted if the caller is not the owner", async () => {
       const { cashierRoot } = await setUpFixture(deployContracts);
-      const { cashierRoot: newCashierRoot } = await deployContracts();
+      const rootImplementationAddress = await getImplementationAddress(cashierRoot);
 
-      await expect(connect(cashierRoot, user).upgradeTo(newCashierRoot))
+      await expect(connect(cashierRoot, user).upgradeTo(rootImplementationAddress))
         .to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_UNAUTHORIZED_ACCOUNT)
         .withArgs(user.address, ownerRole);
     });
 
     it("Is reverted if the caller is not the owner or admin", async () => {
       const anotherCashierShard: Contract = await upgrades.deployProxy(cashierShardFactory, [deployer.address]);
+      const shardImplementationAddress = await getImplementationAddress(anotherCashierShard);
 
-      await expect(connect(anotherCashierShard, user).upgradeTo(await anotherCashierShard.getAddress()))
+      await expect(connect(anotherCashierShard, user).upgradeTo(shardImplementationAddress))
         .to.be.revertedWithCustomError(anotherCashierShard, REVERT_ERROR_IF_UNAUTHORIZED);
     });
 
-    it("Is reverted if the provided root implementation is not the root contract", async () => {
+    it("Is reverted if the provided root implementation is not a root contract", async () => {
       const { cashierRoot, cashierShards } = await setUpFixture(deployContracts);
+      const wrongRootImplementationAddress = await getImplementationAddress(cashierShards[0]);
 
-      await expect(cashierRoot.upgradeTo(cashierShards[0].getAddress()))
+      await expect(cashierRoot.upgradeTo(wrongRootImplementationAddress))
         .to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_NOT_ROOT_CONTRACT);
     });
 
     it("Is reverted if the provided shard implementation is not the shard contract", async () => {
       const { cashierRoot, cashierShards } = await setUpFixture(deployContracts);
-
       const anotherCashierShard: Contract = await upgrades.deployProxy(cashierShardFactory, [deployer.address]);
+      const wrongShardImplementationAddress = await getImplementationAddress(cashierRoot);
 
-      await expect(connect(anotherCashierShard, deployer).upgradeTo(await cashierRoot.getAddress()))
+      await expect(anotherCashierShard.upgradeTo(wrongShardImplementationAddress))
         .to.be.revertedWithCustomError(anotherCashierShard, REVERT_ERROR_IF_NOT_SHARD_CONTRACT);
     });
   });
@@ -869,23 +876,24 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
   describe("Function 'addShards()'", async () => {
     it("Executes as expected", async () => {
       const { cashierRoot, cashierShards } = await setUpFixture(deployContracts);
+      const shardAddresses: string[] = cashierShards.map(shard => getAddress(shard));
 
-      const tx1 = cashierRoot.addShards([cashierShards[0]]);
-      await expect(tx1).to.emit(cashierRoot, EVENT_NAME_SHARD_ADDED).withArgs(cashierShards[0]);
+      const tx1 = cashierRoot.addShards([shardAddresses[0]]);
+      await expect(tx1).to.emit(cashierRoot, EVENT_NAME_SHARD_ADDED).withArgs(shardAddresses[0]);
       expect(await cashierRoot.getShardCount()).to.eq(1);
 
-      const tx2 = cashierRoot.addShards(cashierShards);
-      for (const shardAddress of cashierShards) {
+      const tx2 = cashierRoot.addShards(shardAddresses);
+      for (const shardAddress of shardAddresses) {
         await expect(tx2).to.emit(cashierRoot, EVENT_NAME_SHARD_ADDED).withArgs(shardAddress);
       }
       expect(await cashierRoot.getShardCount()).to.eq(1 + cashierShards.length);
     });
 
     it("Is reverted if the caller is not the owner", async () => {
-      const { cashierRoot } = await setUpFixture(deployContracts);
-      const fakeShardAddress = user.address;
+      const { cashierRoot, cashierShards } = await setUpFixture(deployContracts);
+      const shardAddress = getAddress(cashierShards[0]);
       await expect(
-        connect(cashierRoot, cashier).addShards([fakeShardAddress])
+        connect(cashierRoot, cashier).addShards([shardAddress])
       ).to.be.revertedWithCustomError(
         cashierRoot,
         REVERT_ERROR_IF_UNAUTHORIZED_ACCOUNT
@@ -894,11 +902,12 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
 
     it("Is reverted if the number of shard exceeds the allowed maximum", async () => {
       const { cashierRoot, cashierShards } = await setUpFixture(deployContracts);
-      const shardAddresses = Array(MAX_SHARD_COUNT).fill(cashierShards[0]);
+      const firstShardAddress = getAddress(cashierShards[0]);
+      const shardAddresses: string[] = Array(MAX_SHARD_COUNT).fill(firstShardAddress);
       await proveTx(cashierRoot.addShards(shardAddresses));
 
       await expect(
-        cashierRoot.addShards([cashierShards[0]])
+        cashierRoot.addShards([firstShardAddress])
       ).to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_SHARD_COUNT_EXCESS);
     });
 
@@ -911,20 +920,22 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
 
     it("Is reverted if the provided contract is not a shard contract", async () => {
       const { cashierRoot } = await setUpFixture(deployContracts);
+      const wrongShardAddress: string = getAddress(cashierRoot);
+
       await expect(
-        cashierRoot.addShards([cashierRoot.getAddress()])
+        cashierRoot.addShards([wrongShardAddress])
       ).to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_NOT_SHARD_CONTRACT);
     });
   });
 
   describe("Function 'replaceShards()'", async () => {
     it("Executes as expected", async () => {
-      const { cashierRoot} = await setUpFixture(deployContracts);
+      const { cashierRoot } = await setUpFixture(deployContracts);
       const shardCount = 5;
-      const oldShardAddresses = (await deployShardContracts(cashierRoot, shardCount))
-        .map(shard => getAddress(shard));
-      const newShardAddresses = (await deployShardContracts(cashierRoot, shardCount))
-        .map(shard => getAddress(shard));
+      const oldShardAddresses =
+        (await deployShardContracts(cashierRoot, shardCount)).map(shard => getAddress(shard));
+      const newShardAddresses =
+        (await deployShardContracts(cashierRoot, shardCount)).map(shard => getAddress(shard));
 
       await proveTx(cashierRoot.addShards(oldShardAddresses));
 
@@ -974,10 +985,10 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
     });
 
     it("Is reverted if the caller is not the owner", async () => {
-      const { cashierRoot } = await setUpFixture(deployContracts);
-      const fakeShardAddress = user.address;
+      const { cashierRoot, cashierShards } = await setUpFixture(deployContracts);
+      const shardAddress = getAddress(cashierShards[0]);
       await expect(
-        connect(cashierRoot, user).replaceShards(0, [fakeShardAddress])
+        connect(cashierRoot, user).replaceShards(0, [shardAddress])
       ).to.be.revertedWithCustomError(
         cashierRoot,
         REVERT_ERROR_IF_UNAUTHORIZED_ACCOUNT
@@ -986,15 +997,17 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
 
     it("Is reverted if the number of shards to replacement is greater than expected", async () => {
       const { cashierRoot, cashierShards } = await setUpFixture(deployContracts);
-      await proveTx(cashierRoot.addShards(cashierShards));
+      const shardAddresses = cashierShards.map(shard => getAddress(shard));
+      await proveTx(cashierRoot.addShards(shardAddresses));
       await expect(
-        cashierRoot.replaceShards(1, cashierShards)
+        cashierRoot.replaceShards(1, shardAddresses)
       ).to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_SHARD_REPLACEMENT_COUNT_EXCESS);
     });
 
     it("Is reverted if the provided address is zero", async () => {
       const { cashierRoot, cashierShards } = await setUpFixture(deployContracts);
-      await proveTx(cashierRoot.addShards(cashierShards));
+      const shardAddresses = cashierShards.map(shard => getAddress(shard));
+      await proveTx(cashierRoot.addShards(shardAddresses));
       await expect(
         cashierRoot.replaceShards(0, [ADDRESS_ZERO])
       ).to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_SHARD_ADDRESS_IS_ZERO);
@@ -1002,9 +1015,12 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
 
     it("Is reverted if the provided contract is not a shard contract", async () => {
       const { cashierRoot, cashierShards } = await setUpFixture(deployContracts);
-      await proveTx(cashierRoot.addShards(cashierShards));
+      const shardAddresses = cashierShards.map(shard => getAddress(shard));
+      const wrongShardAddress = getAddress(cashierRoot);
+
+      await proveTx(cashierRoot.addShards(shardAddresses));
       await expect(
-        cashierRoot.replaceShards(0, [cashierRoot.getAddress()])
+        cashierRoot.replaceShards(0, [wrongShardAddress])
       ).to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_NOT_SHARD_CONTRACT);
     });
   });
@@ -1025,9 +1041,11 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
     });
 
     it("Is reverted if the caller is not the owner", async () => {
-      const { cashierRoot } = await setUpFixture(deployAndConfigureContracts);
+      const { cashierRoot, cashierShards } = await setUpFixture(deployAndConfigureContracts);
+      const shardImplementationAddress = await getImplementationAddress(cashierShards[0]);
+
       await expect(
-        connect(cashierRoot, user).upgradeShardsTo(user.address)
+        connect(cashierRoot, user).upgradeShardsTo(shardImplementationAddress)
       ).to.be.revertedWithCustomError(
         cashierRoot,
         REVERT_ERROR_IF_UNAUTHORIZED_ACCOUNT
@@ -1043,9 +1061,10 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
 
     it("Is reverted if the shard implementation address is not a shard contract", async () => {
       const { cashierRoot } = await setUpFixture(deployAndConfigureContracts);
+      const wrongShardImplementationAddress = await getImplementationAddress(cashierRoot);
 
       await expect(
-        cashierRoot.upgradeShardsTo(await cashierRoot.getAddress())
+        cashierRoot.upgradeShardsTo(wrongShardImplementationAddress)
       ).to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_NOT_SHARD_CONTRACT);
     });
   });
@@ -1078,7 +1097,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
         targetShardImplementationAddress
       ));
 
-      const newRootImplementationAddress = await upgrades.erc1967.getImplementationAddress(getAddress(cashierRoot));
+      const newRootImplementationAddress = await getImplementationAddress(cashierRoot);
       expect(newRootImplementationAddress).to.eq(targetRootImplementationAddress);
 
       const newShardImplementationAddresses: string[] = await getImplementationAddresses(cashierShards);
@@ -1091,15 +1110,9 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
     });
 
     it("Is reverted if the caller is not the owner or admin", async () => {
-      const { cashierRoot } = await setUpFixture(deployAndConfigureContracts);
-
-      const targetRootImplementation: Contract = await cashierFactory.deploy() as Contract;
-      await targetRootImplementation.waitForDeployment();
-      const targetRootImplementationAddress = getAddress(targetRootImplementation);
-
-      const targetShardImplementation: Contract = await cashierShardFactory.deploy() as Contract;
-      await targetShardImplementation.waitForDeployment();
-      const targetShardImplementationAddress = getAddress(targetShardImplementation);
+      const { cashierRoot, cashierShards } = await setUpFixture(deployAndConfigureContracts);
+      const targetRootImplementationAddress = await getImplementationAddress(cashierRoot);
+      const targetShardImplementationAddress = await getImplementationAddress(cashierShards[0]);
 
       await expect(
         connect(cashierRoot, user).upgradeRootAndShardsTo(
@@ -1113,11 +1126,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
     });
 
     it("Is reverted if the root implementation address is zero", async () => {
-      const { cashierRoot } = await setUpFixture(deployAndConfigureContracts);
-
-      const targetShardImplementation: Contract = await cashierShardFactory.deploy() as Contract;
-      await targetShardImplementation.waitForDeployment();
-      const targetShardImplementationAddress = getAddress(targetShardImplementation);
+      const { cashierRoot, cashierShards } = await setUpFixture(deployAndConfigureContracts);
+      const targetShardImplementationAddress = await getImplementationAddress(cashierShards[0]);
 
       await expect(
         cashierRoot.upgradeRootAndShardsTo(
@@ -1129,10 +1139,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
 
     it("Is reverted if the shard implementation address is zero", async () => {
       const { cashierRoot } = await setUpFixture(deployAndConfigureContracts);
-
-      const targetRootImplementation: Contract = await cashierFactory.deploy() as Contract;
-      await targetRootImplementation.waitForDeployment();
-      const targetRootImplementationAddress = getAddress(targetRootImplementation);
+      const targetRootImplementationAddress = await getImplementationAddress(cashierRoot);
 
       await expect(
         cashierRoot.upgradeRootAndShardsTo(
@@ -1142,33 +1149,30 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       ).to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_SHARD_ADDRESS_IS_ZERO);
     });
 
-    it("Is reverted if the shard implementation address is not a shard contract", async () => {
+    it("Is reverted if the provided root implementation is not a cashier root contract", async () => {
+      const { cashierRoot, cashierShards } = await setUpFixture(deployAndConfigureContracts);
+      const targetShardImplementationAddress = await getImplementationAddress(cashierShards[0]);
+      const wrongRootImplementationAddress = targetShardImplementationAddress || ""; // Suppress linter warnings
+
+      await expect(
+        cashierRoot.upgradeRootAndShardsTo(
+          wrongRootImplementationAddress,
+          targetShardImplementationAddress
+        )
+      ).to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_NOT_ROOT_CONTRACT);
+    });
+
+    it("Is reverted if the shard implementation address is not a cashier shard contract", async () => {
       const { cashierRoot } = await setUpFixture(deployAndConfigureContracts);
-      const targetRootImplementation: Contract = await cashierFactory.deploy() as Contract;
-      await targetRootImplementation.waitForDeployment();
-      const targetRootImplementationAddress = getAddress(targetRootImplementation);
+      const targetRootImplementationAddress = await getImplementationAddress(cashierRoot);
+      const wrongShardImplementationAddress = targetRootImplementationAddress || ""; // Suppress linter warnings
 
       await expect(
         cashierRoot.upgradeRootAndShardsTo(
           targetRootImplementationAddress,
-          cashierRoot.getAddress()
+          wrongShardImplementationAddress
         )
       ).to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_NOT_SHARD_CONTRACT);
-    });
-
-    it("Is reverted if the provided root implementation is not the cashier root contract", async () => {
-      const { cashierRoot } = await setUpFixture(deployAndConfigureContracts);
-
-      const targetShardImplementation: Contract = await cashierShardFactory.deploy() as Contract;
-      await targetShardImplementation.waitForDeployment();
-      const targetShardImplementationAddress = getAddress(targetShardImplementation);
-
-      await expect(
-        cashierRoot.upgradeRootAndShardsTo(
-          targetShardImplementationAddress,
-          targetShardImplementationAddress
-        )
-      ).to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_NOT_ROOT_CONTRACT);
     });
   });
 
