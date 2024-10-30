@@ -286,7 +286,7 @@ contract CashierShard is CashierShardStorage, OwnableUpgradeable, UUPSUpgradeabl
     /**
     * @inheritdoc ICashierShardPrimary
     */
-    function isCashierShard() external pure returns(bool) {
+    function isCashierShard() external pure returns (bool) {
         return true;
     }
 

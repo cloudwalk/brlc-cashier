@@ -15,7 +15,6 @@ import { ICashier } from "./interfaces/ICashier.sol";
 import { ICashierPrimary } from "./interfaces/ICashier.sol";
 import { ICashierConfiguration } from "./interfaces/ICashier.sol";
 import { ICashierShard } from "./interfaces/ICashierShard.sol";
-import { CashierShard } from "./CashierShard.sol";
 import { ICashierShardPrimary } from "./interfaces/ICashierShard.sol";
 import { ICashierHook } from "./interfaces/ICashierHook.sol";
 import { ICashierHookable } from "./interfaces/ICashierHookable.sol";
@@ -641,7 +640,7 @@ contract Cashier is
     /**
     * @inheritdoc ICashierPrimary
     */
-    function isCashierRoot()  external pure returns(bool) {
+    function isCashierRoot()  external pure returns (bool) {
         return true;
     }
 
