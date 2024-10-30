@@ -4,6 +4,7 @@ import { Contract, ContractFactory, TransactionResponse } from "ethers";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { checkContractUupsUpgrading, connect, getAddress, proveTx } from "../test-utils/eth";
+import packageJson from "../package.json";
 
 const ADDRESS_ZERO = ethers.ZeroAddress;
 
@@ -2517,6 +2518,21 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
     it("Executes as expected", async () => {
       const { cashierShards } = await setUpFixture(deployAndConfigureContracts);
       await expect(cashierShards[0].proveCashierShard()).to.not.be.reverted;
+    });
+  });
+
+  describe("Function '__VERSION()'", async () => {
+    it("Returns expected values", async () => {
+      const { cashierRoot, cashierShards } = await setUpFixture(deployAndConfigureContracts);
+      const [expectedMajor, expectedMinor, expectedPatch] = packageJson.version.split('.').map(Number);
+      const cashierRootVersion = await cashierRoot.__VERSION();
+      const cashierShardVersion = await cashierShards[0].__VERSION();
+
+      expect(cashierRootVersion).to.have.length(3);
+      expect(cashierRootVersion.major).to.equal(expectedMajor);
+      expect(cashierRootVersion.minor).to.equal(expectedMinor);
+      expect(cashierRootVersion.patch).to.equal(expectedPatch);
+      expect(cashierRootVersion).to.deep.equal(cashierShardVersion);
     });
   });
 
