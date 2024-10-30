@@ -1,4 +1,8 @@
 {
+  "name": "brlc-pix-cashier",
+  "version": "1.0.0",
+  "description": "Brlc Pix Cashier Contracts",
+  "author": "CloudWalk Inc.",
   "dependencies": {
     "@openzeppelin/contracts-upgradeable": "5.0.2"
   },

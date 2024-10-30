@@ -21,6 +21,7 @@ import { ICashierHookable } from "./interfaces/ICashierHookable.sol";
 import { IERC20Mintable } from "./interfaces/IERC20Mintable.sol";
 
 import { CashierStorage } from "./CashierStorage.sol";
+import { IVersion } from "./interfaces/IVersion.sol";
 
 /**
  * @title Cashier contract
@@ -34,7 +35,8 @@ contract Cashier is
     RescuableUpgradeable,
     UUPSUpgradeable,
     ICashier,
-    ICashierHookable
+    ICashierHookable,
+    IVersion
 {
     using SafeERC20 for IERC20;
     using EnumerableSet for EnumerableSet.Bytes32Set;
@@ -641,6 +643,13 @@ contract Cashier is
      * @inheritdoc ICashierPrimary
      */
     function proveCashierRoot() external pure {}
+
+    /**
+     * @inheritdoc IVersion
+     */
+    function __VERSION() external pure returns (Version memory) {
+        return Version(1, 0, 0);
+    }
 
     // ------------------ Internal functions ---------------------- //
 
