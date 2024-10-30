@@ -217,7 +217,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
   const REVERT_ERROR_IF_CASH_OUT_ACCOUNT_INAPPROPRIATE = "Cashier_CashOutAccountInappropriate";
   const REVERT_ERROR_IF_CASH_OUT_STATUS_INAPPROPRIATE = "Cashier_CashOutStatusInappropriate";
   const REVERT_ERROR_IF_CONTRACT_NOT_ROOT = "Cashier_ContractNotRoot";
-  const REVERT_ERROR_IF_CONTRACT_NOT_SHARD = "CashierShard_ContractNotShard";
+  const REVERT_ERROR_IF_CONTRACT_NOT_SHARD_ON_SHARD = "CashierShard_ContractNotShard";
   const REVERT_ERROR_IF_HOOK_CALLABLE_CONTRACT_ADDRESS_ZERO = "Cashier_HookCallableContractAddressZero";
   const REVERT_ERROR_IF_HOOK_CALLABLE_CONTRACT_ADDRESS_NON_ZERO = "Cashier_HookCallableContractAddressNonZero";
   const REVERT_ERROR_IF_HOOK_FLAGS_ALREADY_REGISTERED = "Cashier_HookFlagsAlreadyRegistered";
@@ -225,7 +225,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
   const REVERT_ERROR_IF_PREMINT_RELEASE_TIME_INAPPROPRIATE = "Cashier_PremintReleaseTimeInappropriate";
   const REVERT_ERROR_IF_ROOT_ADDRESS_IS_ZERO = "Cashier_RootAddressZero";
   const REVERT_ERROR_IF_SHARD_ADDRESS_IS_ZERO = "Cashier_ShardAddressZero";
-  const REVERT_ERROR_IF_SHARD_ADDRESS_NOT_SHARD = "Cashier_ShardAddressNotShard";
+  const REVERT_ERROR_IF_CONTRACT_NOT_SHARD_ON_ROOT = "Cashier_ContractNotShard";
   const REVERT_ERROR_IF_SHARD_COUNT_EXCESS = "Cashier_ShardCountExcess";
   const REVERT_ERROR_IF_SHARD_REPLACEMENT_COUNT_EXCESS = "Cashier_ShardReplacementCountExcess";
   const REVERT_ERROR_IF_TOKEN_ADDRESS_IS_ZERO = "Cashier_TokenAddressZero";
@@ -819,7 +819,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       const wrongShardImplementationAddress = await getImplementationAddress(cashierRoot);
 
       await expect(connect(anotherCashierShard, deployer).upgradeToAndCall(wrongShardImplementationAddress, "0x"))
-        .to.be.revertedWithCustomError(anotherCashierShard, REVERT_ERROR_IF_CONTRACT_NOT_SHARD);
+        .to.be.revertedWithCustomError(anotherCashierShard, REVERT_ERROR_IF_CONTRACT_NOT_SHARD_ON_SHARD);
     });
   });
 
@@ -865,7 +865,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       const wrongShardImplementationAddress = await getImplementationAddress(cashierRoot);
 
       await expect(anotherCashierShard.upgradeTo(wrongShardImplementationAddress))
-        .to.be.revertedWithCustomError(anotherCashierShard, REVERT_ERROR_IF_CONTRACT_NOT_SHARD);
+        .to.be.revertedWithCustomError(anotherCashierShard, REVERT_ERROR_IF_CONTRACT_NOT_SHARD_ON_SHARD);
     });
   });
 
@@ -942,7 +942,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
 
       await expect(
         cashierRoot.addShards([wrongShardAddress])
-      ).to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_SHARD_ADDRESS_NOT_SHARD);
+      ).to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_CONTRACT_NOT_SHARD_ON_ROOT);
     });
   });
 
@@ -1039,7 +1039,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       await proveTx(cashierRoot.addShards(shardAddresses));
       await expect(
         cashierRoot.replaceShards(0, [wrongShardAddress])
-      ).to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_SHARD_ADDRESS_NOT_SHARD);
+      ).to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_CONTRACT_NOT_SHARD_ON_ROOT);
     });
   });
 
@@ -1083,7 +1083,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
 
       await expect(
         cashierRoot.upgradeShardsTo(wrongShardImplementationAddress)
-      ).to.be.revertedWithCustomError(cashierShards[0], REVERT_ERROR_IF_CONTRACT_NOT_SHARD);
+      ).to.be.revertedWithCustomError(cashierShards[0], REVERT_ERROR_IF_CONTRACT_NOT_SHARD_ON_SHARD);
     });
   });
 
@@ -1190,7 +1190,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
           targetRootImplementationAddress,
           wrongShardImplementationAddress
         )
-      ).to.be.revertedWithCustomError(cashierShards[0], REVERT_ERROR_IF_CONTRACT_NOT_SHARD);
+      ).to.be.revertedWithCustomError(cashierShards[0], REVERT_ERROR_IF_CONTRACT_NOT_SHARD_ON_SHARD);
     });
   });
 

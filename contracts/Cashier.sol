@@ -770,7 +770,7 @@ contract Cashier is
         }
 
         if (!success) {
-            revert Cashier_ShardAddressNotShard();
+            revert Cashier_ContractNotShard();
         }
     }
 
