@@ -12,9 +12,9 @@ interface IVersion {
      * @dev The struct for contract version.
      */
     struct Version {
-        uint8 major; // -- The major version of contract
-        uint8 minor; // -- The minor version of contract
-        uint8 patch; // -- The patch version of contract
+        uint16 major; // -- The major version of contract
+        uint16 minor; // -- The minor version of contract
+        uint16 patch; // -- The patch version of contract
     }
 
     /**
