@@ -173,9 +173,9 @@ interface ICashierShardPrimary is ICashierTypes {
     function getCashOuts(bytes32[] memory txIds) external view returns (CashOutOperation[] memory operations);
 
     /**
-      * @dev Determines whether the contract is the cashier shard contract.
+     * @dev Determines whether the contract is the cashier shard contract.
      */
-    function isCashierShard() external pure returns (bool);
+    function isCashierShard() external pure;
 }
 
 /**

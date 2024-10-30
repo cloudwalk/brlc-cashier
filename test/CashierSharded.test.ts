@@ -2410,16 +2410,16 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
   });
 
   describe("Function 'isCashierRoot()'", async () => {
-    it("Returns expected value", async () => {
+    it("Executes as expected", async () => {
       const { cashierRoot } = await setUpFixture(deployAndConfigureContracts);
-      expect(await cashierRoot.isCashierRoot()).to.equal(true);
+      await expect(cashierRoot.isCashierRoot()).to.not.be.reverted;
     });
   });
 
   describe("Function 'isCashierShard()'", async () => {
-    it("Returns expected value", async () => {
+    it("Executes as expected", async () => {
       const { cashierShards } = await setUpFixture(deployAndConfigureContracts);
-      expect(await cashierShards[0].isCashierShard()).to.equal(true);
+      await expect(cashierShards[0].isCashierShard()).to.not.be.reverted;
     });
   });
 

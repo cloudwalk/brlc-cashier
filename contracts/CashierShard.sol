@@ -284,11 +284,9 @@ contract CashierShard is CashierShardStorage, OwnableUpgradeable, UUPSUpgradeabl
     // ------------------ Pure functions -------------------------- //
 
     /**
-    * @inheritdoc ICashierShardPrimary
-    */
-    function isCashierShard() external pure returns (bool) {
-        return true;
-    }
+     * @inheritdoc ICashierShardPrimary
+     */
+    function isCashierShard() external pure {}
 
     // ------------------ Internal functions ---------------------- //
 
@@ -350,14 +348,7 @@ contract CashierShard is CashierShardStorage, OwnableUpgradeable, UUPSUpgradeabl
      * @param shard The cashier shard contract address.
      */
     function _validateShardContract(address shard) internal pure {
-        bool success;
-        try ICashierShard(shard).isCashierShard() returns (bool result) {
-            success = result;
-        } catch {
-            success = false;
-        }
-
-        if (!success) {
+        try ICashierShard(shard).isCashierShard() {} catch {
             revert CashierShard_ContractNotShard();
         }
     }

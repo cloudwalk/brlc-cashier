@@ -638,11 +638,9 @@ contract Cashier is
     // ------------------ Pure functions -------------------------- //
 
     /**
-    * @inheritdoc ICashierPrimary
-    */
-    function isCashierRoot()  external pure returns (bool) {
-        return true;
-    }
+     * @inheritdoc ICashierPrimary
+     */
+    function isCashierRoot() external pure {}
 
     // ------------------ Internal functions ---------------------- //
 
@@ -762,14 +760,7 @@ contract Cashier is
             revert Cashier_ShardAddressZero();
         }
 
-        bool success;
-        try ICashierShard(shard).isCashierShard() returns (bool result) {
-            success = result;
-        } catch {
-            success = false;
-        }
-
-        if (!success) {
+        try ICashierShard(shard).isCashierShard() {} catch {
             revert Cashier_ContractNotShard();
         }
     }
@@ -783,14 +774,7 @@ contract Cashier is
             revert Cashier_RootAddressZero();
         }
 
-        bool success;
-        try ICashier(root).isCashierRoot() returns (bool result) {
-            success = result;
-        } catch {
-            success = false;
-        }
-
-        if (!success) {
+        try ICashier(root).isCashierRoot() {} catch {
             revert Cashier_ContractNotRoot();
         }
     }
