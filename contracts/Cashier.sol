@@ -894,10 +894,6 @@ contract Cashier is
      * @param newImplementation The address of the new shard implementation.
      */
     function upgradeShardsTo(address newImplementation) external onlyRole(OWNER_ROLE) {
-        if (newImplementation == address(0)) {
-            revert Cashier_ShardAddressZero();
-        }
-
         for (uint256 i = 0; i < _shards.length; i++) {
             _shards[i].upgradeTo(newImplementation);
         }
@@ -909,12 +905,7 @@ contract Cashier is
      * @param newShardImplementation The address of the new shard implementation.
      */
     function upgradeRootAndShardsTo(address newRootImplementation, address newShardImplementation) external {
-        if (newShardImplementation == address(0)) {
-            revert Cashier_ShardAddressZero();
-        }
-
         upgradeToAndCall(newRootImplementation, "");
-
         for (uint256 i = 0; i < _shards.length; i++) {
             _shards[i].upgradeTo(newShardImplementation);
         }

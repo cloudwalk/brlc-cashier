@@ -333,6 +333,20 @@ contract CashierShard is CashierShardStorage, OwnableUpgradeable, UUPSUpgradeabl
         newImplementation; // Suppresses a compiler warning about the unused variable.
     }
 
+    /**
+     * @dev Validates the provided shard.
+     * @param shard The cashier shard contract address.
+     */
+    function _validateShardContract(address shard) internal pure {
+        if (shard == address(0)) {
+            revert CashierShard_ShardAddressZero();
+        }
+
+        try ICashierShard(shard).isCashierShard() {} catch {
+            revert CashierShard_ContractNotShard();
+        }
+    }
+
     // ------------------ Service functions ----------------------- //
 
     /**
@@ -341,15 +355,5 @@ contract CashierShard is CashierShardStorage, OwnableUpgradeable, UUPSUpgradeabl
      */
     function upgradeTo(address newImplementation) external {
         upgradeToAndCall(newImplementation, "");
-    }
-
-    /**
-     * @dev Validates the provided shard.
-     * @param shard The cashier shard contract address.
-     */
-    function _validateShardContract(address shard) internal pure {
-        try ICashierShard(shard).isCashierShard() {} catch {
-            revert CashierShard_ContractNotShard();
-        }
     }
 }
