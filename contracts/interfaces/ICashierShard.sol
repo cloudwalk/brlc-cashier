@@ -10,19 +10,18 @@ import { ICashierTypes } from "./ICashierTypes.sol";
  * @dev Defines the custom errors used in the cashier shard contract.
  */
 interface ICashierShardErrors {
-    /// @dev Thrown if the provided shard address is zero.
-    error CashierShard_ShardAddressZero();
+    /// @dev Thrown if the contract is not a cashier shard contract.
+    error CashierShard_ContractNotShard();
 
     /// @dev Thrown if the provided shard address is not a contract.
     error CashierShard_ShardAddressNotContract();
 
-    /// @dev Thrown if the contract is not a cashier shard contract.
-    error CashierShard_ContractNotShard();
+    /// @dev Thrown if the provided shard address is zero.
+    error CashierShard_ShardAddressZero();
 
     /// @dev Thrown if the caller is not an admin.
     error CashierShard_Unauthorized();
 }
-
 /**
  * @title ICashierShardPrimary interface
  * @author CloudWalk Inc. (See https://www.cloudwalk.io)
@@ -221,3 +220,4 @@ interface ICashierShard is
     ICashierShardPrimary,
     ICashierShardConfiguration
 {}
+
