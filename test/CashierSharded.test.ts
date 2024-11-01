@@ -4,7 +4,6 @@ import { Contract, ContractFactory, TransactionResponse } from "ethers";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { checkContractUupsUpgrading, connect, getAddress, proveTx } from "../test-utils/eth";
-import packageJson from "../package.json";
 
 const ADDRESS_ZERO = ethers.ZeroAddress;
 
