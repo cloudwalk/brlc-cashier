@@ -3,11 +3,11 @@
 pragma solidity 0.8.24;
 
 /**
- * @title Version contract
+ * @title Versionable contract
  * @author CloudWalk Inc. (See https://cloudwalk.io)
  * @dev Defines the contract version.
  */
-abstract contract AbstractVersion {
+abstract contract Versionable {
     /**
      * @dev The struct for contract version.
      */
@@ -22,7 +22,7 @@ abstract contract AbstractVersion {
     /**
      * @dev Returns the version of the contract.
      */
-    function $VERSION() external pure returns (Version memory) {
+    function $__VERSION() external pure returns (Version memory) {
         return Version(4, 3, 0);
     }
 }

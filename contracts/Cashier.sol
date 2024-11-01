@@ -21,7 +21,7 @@ import { ICashierHookable } from "./interfaces/ICashierHookable.sol";
 import { IERC20Mintable } from "./interfaces/IERC20Mintable.sol";
 
 import { CashierStorage } from "./CashierStorage.sol";
-import { AbstractVersion } from "./AbstractVersion.sol";
+import { Versionable } from "./base/Versionable.sol";
 
 /**
  * @title Cashier contract
@@ -36,7 +36,7 @@ contract Cashier is
     UUPSUpgradeable,
     ICashier,
     ICashierHookable,
-    AbstractVersion
+Versionable
 {
     using SafeERC20 for IERC20;
     using EnumerableSet for EnumerableSet.Bytes32Set;
