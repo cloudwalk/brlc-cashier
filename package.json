@@ -1,7 +1,4 @@
 {
-  "name": "brlc-cashier",
-  "version": "1.0.0",
-  "author": "CloudWalk Inc.",
   "dependencies": {
     "@openzeppelin/contracts-upgradeable": "5.0.2"
   },

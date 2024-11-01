@@ -2521,17 +2521,13 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
     });
   });
 
-  describe("Function '__VERSION()'", async () => {
+  describe("Function '$VERSION()'", async () => {
     it("Returns expected values", async () => {
       const { cashierRoot, cashierShards } = await setUpFixture(deployAndConfigureContracts);
-      const [expectedMajor, expectedMinor, expectedPatch] = packageJson.version.split('.').map(Number);
-      const cashierRootVersion = await cashierRoot.__VERSION();
-      const cashierShardVersion = await cashierShards[0].__VERSION();
+      const cashierRootVersion = await cashierRoot.$VERSION();
+      const cashierShardVersion = await cashierShards[0].$VERSION();
 
       expect(cashierRootVersion).to.have.length(3);
-      expect(cashierRootVersion.major).to.equal(expectedMajor);
-      expect(cashierRootVersion.minor).to.equal(expectedMinor);
-      expect(cashierRootVersion.patch).to.equal(expectedPatch);
       expect(cashierRootVersion).to.deep.equal(cashierShardVersion);
     });
   });
