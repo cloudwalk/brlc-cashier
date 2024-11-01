@@ -59,11 +59,11 @@ contract Cashier is
     /// @dev The mask of all bit flags that are used for the cash-out operations.
     uint256 private constant ALL_CASH_OUT_HOOK_FLAGS =
         (1 << uint256(HookIndex.CashOutRequestBefore)) +
-        (1 << uint256(HookIndex.CashOutRequestAfter)) +
-        (1 << uint256(HookIndex.CashOutConfirmationBefore)) +
-        (1 << uint256(HookIndex.CashOutConfirmationAfter)) +
-        (1 << uint256(HookIndex.CashOutReversalBefore)) +
-        (1 << uint256(HookIndex.CashOutReversalAfter));
+            (1 << uint256(HookIndex.CashOutRequestAfter)) +
+            (1 << uint256(HookIndex.CashOutConfirmationBefore)) +
+            (1 << uint256(HookIndex.CashOutConfirmationAfter)) +
+            (1 << uint256(HookIndex.CashOutReversalBefore)) +
+            (1 << uint256(HookIndex.CashOutReversalAfter));
 
     // ------------------ Initializers ---------------------------- //
 
@@ -377,7 +377,7 @@ contract Cashier is
      * - If the cash-out operation has the `Reversed` status its `account` field must equal the `account` argument.
      */
     function forceCashOut(
-        address account,
+        address account, // Tools: This comment prevents Prettier from formatting into a single line.
         uint256 amount,
         bytes32 txId
     ) external whenNotPaused onlyRole(CASHIER_ROLE) {

@@ -187,7 +187,7 @@ interface ICashierPrimary is ICashierTypes {
      * @param amount The amount of tokens to cash-out.
      */
     event ForcedCashOut(
-        address indexed account,
+        address indexed account, // Tools: This comment prevents Prettier from formatting into a single line.
         bytes32 indexed txId,
         uint256 amount
     );
@@ -339,7 +339,7 @@ interface ICashierPrimary is ICashierTypes {
      * @param txId The off-chain transaction identifier of the related operation.
      */
     function forceCashOut(
-        address account,
+        address account, // Tools: This comment prevents Prettier from formatting into a single line.
         uint256 amount,
         bytes32 txId
     ) external;

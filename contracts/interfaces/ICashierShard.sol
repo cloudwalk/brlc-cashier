@@ -220,4 +220,3 @@ interface ICashierShard is
     ICashierShardPrimary,
     ICashierShardConfiguration
 {}
-
