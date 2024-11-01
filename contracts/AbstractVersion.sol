@@ -23,6 +23,6 @@ abstract contract AbstractVersion {
      * @dev Returns the version of the contract.
      */
     function $VERSION() external pure returns (Version memory) {
-        return Version(1, 0, 0);
+        return Version(4, 3, 0);
     }
 }
