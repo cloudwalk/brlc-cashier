@@ -208,6 +208,12 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
     (1 << HookIndex.CashOutReversalBefore) +
     (1 << HookIndex.CashOutReversalAfter);
 
+  const EXPECTED_VERSION: Version = {
+    major: 4,
+    minor: 3,
+    patch: 0
+  };
+
   // Errors of the lib contracts
   const REVERT_ERROR_IF_CONTRACT_INITIALIZATION_IS_INVALID = "InvalidInitialization";
   const REVERT_ERROR_IF_CONTRACT_IS_PAUSED = "EnforcedPause";
@@ -2528,18 +2534,13 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
     });
   });
 
-  describe("Function '$VERSION()'", async () => {
+  describe("Function '$__VERSION()'", async () => {
     it("Returns expected values", async () => {
       const { cashierRoot, cashierShards } = await setUpFixture(deployAndConfigureContracts);
-      const cashierRootVersion = await cashierRoot.$VERSION();
-      const cashierShardVersion = await cashierShards[0].$VERSION();
-      const expectedVersion: Version = {
-        major: 4,
-        minor: 3,
-        patch: 0
-      };
-      checkEquality(cashierRootVersion, expectedVersion);
-      checkEquality(cashierShardVersion, expectedVersion);
+      const cashierRootVersion = await cashierRoot.$__VERSION();
+      const cashierShardVersion = await cashierShards[0].$__VERSION();
+      checkEquality(cashierRootVersion, EXPECTED_VERSION);
+      checkEquality(cashierShardVersion, EXPECTED_VERSION);
     });
   });
 
