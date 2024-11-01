@@ -755,9 +755,13 @@ contract Cashier is
      * @dev Validates the provided shard.
      * @param shard The cashier shard contract address.
      */
-    function _validateShardContract(address shard) internal pure {
+    function _validateShardContract(address shard) internal view {
         if (shard == address(0)) {
             revert Cashier_ShardAddressZero();
+        }
+
+        if (shard.code.length == 0) {
+            revert Cashier_ShardAddressNotContract();
         }
 
         try ICashierShard(shard).isCashierShard() {} catch {
@@ -769,9 +773,13 @@ contract Cashier is
      * @dev Validates the provided root.
      * @param root The cashier root contract address.
      */
-    function _validateRootContract(address root) internal pure {
+    function _validateRootContract(address root) internal view {
         if (root == address(0)) {
             revert Cashier_RootAddressZero();
+        }
+
+        if (root.code.length == 0) {
+            revert Cashier_RootAddressNotContract();
         }
 
         try ICashier(root).isCashierRoot() {} catch {

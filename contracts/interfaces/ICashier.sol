@@ -49,11 +49,17 @@ interface ICashierErrors {
     /// @dev Thrown if the provided root address is zero.
     error Cashier_RootAddressZero();
 
+    /// @dev Thrown if the provided root address is not a contract.
+    error Cashier_RootAddressNotContract();
+
     /// @dev Thrown if the contract is not a cashier root contract.
     error Cashier_ContractNotRoot();
 
     /// @dev Thrown if the provided shard address is zero.
     error Cashier_ShardAddressZero();
+
+    /// @dev Thrown if the provided shard address is not a contract.
+    error Cashier_ShardAddressNotContract();
 
     /// @dev Thrown if the contract is not a cashier shard contract.
     error Cashier_ContractNotShard();
