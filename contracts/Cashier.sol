@@ -36,7 +36,7 @@ contract Cashier is
     UUPSUpgradeable,
     ICashier,
     ICashierHookable,
-Versionable
+    Versionable
 {
     using SafeERC20 for IERC20;
     using EnumerableSet for EnumerableSet.Bytes32Set;
