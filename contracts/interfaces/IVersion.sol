@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 /**
  * @title IVersion interface
  * @author CloudWalk Inc. (See https://cloudwalk.io)
- * @dev Defines the contract vesion.
+ * @dev Defines the contract version.
  */
 interface IVersion {
     /**
