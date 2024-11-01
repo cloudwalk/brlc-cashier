@@ -72,6 +72,14 @@ interface HookConfig {
   [key: string]: number | string; // Indexing signature to ensure that fields are iterated over in a key-value style
 }
 
+interface Version {
+  major: number;
+  minor: number;
+  patch: number;
+
+  [key: string]: number; // Indexing signature to ensure that fields are iterated over in a key-value style
+}
+
 function checkCashOutEquality(
   actualOnChainCashOut: Record<string, unknown>,
   expectedCashOut: TestCashOut,
@@ -2526,9 +2534,13 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       const { cashierRoot, cashierShards } = await setUpFixture(deployAndConfigureContracts);
       const cashierRootVersion = await cashierRoot.$VERSION();
       const cashierShardVersion = await cashierShards[0].$VERSION();
-
-      expect(cashierRootVersion).to.have.length(3);
-      expect(cashierRootVersion).to.deep.equal(cashierShardVersion);
+      const expectedVersion: Version = {
+        major: 4,
+        minor: 3,
+        patch: 0
+      };
+      checkEquality(cashierRootVersion, expectedVersion);
+      checkEquality(cashierShardVersion, expectedVersion);
     });
   });
 
