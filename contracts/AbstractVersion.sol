@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity 0.8.24;
 
 /**
- * @title IVersion interface
+ * @title Version contract
  * @author CloudWalk Inc. (See https://cloudwalk.io)
  * @dev Defines the contract version.
  */
-interface IVersion {
+abstract contract AbstractVersion {
     /**
      * @dev The struct for contract version.
      */
@@ -17,8 +17,12 @@ interface IVersion {
         uint16 patch; // -- The patch version of contract
     }
 
+    // ------------------ Pure functions -------------------------- //
+
     /**
      * @dev Returns the version of the contract.
      */
-    function __VERSION() external pure returns (Version memory);
+    function $VERSION() external pure returns (Version memory) {
+        return Version(1, 0, 0);
+    }
 }
