@@ -21,7 +21,7 @@ import { ICashierHookable } from "./interfaces/ICashierHookable.sol";
 import { IERC20Mintable } from "./interfaces/IERC20Mintable.sol";
 
 import { CashierStorage } from "./CashierStorage.sol";
-import { Versionable } from "./base/Versionable.sol";
+import { Versionable } from "./Versionable.sol";
 
 /**
  * @title Cashier contract
