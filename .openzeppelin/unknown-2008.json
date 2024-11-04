@@ -4,22 +4,26 @@
     {
       "address": "0x6ac607aBA84f672C092838a5c32c22907765F666",
       "txHash": "0xeb33c4ff5684af5d93b6400c69599a2bfea8f70b3069ecd20e61e501ed671eda",
-      "kind": "uups"
+      "kind": "uups",
+      "cw_tag": "cashier_root_brlc"
     },
     {
       "address": "0x038501B9a2aA059Eb2FA17DC79A9454d6c18dF75",
       "txHash": "0xb69f17a18f3c24c9a171bd1b8200bfe09f1b99733d097f990b6838c542497120",
-      "kind": "uups"
+      "kind": "uups",
+      "cw_tag": "cashier_root_brlc_receivables"
     },
     {
       "address": "0x27868AA4b98Eda8e1C13A294e36606d01Bba6332",
       "txHash": "0x5a19ab1b70f8ba7041253511c1a713d5350a6d2f9d9ba68aab2bce72bea43206",
-      "kind": "uups"
+      "kind": "uups",
+      "cw_tag": "cashier_root_brlc_ted"
     },
     {
       "address": "0x3c7c6DA9439B3E410B89cB02Ce6BD315cCe622d5",
       "txHash": "0x1ef4fd47af8bf86b875f723fb0ed88ae7bc52d0454b87dde036054b019a89f1c",
-      "kind": "uups"
+      "kind": "uups",
+      "cw_tag": "cashier_root_usjim"
     },
     {
       "address": "0x01A71b493528a7b0e19Cf61Ef406E98f203857b2",
