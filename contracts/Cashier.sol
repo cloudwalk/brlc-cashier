@@ -377,7 +377,7 @@ contract Cashier is
      * - If the cash-out operation has the `Reversed` status its `account` field must equal the `account` argument.
      */
     function forceCashOut(
-        address account,
+        address account, // Tools: This comment prevents Prettier from formatting into a single line.
         uint256 amount,
         bytes32 txId
     ) external whenNotPaused onlyRole(CASHIER_ROLE) {
@@ -417,6 +417,7 @@ contract Cashier is
 
         uint256 count = shards.length;
         for (uint256 i; i < count; i++) {
+            _validateShardContract(shards[i]);
             _shards.push(ICashierShard(shards[i]));
             emit ShardAdded(shards[i]);
         }
@@ -445,6 +446,7 @@ contract Cashier is
             uint256 k = fromIndex + i;
             address oldShard = address(_shards[k]);
             address newShard = shards[i];
+            _validateShardContract(newShard);
             _shards[k] = ICashierShard(newShard);
             emit ShardReplaced(newShard, oldShard);
         }
@@ -633,6 +635,13 @@ contract Cashier is
         return _cashOutHookConfigs[txId];
     }
 
+    // ------------------ Pure functions -------------------------- //
+
+    /**
+     * @inheritdoc ICashierPrimary
+     */
+    function proveCashierRoot() external pure {}
+
     // ------------------ Internal functions ---------------------- //
 
     /**
@@ -743,6 +752,42 @@ contract Cashier is
     }
 
     /**
+     * @dev Validates the provided shard.
+     * @param shard The cashier shard contract address.
+     */
+    function _validateShardContract(address shard) internal view {
+        if (shard == address(0)) {
+            revert Cashier_ShardAddressZero();
+        }
+
+        if (shard.code.length == 0) {
+            revert Cashier_ShardAddressNotContract();
+        }
+
+        try ICashierShard(shard).proveCashierShard() {} catch {
+            revert Cashier_ContractNotShard();
+        }
+    }
+
+    /**
+     * @dev Validates the provided root.
+     * @param root The cashier root contract address.
+     */
+    function _validateRootContract(address root) internal view {
+        if (root == address(0)) {
+            revert Cashier_RootAddressZero();
+        }
+
+        if (root.code.length == 0) {
+            revert Cashier_RootAddressNotContract();
+        }
+
+        try ICashier(root).proveCashierRoot() {} catch {
+            revert Cashier_ContractNotRoot();
+        }
+    }
+
+    /**
      * @dev Checks the error code returned by the shard contract and reverts with the appropriate error message.
      * @param err The error code returned by the shard contract.
      */
@@ -838,6 +883,7 @@ contract Cashier is
      * @param newImplementation The address of the new implementation.
      */
     function _authorizeUpgrade(address newImplementation) internal view override onlyRole(OWNER_ROLE) {
+        _validateRootContract(newImplementation);
         newImplementation; // Suppresses a compiler warning about the unused variable.
     }
 
@@ -856,10 +902,6 @@ contract Cashier is
      * @param newImplementation The address of the new shard implementation.
      */
     function upgradeShardsTo(address newImplementation) external onlyRole(OWNER_ROLE) {
-        if (newImplementation == address(0)) {
-            revert Cashier_ShardAddressZero();
-        }
-
         for (uint256 i = 0; i < _shards.length; i++) {
             _shards[i].upgradeTo(newImplementation);
         }
@@ -871,15 +913,7 @@ contract Cashier is
      * @param newShardImplementation The address of the new shard implementation.
      */
     function upgradeRootAndShardsTo(address newRootImplementation, address newShardImplementation) external {
-        if (newRootImplementation == address(0)) {
-            revert Cashier_RootAddressZero();
-        }
-        if (newShardImplementation == address(0)) {
-            revert Cashier_ShardAddressZero();
-        }
-
         upgradeToAndCall(newRootImplementation, "");
-
         for (uint256 i = 0; i < _shards.length; i++) {
             _shards[i].upgradeTo(newShardImplementation);
         }

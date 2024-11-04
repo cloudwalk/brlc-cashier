@@ -281,6 +281,13 @@ contract CashierShard is CashierShardStorage, OwnableUpgradeable, UUPSUpgradeabl
         return cashOutOperations;
     }
 
+    // ------------------ Pure functions -------------------------- //
+
+    /**
+     * @inheritdoc ICashierShardPrimary
+     */
+    function proveCashierShard() external pure {}
+
     // ------------------ Internal functions ---------------------- //
 
     /**
@@ -322,7 +329,26 @@ contract CashierShard is CashierShardStorage, OwnableUpgradeable, UUPSUpgradeabl
      * @param newImplementation The address of the new implementation.
      */
     function _authorizeUpgrade(address newImplementation) internal view override onlyOwnerOrAdmin {
+        _validateShardContract(newImplementation);
         newImplementation; // Suppresses a compiler warning about the unused variable.
+    }
+
+    /**
+     * @dev Validates the provided shard.
+     * @param shard The cashier shard contract address.
+     */
+    function _validateShardContract(address shard) internal view {
+        if (shard == address(0)) {
+            revert CashierShard_ShardAddressZero();
+        }
+
+        if (shard.code.length == 0) {
+            revert CashierShard_ShardAddressNotContract();
+        }
+
+        try ICashierShard(shard).proveCashierShard() {} catch {
+            revert CashierShard_ContractNotShard();
+        }
     }
 
     // ------------------ Service functions ----------------------- //

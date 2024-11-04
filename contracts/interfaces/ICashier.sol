@@ -19,18 +19,6 @@ interface ICashierErrors {
     /// @dev Thrown if the provided amount is zero.
     error Cashier_AmountZero();
 
-    /// @dev The same hook flags for an operation are already configured.
-    error Cashier_HookFlagsAlreadyRegistered();
-
-    /// @dev The provided bit flags to configure the hook logic are invalid.
-    error Cashier_HookFlagsInvalid();
-
-    /// @dev The provided address of the callable contract with the hook function is non-zero but must be.
-    error Cashier_HookCallableContractAddressNonZero();
-
-    /// @dev The provided address of the callable contract with the hook function is zero but must not be.
-    error Cashier_HookCallableContractAddressZero();
-
     /// @dev Thrown if the cash-in operation with the provided txId is already executed.
     error Cashier_CashInAlreadyExecuted();
 
@@ -43,11 +31,35 @@ interface ICashierErrors {
     /// @dev Thrown if the cash-out operation with the provided txId has an inappropriate status.
     error Cashier_CashOutStatusInappropriate();
 
+    /// @dev Thrown if the contract is not a cashier root contract.
+    error Cashier_ContractNotRoot();
+
+    /// @dev Thrown if the contract is not a cashier shard contract.
+    error Cashier_ContractNotShard();
+
+    /// @dev The provided address of the callable contract with the hook function is non-zero but must be.
+    error Cashier_HookCallableContractAddressNonZero();
+
+    /// @dev The provided address of the callable contract with the hook function is zero but must not be.
+    error Cashier_HookCallableContractAddressZero();
+
+    /// @dev The same hook flags for an operation are already configured.
+    error Cashier_HookFlagsAlreadyRegistered();
+
+    /// @dev The provided bit flags to configure the hook logic are invalid.
+    error Cashier_HookFlagsInvalid();
+
     /// @dev Thrown if the provided release time for the premint operation is inappropriate.
     error Cashier_PremintReleaseTimeInappropriate();
 
+    /// @dev Thrown if the provided root address is not a contract.
+    error Cashier_RootAddressNotContract();
+
     /// @dev Thrown if the provided root address is zero.
     error Cashier_RootAddressZero();
+
+    /// @dev Thrown if the provided shard address is not a contract.
+    error Cashier_ShardAddressNotContract();
 
     /// @dev Thrown if the provided shard address is zero.
     error Cashier_ShardAddressZero();
@@ -175,7 +187,7 @@ interface ICashierPrimary is ICashierTypes {
      * @param amount The amount of tokens to cash-out.
      */
     event ForcedCashOut(
-        address indexed account,
+        address indexed account, // Tools: This comment prevents Prettier from formatting into a single line.
         bytes32 indexed txId,
         uint256 amount
     );
@@ -327,7 +339,7 @@ interface ICashierPrimary is ICashierTypes {
      * @param txId The off-chain transaction identifier of the related operation.
      */
     function forceCashOut(
-        address account,
+        address account, // Tools: This comment prevents Prettier from formatting into a single line.
         uint256 amount,
         bytes32 txId
     ) external;
@@ -395,6 +407,11 @@ interface ICashierPrimary is ICashierTypes {
      * @dev Returns the address of the underlying token.
      */
     function underlyingToken() external view returns (address);
+
+    /**
+     * @dev Proves that the contract is the cashier root contract.
+     */
+    function proveCashierRoot() external pure;
 }
 
 /**
