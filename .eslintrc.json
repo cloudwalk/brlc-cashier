@@ -26,7 +26,7 @@
     "@stylistic/function-paren-newline": ["warn", "multiline-arguments"],
     "@stylistic/indent": ["warn", 2],
     "@stylistic/indent-binary-ops": ["warn", 2],
-    "@stylistic/linebreak-style": ["warn", "unix"],
+    "@stylistic/linebreak-style": "off",
     "@stylistic/lines-around-comment": ["warn", {"beforeBlockComment": false}],
     "@stylistic/max-len": ["warn", {"code": 120, "tabWidth": 2}],
     "@stylistic/member-delimiter-style": [

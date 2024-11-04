@@ -9,13 +9,14 @@ import { ICashierShard } from "./interfaces/ICashierShard.sol";
 import { ICashierShardPrimary } from "./interfaces/ICashierShard.sol";
 import { ICashierShardConfiguration } from "./interfaces/ICashierShard.sol";
 import { CashierShardStorage } from "./CashierShardStorage.sol";
+import { Versionable } from "./Versionable.sol";
 
 /**
  * @title CashierShard contract
  * @author CloudWalk Inc. (See https://www.cloudwalk.io)
  * @dev The contract responsible for storing sharded cash-in and cash-out operations.
  */
-contract CashierShard is CashierShardStorage, OwnableUpgradeable, UUPSUpgradeable, ICashierShard {
+contract CashierShard is CashierShardStorage, OwnableUpgradeable, UUPSUpgradeable, ICashierShard, Versionable {
     // ------------------ Initializers ---------------------------- //
 
     /**

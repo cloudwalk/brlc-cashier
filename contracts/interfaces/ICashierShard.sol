@@ -22,6 +22,7 @@ interface ICashierShardErrors {
     /// @dev Thrown if the caller is not an admin.
     error CashierShard_Unauthorized();
 }
+
 /**
  * @title ICashierShardPrimary interface
  * @author CloudWalk Inc. (See https://www.cloudwalk.io)
@@ -219,4 +220,6 @@ interface ICashierShard is
     ICashierShardErrors, // Tools: this comment prevents Prettier from formatting into a single line.
     ICashierShardPrimary,
     ICashierShardConfiguration
-{}
+{
+
+}

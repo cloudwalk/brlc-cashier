@@ -71,6 +71,14 @@ interface HookConfig {
   [key: string]: number | string; // Indexing signature to ensure that fields are iterated over in a key-value style
 }
 
+interface Version {
+  major: number;
+  minor: number;
+  patch: number;
+
+  [key: string]: number; // Indexing signature to ensure that fields are iterated over in a key-value style
+}
+
 function checkCashOutEquality(
   actualOnChainCashOut: Record<string, unknown>,
   expectedCashOut: TestCashOut,
@@ -199,6 +207,12 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
     (1 << HookIndex.CashOutConfirmationAfter) +
     (1 << HookIndex.CashOutReversalBefore) +
     (1 << HookIndex.CashOutReversalAfter);
+
+  const EXPECTED_VERSION: Version = {
+    major: 4,
+    minor: 0,
+    patch: 0
+  };
 
   // Errors of the lib contracts
   const REVERT_ERROR_IF_CONTRACT_INITIALIZATION_IS_INVALID = "InvalidInitialization";
@@ -2517,6 +2531,16 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
     it("Executes as expected", async () => {
       const { cashierShards } = await setUpFixture(deployAndConfigureContracts);
       await expect(cashierShards[0].proveCashierShard()).to.not.be.reverted;
+    });
+  });
+
+  describe("Function '$__VERSION()'", async () => {
+    it("Returns expected values", async () => {
+      const { cashierRoot, cashierShards } = await setUpFixture(deployAndConfigureContracts);
+      const cashierRootVersion = await cashierRoot.$__VERSION();
+      const cashierShardVersion = await cashierShards[0].$__VERSION();
+      checkEquality(cashierRootVersion, EXPECTED_VERSION);
+      checkEquality(cashierShardVersion, EXPECTED_VERSION);
     });
   });
 

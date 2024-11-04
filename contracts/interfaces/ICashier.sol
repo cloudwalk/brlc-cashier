@@ -492,4 +492,6 @@ interface ICashier is
     ICashierErrors, // Tools: this comment prevents Prettier from formatting into a single line.
     ICashierPrimary,
     ICashierConfiguration
-{}
+{
+
+}
