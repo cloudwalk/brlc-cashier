@@ -289,13 +289,6 @@ contract CashierShard is CashierShardStorage, OwnableUpgradeable, UUPSUpgradeabl
      */
     function proveCashierShard() external pure {}
 
-    /**
-     * @inheritdoc AbstractVersion
-     */
-    function __VERSION() external pure returns (Version memory) {
-        return Version(1, 0, 0);
-    }
-
     // ------------------ Internal functions ---------------------- //
 
     /**
