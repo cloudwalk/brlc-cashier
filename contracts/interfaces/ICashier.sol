@@ -409,9 +409,9 @@ interface ICashierPrimary is ICashierTypes {
     function underlyingToken() external view returns (address);
 
     /**
-     * @dev Determines whether the contract is the cashier root contract.
+     * @dev Proves that the contract is the cashier root contract.
      */
-    function isCashierRoot() external pure;
+    function proveCashierRoot() external pure;
 }
 
 /**

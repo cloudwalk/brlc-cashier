@@ -640,7 +640,7 @@ contract Cashier is
     /**
      * @inheritdoc ICashierPrimary
      */
-    function isCashierRoot() external pure {}
+    function proveCashierRoot() external pure {}
 
     // ------------------ Internal functions ---------------------- //
 
@@ -764,7 +764,7 @@ contract Cashier is
             revert Cashier_ShardAddressNotContract();
         }
 
-        try ICashierShard(shard).isCashierShard() {} catch {
+        try ICashierShard(shard).proveCashierShard() {} catch {
             revert Cashier_ContractNotShard();
         }
     }
@@ -782,7 +782,7 @@ contract Cashier is
             revert Cashier_RootAddressNotContract();
         }
 
-        try ICashier(root).isCashierRoot() {} catch {
+        try ICashier(root).proveCashierRoot() {} catch {
             revert Cashier_ContractNotRoot();
         }
     }

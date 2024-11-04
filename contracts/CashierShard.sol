@@ -286,7 +286,7 @@ contract CashierShard is CashierShardStorage, OwnableUpgradeable, UUPSUpgradeabl
     /**
      * @inheritdoc ICashierShardPrimary
      */
-    function isCashierShard() external pure {}
+    function proveCashierShard() external pure {}
 
     // ------------------ Internal functions ---------------------- //
 
@@ -346,7 +346,7 @@ contract CashierShard is CashierShardStorage, OwnableUpgradeable, UUPSUpgradeabl
             revert CashierShard_ShardAddressNotContract();
         }
 
-        try ICashierShard(shard).isCashierShard() {} catch {
+        try ICashierShard(shard).proveCashierShard() {} catch {
             revert CashierShard_ContractNotShard();
         }
     }

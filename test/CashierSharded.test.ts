@@ -2506,17 +2506,17 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
     });
   });
 
-  describe("Function 'isCashierRoot()'", async () => {
+  describe("Function 'proveCashierRoot()'", async () => {
     it("Executes as expected", async () => {
       const { cashierRoot } = await setUpFixture(deployAndConfigureContracts);
-      await expect(cashierRoot.isCashierRoot()).to.not.be.reverted;
+      await expect(cashierRoot.proveCashierRoot()).to.not.be.reverted;
     });
   });
 
-  describe("Function 'isCashierShard()'", async () => {
+  describe("Function 'proveCashierShard()'", async () => {
     it("Executes as expected", async () => {
       const { cashierShards } = await setUpFixture(deployAndConfigureContracts);
-      await expect(cashierShards[0].isCashierShard()).to.not.be.reverted;
+      await expect(cashierShards[0].proveCashierShard()).to.not.be.reverted;
     });
   });
 

@@ -37,5 +37,5 @@ contract CashierShardMock is ICashierTypes {
     /**
      * @dev Simulates real CashierShard contract.
      */
-    function isCashierShard() external pure {}
+    function proveCashierShard() external pure {}
 }
