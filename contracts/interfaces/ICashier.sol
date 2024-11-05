@@ -52,12 +52,6 @@ interface ICashierErrors {
     /// @dev Thrown if the provided release time for the premint operation is inappropriate.
     error Cashier_PremintReleaseTimeInappropriate();
 
-    /// @dev Thrown if the provided root address is not a contract.
-    error Cashier_RootAddressNotContract();
-
-    /// @dev Thrown if the provided root address is zero.
-    error Cashier_RootAddressZero();
-
     /// @dev Thrown if the provided shard address is not a contract.
     error Cashier_ShardAddressNotContract();
 

@@ -339,15 +339,7 @@ contract CashierShard is CashierShardStorage, OwnableUpgradeable, UUPSExtUpgrade
      * @dev Validates the provided shard.
      * @param shard The cashier shard contract address.
      */
-    function _validateShardContract(address shard) internal view {
-        if (shard == address(0)) {
-            revert CashierShard_ShardAddressZero();
-        }
-
-        if (shard.code.length == 0) {
-            revert CashierShard_ShardAddressNotContract();
-        }
-
+    function _validateShardContract(address shard) internal pure {
         try ICashierShard(shard).proveCashierShard() {} catch {
             revert CashierShard_ContractNotShard();
         }

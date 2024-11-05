@@ -776,15 +776,7 @@ contract Cashier is
      * @dev Validates the provided root.
      * @param root The cashier root contract address.
      */
-    function _validateRootContract(address root) internal view {
-        if (root == address(0)) {
-            revert Cashier_RootAddressZero();
-        }
-
-        if (root.code.length == 0) {
-            revert Cashier_RootAddressNotContract();
-        }
-
+    function _validateRootContract(address root) internal pure {
         try ICashier(root).proveCashierRoot() {} catch {
             revert Cashier_ContractNotRoot();
         }

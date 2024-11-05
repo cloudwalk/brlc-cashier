@@ -13,12 +13,6 @@ interface ICashierShardErrors {
     /// @dev Thrown if the contract is not a cashier shard contract.
     error CashierShard_ContractNotShard();
 
-    /// @dev Thrown if the provided shard address is not a contract.
-    error CashierShard_ShardAddressNotContract();
-
-    /// @dev Thrown if the provided shard address is zero.
-    error CashierShard_ShardAddressZero();
-
     /// @dev Thrown if the caller is not an admin.
     error CashierShard_Unauthorized();
 }
