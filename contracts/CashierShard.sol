@@ -4,6 +4,7 @@ pragma solidity 0.8.24;
 
 import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import { UUPSExtUpgradeable } from "./base/UUPSExtUpgradeable.sol";
 
 import { ICashierShard } from "./interfaces/ICashierShard.sol";
 import { ICashierShardPrimary } from "./interfaces/ICashierShard.sol";
@@ -16,7 +17,7 @@ import { Versionable } from "./base/Versionable.sol";
  * @author CloudWalk Inc. (See https://www.cloudwalk.io)
  * @dev The contract responsible for storing sharded cash-in and cash-out operations.
  */
-contract CashierShard is CashierShardStorage, OwnableUpgradeable, UUPSUpgradeable, ICashierShard, Versionable {
+contract CashierShard is CashierShardStorage, OwnableUpgradeable, UUPSExtUpgradeable, ICashierShard, Versionable {
     // ------------------ Initializers ---------------------------- //
 
     /**
@@ -329,7 +330,7 @@ contract CashierShard is CashierShardStorage, OwnableUpgradeable, UUPSUpgradeabl
      * @dev The upgrade authorization function for UUPSProxy.
      * @param newImplementation The address of the new implementation.
      */
-    function _authorizeUpgrade(address newImplementation) internal view override onlyOwnerOrAdmin {
+    function _validateUpgrade(address newImplementation) internal view override onlyOwnerOrAdmin {
         _validateShardContract(newImplementation);
         newImplementation; // Suppresses a compiler warning about the unused variable.
     }

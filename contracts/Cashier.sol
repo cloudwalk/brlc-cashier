@@ -10,6 +10,7 @@ import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils
 import { AccessControlExtUpgradeable } from "./base/AccessControlExtUpgradeable.sol";
 import { PausableExtUpgradeable } from "./base/PausableExtUpgradeable.sol";
 import { RescuableUpgradeable } from "./base/RescuableUpgradeable.sol";
+import { UUPSExtUpgradeable } from "./base/UUPSExtUpgradeable.sol";
 
 import { ICashier } from "./interfaces/ICashier.sol";
 import { ICashierPrimary } from "./interfaces/ICashier.sol";
@@ -33,7 +34,7 @@ contract Cashier is
     AccessControlExtUpgradeable,
     PausableExtUpgradeable,
     RescuableUpgradeable,
-    UUPSUpgradeable,
+    UUPSExtUpgradeable,
     ICashier,
     ICashierHookable,
     Versionable
@@ -884,7 +885,7 @@ contract Cashier is
      * @dev The upgrade authorization function for UUPSProxy.
      * @param newImplementation The address of the new implementation.
      */
-    function _authorizeUpgrade(address newImplementation) internal view override onlyRole(OWNER_ROLE) {
+    function _validateUpgrade(address newImplementation) internal view override onlyRole(OWNER_ROLE) {
         _validateRootContract(newImplementation);
         newImplementation; // Suppresses a compiler warning about the unused variable.
     }
