@@ -1,9 +1,9 @@
 import { ethers, upgrades } from "hardhat";
 
 async function main() {
-  const CONTRACT_NAME: string = ""; // TBD: Enter contract name
-  const ROOT_ADDRESS: string = ""; // TBD: Enter token contract address
-  const SHARD_COUNTER: number = 0; // TBD Enter the shard counter
+  const CONTRACT_NAME: string = ""; // TODO: Enter contract name
+  const ROOT_ADDRESS: string = ""; // TODO: Enter token contract address
+  const SHARD_COUNTER: number = 0; // TODO Enter the shard counter
 
   const factory = await ethers.getContractFactory(CONTRACT_NAME);
 
