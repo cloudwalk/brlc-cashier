@@ -11,7 +11,7 @@ import { ICashierTypes } from "./ICashierTypes.sol";
  */
 interface ICashierShardErrors {
     /// @dev Thrown if the contract is not a cashier shard contract.
-    error CashierShard_ContractNotShard();
+    error CashierShard_ImplementationAddressInvalid();
 
     /// @dev Thrown if the caller is not an admin.
     error CashierShard_Unauthorized();

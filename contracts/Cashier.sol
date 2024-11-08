@@ -778,7 +778,7 @@ contract Cashier is
      */
     function _validateRootContract(address root) internal pure {
         try ICashier(root).proveCashierRoot() {} catch {
-            revert Cashier_ContractNotRoot();
+            revert Cashier_ImplementationAddressInvalid();
         }
     }
 
