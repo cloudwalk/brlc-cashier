@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.20;
 
-import { UUPSExtUpgradeable } from "../base/UUPSExtUpgradeable.sol";
+import { UUPSExtUpgradeable } from "../../base/UUPSExtUpgradeable.sol";
 
 /**
  * @title UUPSExtUpgradableMock contract
