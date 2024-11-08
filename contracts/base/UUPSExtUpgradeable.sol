@@ -8,7 +8,7 @@ import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils
  * @title UUPSExtUpgradeable base contract
  * @author CloudWalk Inc. (See https://www.cloudwalk.io)
  * @dev Extends the OpenZeppelin's {UUPSUpgradeable} contract by adding additional checks for
- * new the implementation address.
+ * the new implementation address.
  *
  * This contract is used through inheritance. It introduces the virtual `_validateUpgrade()` function that must be
  * implemented in the parent contract.
