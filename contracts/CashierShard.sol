@@ -9,7 +9,7 @@ import { ICashierShard } from "./interfaces/ICashierShard.sol";
 import { ICashierShardPrimary } from "./interfaces/ICashierShard.sol";
 import { ICashierShardConfiguration } from "./interfaces/ICashierShard.sol";
 import { CashierShardStorage } from "./CashierShardStorage.sol";
-import { Versionable } from "./Versionable.sol";
+import { Versionable } from "./base/Versionable.sol";
 
 /**
  * @title CashierShard contract
