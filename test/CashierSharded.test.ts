@@ -1003,7 +1003,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
     });
 
     it("Is reverted if the provided shard address is not a contract", async () => {
-      const { cashierRoot} = await setUpFixture(deployContracts);
+      const { cashierRoot } = await setUpFixture(deployContracts);
       await expect(
         cashierRoot.addShards([user.address])
       ).to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_SHARD_ADDRESS_IS_NOT_CONTRACT_ON_ROOT);
