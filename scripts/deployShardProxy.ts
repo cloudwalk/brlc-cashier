@@ -17,7 +17,7 @@ async function main() {
     await proxy.waitForDeployment();
 
     const numString = (i + 1).toString().padStart(3, "0");
-    console.log(`Shard proxy number ${numString} deployed:`, proxy.target);
+    console.log(`Shard proxy number ${numString} deployed:`, await proxy.getAddress());
   }
 }
 

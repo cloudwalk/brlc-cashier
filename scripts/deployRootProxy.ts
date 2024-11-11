@@ -13,7 +13,7 @@ async function main() {
 
   await proxy.waitForDeployment();
 
-  console.log("Root proxy deployed:", proxy.target);
+  console.log("Root proxy deployed:", await proxy.getAddress());
 }
 
 main().then().catch(err => {
