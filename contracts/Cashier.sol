@@ -773,16 +773,6 @@ contract Cashier is
     }
 
     /**
-     * @dev Validates the provided root.
-     * @param root The cashier root contract address.
-     */
-    function _validateRootContract(address root) internal pure {
-        try ICashier(root).proveCashierRoot() {} catch {
-            revert Cashier_ImplementationAddressInvalid();
-        }
-    }
-
-    /**
      * @dev Checks the error code returned by the shard contract and reverts with the appropriate error message.
      * @param err The error code returned by the shard contract.
      */
@@ -874,12 +864,13 @@ contract Cashier is
     }
 
     /**
-     * @dev The upgrade authorization function for UUPSProxy.
+     * @dev The upgrade validation function for the UUPSExtUpgradeable contract.
      * @param newImplementation The address of the new implementation.
      */
     function _validateUpgrade(address newImplementation) internal view override onlyRole(OWNER_ROLE) {
-        _validateRootContract(newImplementation);
-        newImplementation; // Suppresses a compiler warning about the unused variable.
+        try ICashier(newImplementation).proveCashierRoot() {} catch {
+            revert Cashier_ImplementationAddressInvalid();
+        }
     }
 
     // ------------------ Service functions ----------------------- //

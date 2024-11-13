@@ -327,20 +327,11 @@ contract CashierShard is CashierShardStorage, OwnableUpgradeable, UUPSExtUpgrade
     }
 
     /**
-     * @dev The upgrade authorization function for UUPSProxy.
+     * @dev The upgrade validation function for the UUPSExtUpgradeable contract.
      * @param newImplementation The address of the new implementation.
      */
     function _validateUpgrade(address newImplementation) internal view override onlyOwnerOrAdmin {
-        _validateShardContract(newImplementation);
-        newImplementation; // Suppresses a compiler warning about the unused variable.
-    }
-
-    /**
-     * @dev Validates the provided shard.
-     * @param shard The cashier shard contract address.
-     */
-    function _validateShardContract(address shard) internal pure {
-        try ICashierShard(shard).proveCashierShard() {} catch {
+        try ICashierShard(newImplementation).proveCashierShard() {} catch {
             revert CashierShard_ImplementationAddressInvalid();
         }
     }
