@@ -34,9 +34,6 @@ interface ICashierErrors {
     /// @dev Thrown if the contract is not a cashier shard contract.
     error Cashier_ContractNotShard();
 
-    /// @dev Thrown if the contract is not a cashier root contract.
-    error Cashier_ImplementationAddressInvalid();
-
     /// @dev The provided address of the callable contract with the hook function is non-zero but must be.
     error Cashier_HookCallableContractAddressNonZero();
 
@@ -48,6 +45,9 @@ interface ICashierErrors {
 
     /// @dev The provided bit flags to configure the hook logic are invalid.
     error Cashier_HookFlagsInvalid();
+
+    /// @dev Thrown if the contract is not a cashier root contract.
+    error Cashier_ImplementationAddressInvalid();
 
     /// @dev Thrown if the provided release time for the premint operation is inappropriate.
     error Cashier_PremintReleaseTimeInappropriate();
