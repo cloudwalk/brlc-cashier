@@ -210,7 +210,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
 
   const EXPECTED_VERSION: Version = {
     major: 4,
-    minor: 0,
+    minor: 1,
     patch: 0
   };
 
