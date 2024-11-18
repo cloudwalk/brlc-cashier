@@ -10,6 +10,7 @@ import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils
 import { AccessControlExtUpgradeable } from "./base/AccessControlExtUpgradeable.sol";
 import { PausableExtUpgradeable } from "./base/PausableExtUpgradeable.sol";
 import { RescuableUpgradeable } from "./base/RescuableUpgradeable.sol";
+import { UUPSExtUpgradeable } from "./base/UUPSExtUpgradeable.sol";
 
 import { ICashier } from "./interfaces/ICashier.sol";
 import { ICashierPrimary } from "./interfaces/ICashier.sol";
@@ -33,7 +34,7 @@ contract Cashier is
     AccessControlExtUpgradeable,
     PausableExtUpgradeable,
     RescuableUpgradeable,
-    UUPSUpgradeable,
+    UUPSExtUpgradeable,
     ICashier,
     ICashierHookable,
     Versionable
@@ -772,24 +773,6 @@ contract Cashier is
     }
 
     /**
-     * @dev Validates the provided root.
-     * @param root The cashier root contract address.
-     */
-    function _validateRootContract(address root) internal view {
-        if (root == address(0)) {
-            revert Cashier_RootAddressZero();
-        }
-
-        if (root.code.length == 0) {
-            revert Cashier_RootAddressNotContract();
-        }
-
-        try ICashier(root).proveCashierRoot() {} catch {
-            revert Cashier_ContractNotRoot();
-        }
-    }
-
-    /**
      * @dev Checks the error code returned by the shard contract and reverts with the appropriate error message.
      * @param err The error code returned by the shard contract.
      */
@@ -881,12 +864,13 @@ contract Cashier is
     }
 
     /**
-     * @dev The upgrade authorization function for UUPSProxy.
+     * @dev The upgrade validation function for the UUPSExtUpgradeable contract.
      * @param newImplementation The address of the new implementation.
      */
-    function _authorizeUpgrade(address newImplementation) internal view override onlyRole(OWNER_ROLE) {
-        _validateRootContract(newImplementation);
-        newImplementation; // Suppresses a compiler warning about the unused variable.
+    function _validateUpgrade(address newImplementation) internal view override onlyRole(OWNER_ROLE) {
+        try ICashier(newImplementation).proveCashierRoot() {} catch {
+            revert Cashier_ImplementationAddressInvalid();
+        }
     }
 
     // ------------------ Service functions ----------------------- //
