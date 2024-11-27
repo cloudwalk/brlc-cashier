@@ -1568,10 +1568,18 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
         .to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_CASH_OUT_STATUS_INAPPROPRIATE);
     });
 
-    it("Is reverted if the cash-out with the provided txId is already confirmed", async () => {
+    it("Is reverted if the cash-out with the provided txId has status 'Confirmed'", async () => {
       const { cashierRoot } = await setUpFixture(deployAndConfigureContracts);
       await connect(cashierRoot, cashier).requestCashOutFrom(user.address, TOKEN_AMOUNT, TRANSACTION_ID1);
       await connect(cashierRoot, cashier).confirmCashOut(TRANSACTION_ID1);
+      await expect(connect(cashierRoot, cashier).requestCashOutFrom(user.address, TOKEN_AMOUNT, TRANSACTION_ID1))
+        .to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_CASH_OUT_STATUS_INAPPROPRIATE);
+    });
+
+    it("Is reverted if the cash-out with the provided txId has status 'Reversed'", async () => {
+      const { cashierRoot } = await setUpFixture(deployAndConfigureContracts);
+      await connect(cashierRoot, cashier).requestCashOutFrom(user.address, TOKEN_AMOUNT, TRANSACTION_ID1);
+      await connect(cashierRoot, cashier).reverseCashOut(TRANSACTION_ID1);
       await expect(connect(cashierRoot, cashier).requestCashOutFrom(user.address, TOKEN_AMOUNT, TRANSACTION_ID1))
         .to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_CASH_OUT_STATUS_INAPPROPRIATE);
     });
@@ -1598,14 +1606,6 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       );
       await proveTx(tx);
       await expect(connect(cashierRoot, cashier).requestCashOutFrom(user.address, TOKEN_AMOUNT, TRANSACTION_ID1))
-        .to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_CASH_OUT_STATUS_INAPPROPRIATE);
-    });
-
-    it("Is reverted if txId of a reversed cash-out operation is reused for another account", async () => {
-      const { cashierRoot } = await setUpFixture(deployAndConfigureContracts);
-      await connect(cashierRoot, cashier).requestCashOutFrom(user.address, TOKEN_AMOUNT, TRANSACTION_ID1);
-      await connect(cashierRoot, cashier).reverseCashOut(TRANSACTION_ID1);
-      await expect(connect(cashierRoot, cashier).requestCashOutFrom(deployer.address, TOKEN_AMOUNT, TRANSACTION_ID1))
         .to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_CASH_OUT_STATUS_INAPPROPRIATE);
     });
 
@@ -1659,6 +1659,47 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       await expect(connect(cashierRoot, cashier).confirmCashOut(TRANSACTION_ID1))
         .to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_CASH_OUT_STATUS_INAPPROPRIATE);
     });
+
+    it("Is reverted if the cash-out with the provided txId is already confirmed", async () => {
+      const { cashierRoot } = await setUpFixture(deployAndConfigureContracts);
+      await connect(cashierRoot, cashier).requestCashOutFrom(user.address, TOKEN_AMOUNT, TRANSACTION_ID1);
+      await connect(cashierRoot, cashier).confirmCashOut(TRANSACTION_ID1);
+      await expect(connect(cashierRoot, cashier).confirmCashOut(TRANSACTION_ID1))
+        .to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_CASH_OUT_STATUS_INAPPROPRIATE);
+    });
+
+    it("Is reverted if the cash-out with the provided txId has status 'Reversed'", async () => {
+      const { cashierRoot } = await setUpFixture(deployAndConfigureContracts);
+      await connect(cashierRoot, cashier).requestCashOutFrom(user.address, TOKEN_AMOUNT, TRANSACTION_ID1);
+      await connect(cashierRoot, cashier).reverseCashOut(TRANSACTION_ID1);
+      await expect(connect(cashierRoot, cashier).confirmCashOut(TRANSACTION_ID1))
+        .to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_CASH_OUT_STATUS_INAPPROPRIATE);
+    });
+
+    it("Is reverted if the cash-out with the provided txId has status 'Internal'", async () => {
+      const { cashierRoot } = await setUpFixture(deployAndConfigureContracts);
+      const tx = connect(cashierRoot, cashier).makeInternalCashOut(
+        user.address,
+        receiver.address,
+        TOKEN_AMOUNT,
+        TRANSACTION_ID1
+      );
+      await proveTx(tx);
+      await expect(connect(cashierRoot, cashier).confirmCashOut(TRANSACTION_ID1))
+        .to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_CASH_OUT_STATUS_INAPPROPRIATE);
+    });
+
+    it("Is reverted if the cash-out with the provided txId has status 'Forced'", async () => {
+      const { cashierRoot } = await setUpFixture(deployAndConfigureContracts);
+      const tx = connect(cashierRoot, cashier).forceCashOut(
+        user.address,
+        TOKEN_AMOUNT,
+        TRANSACTION_ID1
+      );
+      await proveTx(tx);
+      await expect(connect(cashierRoot, cashier).confirmCashOut(TRANSACTION_ID1))
+        .to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_CASH_OUT_STATUS_INAPPROPRIATE);
+    });
   });
 
   describe("Function 'reverseCashOut()' accompanied by the 'processCashOut()' one", async () => {
@@ -1696,6 +1737,47 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
 
     it("Is reverted if the cash-out with the provided txId was not requested previously", async () => {
       const { cashierRoot } = await setUpFixture(deployAndConfigureContracts);
+      await expect(connect(cashierRoot, cashier).reverseCashOut(TRANSACTION_ID1))
+        .to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_CASH_OUT_STATUS_INAPPROPRIATE);
+    });
+
+    it("Is reverted if the cash-out with the provided txId has status 'Confirmed'", async () => {
+      const { cashierRoot } = await setUpFixture(deployAndConfigureContracts);
+      await connect(cashierRoot, cashier).requestCashOutFrom(user.address, TOKEN_AMOUNT, TRANSACTION_ID1);
+      await connect(cashierRoot, cashier).confirmCashOut(TRANSACTION_ID1);
+      await expect(connect(cashierRoot, cashier).reverseCashOut(TRANSACTION_ID1))
+        .to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_CASH_OUT_STATUS_INAPPROPRIATE);
+    });
+
+    it("Is reverted if the cash-out with the provided txId is already reversed", async () => {
+      const { cashierRoot } = await setUpFixture(deployAndConfigureContracts);
+      await connect(cashierRoot, cashier).requestCashOutFrom(user.address, TOKEN_AMOUNT, TRANSACTION_ID1);
+      await connect(cashierRoot, cashier).reverseCashOut(TRANSACTION_ID1);
+      await expect(connect(cashierRoot, cashier).reverseCashOut(TRANSACTION_ID1))
+        .to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_CASH_OUT_STATUS_INAPPROPRIATE);
+    });
+
+    it("Is reverted if the cash-out with the provided txId has status 'Internal'", async () => {
+      const { cashierRoot } = await setUpFixture(deployAndConfigureContracts);
+      const tx = connect(cashierRoot, cashier).makeInternalCashOut(
+        user.address,
+        receiver.address,
+        TOKEN_AMOUNT,
+        TRANSACTION_ID1
+      );
+      await proveTx(tx);
+      await expect(connect(cashierRoot, cashier).reverseCashOut(TRANSACTION_ID1))
+        .to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_CASH_OUT_STATUS_INAPPROPRIATE);
+    });
+
+    it("Is reverted if the cash-out with the provided txId has status 'Forced'", async () => {
+      const { cashierRoot } = await setUpFixture(deployAndConfigureContracts);
+      const tx = connect(cashierRoot, cashier).forceCashOut(
+        user.address,
+        TOKEN_AMOUNT,
+        TRANSACTION_ID1
+      );
+      await proveTx(tx);
       await expect(connect(cashierRoot, cashier).reverseCashOut(TRANSACTION_ID1))
         .to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_CASH_OUT_STATUS_INAPPROPRIATE);
     });
@@ -1813,7 +1895,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       ).to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_TRANSACTION_ID_IS_ZERO);
     });
 
-    it("Is reverted if the cash-out with the provided txId is already pending", async () => {
+    it("Is reverted if the cash-out with the provided txId has status 'Pending'", async () => {
       const { cashierRoot } = await setUpFixture(deployAndConfigureContracts);
       await connect(cashierRoot, cashier).requestCashOutFrom(user.address, TOKEN_AMOUNT, TRANSACTION_ID1);
       await expect(
@@ -1829,10 +1911,27 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       );
     });
 
-    it("Is reverted if the cash-out with the provided txId is already confirmed", async () => {
+    it("Is reverted if the cash-out with the provided txId has status 'Confirmed'", async () => {
       const { cashierRoot } = await setUpFixture(deployAndConfigureContracts);
       await connect(cashierRoot, cashier).requestCashOutFrom(user.address, TOKEN_AMOUNT, TRANSACTION_ID1);
       await connect(cashierRoot, cashier).confirmCashOut(TRANSACTION_ID1);
+      await expect(
+        connect(cashierRoot, cashier).makeInternalCashOut(
+          user.address,
+          receiver.address,
+          TOKEN_AMOUNT,
+          TRANSACTION_ID1
+        )
+      ).to.be.revertedWithCustomError(
+        cashierRoot,
+        REVERT_ERROR_IF_CASH_OUT_STATUS_INAPPROPRIATE
+      );
+    });
+
+    it("Is reverted if the cash-out with the provided txId has status 'Reversed'", async () => {
+      const { cashierRoot } = await setUpFixture(deployAndConfigureContracts);
+      await connect(cashierRoot, cashier).requestCashOutFrom(user.address, TOKEN_AMOUNT, TRANSACTION_ID1);
+      await connect(cashierRoot, cashier).reverseCashOut(TRANSACTION_ID1);
       await expect(
         connect(cashierRoot, cashier).makeInternalCashOut(
           user.address,
@@ -1879,23 +1978,6 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       await expect(
         connect(cashierRoot, cashier).makeInternalCashOut(
           user.address,
-          receiver.address,
-          TOKEN_AMOUNT,
-          TRANSACTION_ID1
-        )
-      ).to.be.revertedWithCustomError(
-        cashierRoot,
-        REVERT_ERROR_IF_CASH_OUT_STATUS_INAPPROPRIATE
-      );
-    });
-
-    it("Is reverted if txId of a reversed cash-out operation is reused for another account", async () => {
-      const { cashierRoot } = await setUpFixture(deployAndConfigureContracts);
-      await connect(cashierRoot, cashier).requestCashOutFrom(user.address, TOKEN_AMOUNT, TRANSACTION_ID1);
-      await connect(cashierRoot, cashier).reverseCashOut(TRANSACTION_ID1);
-      await expect(
-        connect(cashierRoot, cashier).makeInternalCashOut(
-          deployer.address,
           receiver.address,
           TOKEN_AMOUNT,
           TRANSACTION_ID1
@@ -2018,7 +2100,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       ).to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_TRANSACTION_ID_IS_ZERO);
     });
 
-    it("Is reverted if the cash-out with the provided txId is already pending", async () => {
+    it("Is reverted if the cash-out with the provided txId has status 'Pending'", async () => {
       const { cashierRoot } = await setUpFixture(deployAndConfigureContracts);
       await connect(cashierRoot, cashier).requestCashOutFrom(user.address, TOKEN_AMOUNT, TRANSACTION_ID1);
       await expect(
@@ -2033,10 +2115,26 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       );
     });
 
-    it("Is reverted if the cash-out with the provided txId is already confirmed", async () => {
+    it("Is reverted if the cash-out with the provided txId has status 'Confirmed'", async () => {
       const { cashierRoot } = await setUpFixture(deployAndConfigureContracts);
       await connect(cashierRoot, cashier).requestCashOutFrom(user.address, TOKEN_AMOUNT, TRANSACTION_ID1);
       await connect(cashierRoot, cashier).confirmCashOut(TRANSACTION_ID1);
+      await expect(
+        connect(cashierRoot, cashier).forceCashOut(
+          user.address,
+          TOKEN_AMOUNT,
+          TRANSACTION_ID1
+        )
+      ).to.be.revertedWithCustomError(
+        cashierRoot,
+        REVERT_ERROR_IF_CASH_OUT_STATUS_INAPPROPRIATE
+      );
+    });
+
+    it("Is reverted if the cash-out with the provided txId has status 'Reversed'", async () => {
+      const { cashierRoot } = await setUpFixture(deployAndConfigureContracts);
+      await connect(cashierRoot, cashier).requestCashOutFrom(user.address, TOKEN_AMOUNT, TRANSACTION_ID1);
+      await connect(cashierRoot, cashier).reverseCashOut(TRANSACTION_ID1);
       await expect(
         connect(cashierRoot, cashier).forceCashOut(
           user.address,
@@ -2081,22 +2179,6 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       await expect(
         connect(cashierRoot, cashier).forceCashOut(
           user.address,
-          TOKEN_AMOUNT,
-          TRANSACTION_ID1
-        )
-      ).to.be.revertedWithCustomError(
-        cashierRoot,
-        REVERT_ERROR_IF_CASH_OUT_STATUS_INAPPROPRIATE
-      );
-    });
-
-    it("Is reverted if txId of a reversed cash-out operation is reused for another account", async () => {
-      const { cashierRoot } = await setUpFixture(deployAndConfigureContracts);
-      await connect(cashierRoot, cashier).requestCashOutFrom(user.address, TOKEN_AMOUNT, TRANSACTION_ID1);
-      await connect(cashierRoot, cashier).reverseCashOut(TRANSACTION_ID1);
-      await expect(
-        connect(cashierRoot, cashier).forceCashOut(
-          deployer.address,
           TOKEN_AMOUNT,
           TRANSACTION_ID1
         )
@@ -2436,11 +2518,11 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
     async function checkHookEvents(fixture: Fixture, props: {
       tx: TransactionResponse;
       hookIndex: HookIndex;
-      hookCallCounter: number;
+      hookCounter: number;
       txId?: string;
     }) {
       const { cashierRoot, cashierHookMock } = fixture;
-      const { tx, hookIndex, hookCallCounter } = props;
+      const { tx, hookIndex, hookCounter } = props;
       const txId = props.txId ?? TRANSACTION_ID1;
 
       await expect(tx).to.emit(cashierRoot, EVENT_NAME_HOOK_INVOKED).withArgs(
@@ -2451,7 +2533,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       await expect(tx).to.emit(cashierHookMock, EVENT_NAME_MOCK_CASHIER_HOOK_CALLED).withArgs(
         txId,
         hookIndex,
-        hookCallCounter
+        hookCounter
       );
     }
 
@@ -2462,111 +2544,111 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
     it("All hooks are invoked for common cash-out operations", async () => {
       const fixture = await setUpFixture(deployAndConfigureContracts);
       const { cashierRoot, cashierHookMock } = fixture;
-      const [cashOut, cashOutReverse] = defineTestCashOuts(2);
-      cashOut.txId = TRANSACTION_ID1;
-      cashOutReverse.txId = TRANSACTION_ID2;
+      const cashOuts = defineTestCashOuts(2);
 
-      await proveTx(connect(cashierRoot, hookAdmin).configureCashOutHooks(
-        cashOut.txId,
-        getAddress(cashierHookMock), // newCallableContract,
-        ALL_CASH_OUT_HOOK_FLAGS // newHookFlags
-      ));
-      await proveTx(connect(cashierRoot, hookAdmin).configureCashOutHooks(
-        cashOutReverse.txId,
-        getAddress(cashierHookMock), // newCallableContract,
-        ALL_CASH_OUT_HOOK_FLAGS // newHookFlags
-      ));
+      for (const cashOut of cashOuts) {
+        await proveTx(connect(cashierRoot, hookAdmin).configureCashOutHooks(
+          cashOut.txId,
+          getAddress(cashierHookMock), // newCallableContract,
+          ALL_CASH_OUT_HOOK_FLAGS // newHookFlags
+        ));
+      }
       await checkHookTotalCalls(fixture, 0);
 
-      const [tx1] = await requestCashOuts(cashierRoot, [cashOut, cashOutReverse]);
-      await checkHookEvents(fixture, { tx: tx1, hookIndex: HookIndex.CashOutRequestBefore, hookCallCounter: 1 });
-      await checkHookEvents(fixture, { tx: tx1, hookIndex: HookIndex.CashOutRequestAfter, hookCallCounter: 2 });
+      const [tx1] = await requestCashOuts(cashierRoot, [cashOuts[0]]);
+      let txId = cashOuts[0].txId;
+      await checkHookEvents(fixture, { tx: tx1, hookIndex: HookIndex.CashOutRequestBefore, hookCounter: 1, txId });
+      await checkHookEvents(fixture, { tx: tx1, hookIndex: HookIndex.CashOutRequestAfter, hookCounter: 2, txId });
+      await checkHookTotalCalls(fixture, 2);
+
+      const tx2: TransactionResponse = await connect(cashierRoot, cashier).reverseCashOut(cashOuts[0].txId);
+      await checkHookEvents(fixture, { tx: tx2, hookIndex: HookIndex.CashOutReversalBefore, hookCounter: 3, txId });
+      await checkHookEvents(fixture, { tx: tx2, hookIndex: HookIndex.CashOutReversalAfter, hookCounter: 4, txId });
       await checkHookTotalCalls(fixture, 4);
 
-      const tx2: TransactionResponse = await connect(cashierRoot, cashier).reverseCashOut(cashOutReverse.txId);
-      await checkHookEvents(fixture,
-        { txId: cashOutReverse.txId, tx: tx2, hookIndex: HookIndex.CashOutReversalBefore, hookCallCounter: 5 });
-      await checkHookEvents(fixture,
-        { txId: cashOutReverse.txId, tx: tx2, hookIndex: HookIndex.CashOutReversalAfter, hookCallCounter: 6 });
+      const [tx3] = await requestCashOuts(cashierRoot, [cashOuts[1]]);
+      txId = cashOuts[1].txId;
+      await checkHookEvents(fixture, { tx: tx3, hookIndex: HookIndex.CashOutRequestBefore, hookCounter: 5, txId });
+      await checkHookEvents(fixture, { tx: tx3, hookIndex: HookIndex.CashOutRequestAfter, hookCounter: 6, txId });
       await checkHookTotalCalls(fixture, 6);
 
-      const tx3: TransactionResponse = await connect(cashierRoot, cashier).confirmCashOut(cashOut.txId);
-      await checkHookEvents(fixture, { tx: tx3, hookIndex: HookIndex.CashOutConfirmationBefore, hookCallCounter: 7 });
-      await checkHookEvents(fixture, { tx: tx3, hookIndex: HookIndex.CashOutConfirmationAfter, hookCallCounter: 8 });
+      const tx4: TransactionResponse = await connect(cashierRoot, cashier).confirmCashOut(cashOuts[1].txId);
+      await checkHookEvents(fixture, { tx: tx4, hookIndex: HookIndex.CashOutConfirmationBefore, hookCounter: 7, txId });
+      await checkHookEvents(fixture, { tx: tx4, hookIndex: HookIndex.CashOutConfirmationAfter, hookCounter: 8, txId });
       await checkHookTotalCalls(fixture, 8);
     });
 
     it("Only 'before' hooks are invoked for common cash-out operations", async () => {
       const fixture = await setUpFixture(deployAndConfigureContracts);
       const { cashierRoot, cashierHookMock } = fixture;
-      const [cashOut, cashOutReverse] = defineTestCashOuts(2);
-      cashOut.txId = TRANSACTION_ID1;
-      cashOutReverse.txId = TRANSACTION_ID2;
+      const cashOuts = defineTestCashOuts(2);
       const hookFlags =
         (1 << HookIndex.CashOutRequestBefore) +
         (1 << HookIndex.CashOutConfirmationBefore) +
         (1 << HookIndex.CashOutReversalBefore);
 
-      await proveTx(connect(cashierRoot, hookAdmin).configureCashOutHooks(
-        cashOut.txId,
-        getAddress(cashierHookMock), // newCallableContract,
-        hookFlags // newHookFlags
-      ));
-      await proveTx(connect(cashierRoot, hookAdmin).configureCashOutHooks(
-        cashOutReverse.txId,
-        getAddress(cashierHookMock), // newCallableContract,
-        hookFlags // newHookFlags
-      ));
+      for (const cashOut of cashOuts) {
+        await proveTx(connect(cashierRoot, hookAdmin).configureCashOutHooks(
+          cashOut.txId,
+          getAddress(cashierHookMock), // newCallableContract,
+          hookFlags // newHookFlags
+        ));
+      }
       await checkHookTotalCalls(fixture, 0);
 
-      const [tx1] = await requestCashOuts(cashierRoot, [cashOut, cashOutReverse]);
-      await checkHookEvents(fixture, { tx: tx1, hookIndex: HookIndex.CashOutRequestBefore, hookCallCounter: 1 });
+      const [tx1] = await requestCashOuts(cashierRoot, [cashOuts[0]]);
+      let txId = cashOuts[0].txId;
+      await checkHookEvents(fixture, { tx: tx1, hookIndex: HookIndex.CashOutRequestBefore, hookCounter: 1, txId });
+      await checkHookTotalCalls(fixture, 1);
+
+      const tx2: TransactionResponse = await connect(cashierRoot, cashier).reverseCashOut(cashOuts[0].txId);
+      await checkHookEvents(fixture, { tx: tx2, hookIndex: HookIndex.CashOutReversalBefore, hookCounter: 2, txId });
       await checkHookTotalCalls(fixture, 2);
 
-      const tx2: TransactionResponse = await connect(cashierRoot, cashier).reverseCashOut(cashOutReverse.txId);
-      await checkHookEvents(fixture,
-        { txId: cashOutReverse.txId, tx: tx2, hookIndex: HookIndex.CashOutReversalBefore, hookCallCounter: 3 });
+      const [tx3] = await requestCashOuts(cashierRoot, [cashOuts[1]]);
+      txId = cashOuts[1].txId;
+      await checkHookEvents(fixture, { tx: tx3, hookIndex: HookIndex.CashOutRequestBefore, hookCounter: 3, txId });
       await checkHookTotalCalls(fixture, 3);
 
-      const tx3: TransactionResponse = await connect(cashierRoot, cashier).confirmCashOut(cashOut.txId);
-      await checkHookEvents(fixture, { tx: tx3, hookIndex: HookIndex.CashOutConfirmationBefore, hookCallCounter: 4 });
+      const tx4: TransactionResponse = await connect(cashierRoot, cashier).confirmCashOut(cashOuts[1].txId);
+      await checkHookEvents(fixture, { tx: tx4, hookIndex: HookIndex.CashOutConfirmationBefore, hookCounter: 4, txId });
       await checkHookTotalCalls(fixture, 4);
     });
 
     it("Only 'after' hooks are invoked for common cash-out operations", async () => {
       const fixture = await setUpFixture(deployAndConfigureContracts);
       const { cashierRoot, cashierHookMock } = fixture;
-      const [cashOut, cashOutReverse] = defineTestCashOuts(2);
-      cashOut.txId = TRANSACTION_ID1;
-      cashOutReverse.txId = TRANSACTION_ID2;
+      const cashOuts = defineTestCashOuts(2);
       const hookFlags =
         (1 << HookIndex.CashOutRequestAfter) +
         (1 << HookIndex.CashOutConfirmationAfter) +
         (1 << HookIndex.CashOutReversalAfter);
 
-      await proveTx(connect(cashierRoot, hookAdmin).configureCashOutHooks(
-        cashOut.txId,
-        getAddress(cashierHookMock), // newCallableContract,
-        hookFlags // newHookFlags
-      ));
-      await proveTx(connect(cashierRoot, hookAdmin).configureCashOutHooks(
-        cashOutReverse.txId,
-        getAddress(cashierHookMock), // newCallableContract,
-        hookFlags // newHookFlags
-      ));
+      for (const cashOut of cashOuts) {
+        await proveTx(connect(cashierRoot, hookAdmin).configureCashOutHooks(
+          cashOut.txId,
+          getAddress(cashierHookMock), // newCallableContract,
+          hookFlags // newHookFlags
+        ));
+      }
       expect(await cashierHookMock.hookCallCounter()).to.eq(0);
 
-      const [tx1] = await requestCashOuts(cashierRoot, [cashOut, cashOutReverse]);
-      await checkHookEvents(fixture, { tx: tx1, hookIndex: HookIndex.CashOutRequestAfter, hookCallCounter: 1 });
+      const [tx1] = await requestCashOuts(cashierRoot, [cashOuts[0]]);
+      let txId = cashOuts[0].txId;
+      await checkHookEvents(fixture, { tx: tx1, hookIndex: HookIndex.CashOutRequestAfter, hookCounter: 1, txId });
+      await checkHookTotalCalls(fixture, 1);
+
+      const tx2: TransactionResponse = await connect(cashierRoot, cashier).reverseCashOut(cashOuts[0].txId);
+      await checkHookEvents(fixture, { tx: tx2, hookIndex: HookIndex.CashOutReversalAfter, hookCounter: 2, txId });
       await checkHookTotalCalls(fixture, 2);
 
-      const tx2: TransactionResponse = await connect(cashierRoot, cashier).reverseCashOut(cashOutReverse.txId);
-      await checkHookEvents(fixture,
-        { txId: cashOutReverse.txId, tx: tx2, hookIndex: HookIndex.CashOutReversalAfter, hookCallCounter: 3 });
+      const [tx3] = await requestCashOuts(cashierRoot, [cashOuts[1]]);
+      txId = cashOuts[1].txId;
+      await checkHookEvents(fixture, { tx: tx3, hookIndex: HookIndex.CashOutRequestAfter, hookCounter: 3, txId });
       await checkHookTotalCalls(fixture, 3);
 
-      const tx3: TransactionResponse = await connect(cashierRoot, cashier).confirmCashOut(cashOut.txId);
-      await checkHookEvents(fixture, { tx: tx3, hookIndex: HookIndex.CashOutConfirmationAfter, hookCallCounter: 4 });
+      const tx4: TransactionResponse = await connect(cashierRoot, cashier).confirmCashOut(cashOuts[1].txId);
+      await checkHookEvents(fixture, { tx: tx4, hookIndex: HookIndex.CashOutConfirmationAfter, hookCounter: 4, txId });
       await checkHookTotalCalls(fixture, 4);
     });
 
@@ -2584,9 +2666,9 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       expect(await cashierHookMock.hookCallCounter()).to.eq(0);
 
       const [tx] = await makeInternalCashOuts(cashierRoot, [cashOut]);
-      await checkHookEvents(fixture, { tx, hookIndex: HookIndex.CashOutRequestBefore, hookCallCounter: 1 });
-      await checkHookEvents(fixture, { tx, hookIndex: HookIndex.CashOutConfirmationBefore, hookCallCounter: 2 });
-      await checkHookEvents(fixture, { tx, hookIndex: HookIndex.CashOutConfirmationAfter, hookCallCounter: 3 });
+      await checkHookEvents(fixture, { tx, hookIndex: HookIndex.CashOutRequestBefore, hookCounter: 1 });
+      await checkHookEvents(fixture, { tx, hookIndex: HookIndex.CashOutConfirmationBefore, hookCounter: 2 });
+      await checkHookEvents(fixture, { tx, hookIndex: HookIndex.CashOutConfirmationAfter, hookCounter: 3 });
       await checkHookTotalCalls(fixture, 3);
     });
 
@@ -2607,8 +2689,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       expect(await cashierHookMock.hookCallCounter()).to.eq(0);
 
       const [tx] = await makeInternalCashOuts(cashierRoot, [cashOut]);
-      await checkHookEvents(fixture, { tx, hookIndex: HookIndex.CashOutRequestBefore, hookCallCounter: 1 });
-      await checkHookEvents(fixture, { tx, hookIndex: HookIndex.CashOutConfirmationBefore, hookCallCounter: 2 });
+      await checkHookEvents(fixture, { tx, hookIndex: HookIndex.CashOutRequestBefore, hookCounter: 1 });
+      await checkHookEvents(fixture, { tx, hookIndex: HookIndex.CashOutConfirmationBefore, hookCounter: 2 });
       await checkHookTotalCalls(fixture, 2);
     });
 
@@ -2629,7 +2711,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       expect(await cashierHookMock.hookCallCounter()).to.eq(0);
 
       const [tx] = await makeInternalCashOuts(cashierRoot, [cashOut]);
-      await checkHookEvents(fixture, { tx, hookIndex: HookIndex.CashOutConfirmationAfter, hookCallCounter: 1 });
+      await checkHookEvents(fixture, { tx, hookIndex: HookIndex.CashOutConfirmationAfter, hookCounter: 1 });
       await checkHookTotalCalls(fixture, 1);
     });
 
@@ -2647,10 +2729,10 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       expect(await cashierHookMock.hookCallCounter()).to.eq(0);
 
       const [tx] = await forceCashOuts(cashierRoot, [cashOut]);
-      await checkHookEvents(fixture, { tx, hookIndex: HookIndex.CashOutRequestBefore, hookCallCounter: 1 });
-      await checkHookEvents(fixture, { tx, hookIndex: HookIndex.CashOutRequestAfter, hookCallCounter: 2 });
-      await checkHookEvents(fixture, { tx, hookIndex: HookIndex.CashOutConfirmationBefore, hookCallCounter: 3 });
-      await checkHookEvents(fixture, { tx, hookIndex: HookIndex.CashOutConfirmationAfter, hookCallCounter: 4 });
+      await checkHookEvents(fixture, { tx, hookIndex: HookIndex.CashOutRequestBefore, hookCounter: 1 });
+      await checkHookEvents(fixture, { tx, hookIndex: HookIndex.CashOutRequestAfter, hookCounter: 2 });
+      await checkHookEvents(fixture, { tx, hookIndex: HookIndex.CashOutConfirmationBefore, hookCounter: 3 });
+      await checkHookEvents(fixture, { tx, hookIndex: HookIndex.CashOutConfirmationAfter, hookCounter: 4 });
       await checkHookTotalCalls(fixture, 4);
     });
 
@@ -2671,8 +2753,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       expect(await cashierHookMock.hookCallCounter()).to.eq(0);
 
       const [tx] = await forceCashOuts(cashierRoot, [cashOut]);
-      await checkHookEvents(fixture, { tx, hookIndex: HookIndex.CashOutRequestBefore, hookCallCounter: 1 });
-      await checkHookEvents(fixture, { tx, hookIndex: HookIndex.CashOutConfirmationBefore, hookCallCounter: 2 });
+      await checkHookEvents(fixture, { tx, hookIndex: HookIndex.CashOutRequestBefore, hookCounter: 1 });
+      await checkHookEvents(fixture, { tx, hookIndex: HookIndex.CashOutConfirmationBefore, hookCounter: 2 });
       await checkHookTotalCalls(fixture, 2);
     });
 
@@ -2693,89 +2775,9 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       expect(await cashierHookMock.hookCallCounter()).to.eq(0);
 
       const [tx] = await forceCashOuts(cashierRoot, [cashOut]);
-      await checkHookEvents(fixture, { tx, hookIndex: HookIndex.CashOutRequestAfter, hookCallCounter: 1 });
-      await checkHookEvents(fixture, { tx, hookIndex: HookIndex.CashOutConfirmationAfter, hookCallCounter: 2 });
+      await checkHookEvents(fixture, { tx, hookIndex: HookIndex.CashOutRequestAfter, hookCounter: 1 });
+      await checkHookEvents(fixture, { tx, hookIndex: HookIndex.CashOutConfirmationAfter, hookCounter: 2 });
       await checkHookTotalCalls(fixture, 2);
-    });
-  });
-
-  describe("Complex scenarios without hooks", async () => {
-    it("Scenario 1 with cash-out reversing executes successfully", async () => {
-      const { cashierRoot, tokenMock } = await setUpFixture(deployAndConfigureContracts);
-      const [cashOut] = defineTestCashOuts();
-      await requestCashOuts(cashierRoot, [cashOut]);
-      await proveTx(connect(cashierRoot, cashier).reverseCashOut(cashOut.txId));
-      cashOut.status = CashOutStatus.Reversed;
-      await checkCashierState(tokenMock, cashierRoot, [cashOut]);
-
-      // After reversing a cash-out with the same txId can't be reversed again.
-      await expect(connect(cashierRoot, cashier).reverseCashOut(cashOut.txId))
-        .to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_CASH_OUT_STATUS_INAPPROPRIATE);
-
-      // After reversing a cash-out with the same txId can't be confirmed.
-      await expect(connect(cashierRoot, cashier).confirmCashOut(cashOut.txId))
-        .to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_CASH_OUT_STATUS_INAPPROPRIATE);
-
-      expect(await tokenMock.balanceOf(cashOut.account.address)).to.equal(INITIAL_USER_BALANCE);
-
-      // After reversing a cash-out with the same txId can't be requested again.
-      await expect(connect(cashierRoot, cashier).requestCashOutFrom(cashOut.account.address, cashOut.amount, cashOut.txId))
-        .to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_CASH_OUT_STATUS_INAPPROPRIATE);
-
-      await checkCashierState(tokenMock, cashierRoot, [cashOut]);
-      expect(await tokenMock.balanceOf(cashOut.account.address)).to.equal(INITIAL_USER_BALANCE);
-    });
-
-    it("Scenario 2 with cash-out confirming executes successfully", async () => {
-      const { cashierRoot, tokenMock } = await setUpFixture(deployAndConfigureContracts);
-      const [cashOut] = defineTestCashOuts();
-      await requestCashOuts(cashierRoot, [cashOut]);
-      await proveTx(connect(cashierRoot, cashier).confirmCashOut(cashOut.txId));
-      cashOut.status = CashOutStatus.Confirmed;
-      await checkCashierState(tokenMock, cashierRoot, [cashOut]);
-
-      // After confirming a cash-out with the same txId can't be reversed again.
-      await expect(connect(cashierRoot, cashier).reverseCashOut(cashOut.txId))
-        .to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_CASH_OUT_STATUS_INAPPROPRIATE);
-
-      // After confirming a cash-out with the same txId can't be confirmed.
-      await expect(connect(cashierRoot, cashier).confirmCashOut(cashOut.txId))
-        .to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_CASH_OUT_STATUS_INAPPROPRIATE);
-
-      expect(await tokenMock.balanceOf(cashOut.account.address)).to.equal(INITIAL_USER_BALANCE - cashOut.amount);
-    });
-
-    it("Scenario 3 with internal cash-out after reversing the previous one with the same ID", async () => {
-      const { cashierRoot, tokenMock } = await setUpFixture(deployAndConfigureContracts);
-      const [cashOut] = defineTestCashOuts();
-      await requestCashOuts(cashierRoot, [cashOut]);
-      await proveTx(connect(cashierRoot, cashier).reverseCashOut(cashOut.txId));
-      cashOut.status = CashOutStatus.Reversed;
-      await checkCashierState(tokenMock, cashierRoot, [cashOut]);
-
-      // After reversing a cash-out with the same txId can be requested again for an internal cash-out.
-      await expect(connect(cashierRoot, cashier).makeInternalCashOut(
-        cashOut.account.address,
-        receiver.address,
-        cashOut.amount,
-        cashOut.txId
-      )).to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_CASH_OUT_STATUS_INAPPROPRIATE);
-    });
-
-    it("Scenario 4 with forced cash-out after reversing the previous one with the same ID", async () => {
-      const { cashierRoot, tokenMock } = await setUpFixture(deployAndConfigureContracts);
-      const [cashOut] = defineTestCashOuts();
-      await requestCashOuts(cashierRoot, [cashOut]);
-      await proveTx(connect(cashierRoot, cashier).reverseCashOut(cashOut.txId));
-      cashOut.status = CashOutStatus.Reversed;
-      await checkCashierState(tokenMock, cashierRoot, [cashOut]);
-
-      // After reversing a cash-out with the same txId can be requested again for an internal cash-out.
-      await expect(connect(cashierRoot, cashier).forceCashOut(
-        cashOut.account.address,
-        cashOut.amount,
-        cashOut.txId
-      )).to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_CASH_OUT_STATUS_INAPPROPRIATE);
     });
   });
 
