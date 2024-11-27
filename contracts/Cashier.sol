@@ -784,8 +784,6 @@ contract Cashier is
                 revert Cashier_CashInStatusInappropriate();
             if (err == uint256(ICashierShardPrimary.Error.InappropriateCashOutStatus))
                 revert Cashier_CashOutStatusInappropriate();
-            if (err == uint256(ICashierShardPrimary.Error.InappropriateCashOutAccount))
-                revert Cashier_CashOutAccountInappropriate();
             revert Cashier_ShardErrorUnexpected(err);
         }
     }
