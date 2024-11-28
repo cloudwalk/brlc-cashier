@@ -25,9 +25,6 @@ interface ICashierErrors {
     /// @dev Thrown if the cash-in operation with the provided txId has an inappropriate status.
     error Cashier_CashInStatusInappropriate();
 
-    /// @dev Thrown if the cash-out operation cannot be executed for the provided account and txId.
-    error Cashier_CashOutAccountInappropriate();
-
     /// @dev Thrown if the cash-out operation with the provided txId has an inappropriate status.
     error Cashier_CashOutStatusInappropriate();
 

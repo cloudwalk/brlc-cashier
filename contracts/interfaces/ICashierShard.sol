@@ -31,14 +31,12 @@ interface ICashierShardPrimary is ICashierTypes {
      * - CashInAlreadyExecuted = 1 -------- The cash-in operation has already been executed.
      * - InappropriateCashInStatus = 2 ---- The cash-in operation status is inappropriate.
      * - InappropriateCashOutStatus = 3 --- The cash-out operation status is inappropriate.
-     * - InappropriateCashOutAccount = 4 -- The cash-out operation account is inappropriate.
      */
     enum Error {
         None,
         CashInAlreadyExecuted,
         InappropriateCashInStatus,
-        InappropriateCashOutStatus,
-        InappropriateCashOutAccount
+        InappropriateCashOutStatus
     }
 
     // ------------------ Functions ------------------------------- //
