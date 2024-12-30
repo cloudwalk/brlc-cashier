@@ -310,13 +310,7 @@ contract CashierShard is CashierShardStorage, OwnableUpgradeable, UUPSExtUpgrade
         CashOutOperation storage operation = _cashOutOperations[txId];
 
         if (operation.status != CashOutStatus.Nonexistent) {
-            if (operation.status == CashOutStatus.Reversed) {
-                if (operation.account != account) {
-                    return (uint256(Error.InappropriateCashOutAccount), operation.flags);
-                }
-            } else {
-                return (uint256(Error.InappropriateCashOutStatus), operation.flags);
-            }
+            return (uint256(Error.InappropriateCashOutStatus), operation.flags);
         }
 
         operation.account = account;
