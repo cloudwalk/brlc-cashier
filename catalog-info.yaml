@@ -2,7 +2,7 @@ apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
   name: brlc-cashier
-  description: BRLC cashier smart contracts
+  description: Cashier smart contracts
   annotations:
     github.com/project-slug: cloudwalk/brlc-cashier
     backstage.io/techdocs-ref: dir:.
