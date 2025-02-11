@@ -1,0 +1,21 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: brlc-cashier
+  description: BRLC cashier smart contracts
+  annotations:
+    github.com/project-slug: cloudwalk/brlc-cashier
+    backstage.io/techdocs-ref: dir:.
+  tags:
+    - solidity
+    - typescript
+    - blockchain
+    - smart-contract
+  links:
+    - url: https://github.com/cloudwalk/brlc-cashier
+      title: Repository
+      icon: github
+spec:
+  type: smart contract
+  lifecycle: production
+  owner: team-smart-contracts
