@@ -360,8 +360,10 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
     const fixture = await deployContracts();
     const { tokenMock, cashierRoot, cashierAdmin, cashierShards } = fixture;
 
+    await proveTx(cashierRoot.grantRole(grantorRole, deployer.address));
     await proveTx(cashierRoot.grantRole(cashierRole, cashier.address));
     await proveTx(cashierRoot.grantRole(hookAdminRole, hookAdmin.address));
+    await proveTx(cashierAdmin.grantRole(grantorRole, deployer.address));
     await proveTx(cashierAdmin.grantRole(cashierRole, cashier.address));
     await proveTx(cashierAdmin.grantRole(hookAdminRole, hookAdmin.address));
     for (const user of users) {
@@ -729,8 +731,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       expect(await cashierRoot.getRoleAdmin(ownerRole)).to.equal(ownerRole);
       expect(await cashierRoot.getRoleAdmin(pauserRole)).to.equal(grantorRole);
       expect(await cashierRoot.getRoleAdmin(rescuerRole)).to.equal(grantorRole);
-      expect(await cashierRoot.getRoleAdmin(cashierRole)).to.equal(ownerRole);
-      expect(await cashierRoot.getRoleAdmin(hookAdminRole)).to.equal(ownerRole);
+      expect(await cashierRoot.getRoleAdmin(cashierRole)).to.equal(grantorRole);
+      expect(await cashierRoot.getRoleAdmin(hookAdminRole)).to.equal(grantorRole);
 
       // The deployer should have the owner role, but not the other roles
       expect(await cashierRoot.hasRole(ownerRole, deployer.address)).to.equal(true);

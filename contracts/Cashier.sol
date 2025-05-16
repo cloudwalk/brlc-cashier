@@ -116,9 +116,8 @@ contract Cashier is
 
         _token = token_;
 
-        _setRoleAdmin(OWNER_ROLE, OWNER_ROLE);
-        _setRoleAdmin(CASHIER_ROLE, OWNER_ROLE);
-        _setRoleAdmin(HOOK_ADMIN_ROLE, OWNER_ROLE);
+        _setRoleAdmin(CASHIER_ROLE, GRANTOR_ROLE);
+        _setRoleAdmin(HOOK_ADMIN_ROLE, GRANTOR_ROLE);
         _grantRole(OWNER_ROLE, _msgSender());
     }
 
