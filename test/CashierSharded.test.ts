@@ -1,9 +1,9 @@
-import { ethers, network, upgrades } from "hardhat";
+import { ethers, upgrades } from "hardhat";
 import { expect } from "chai";
 import { Contract, ContractFactory, TransactionResponse } from "ethers";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
-import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { checkContractUupsUpgrading, connect, getAddress, proveTx } from "../test-utils/eth";
+import { checkEquality, maxUintForBits, setUpFixture } from "../test-utils/common";
 
 const ADDRESS_ZERO = ethers.ZeroAddress;
 
@@ -84,33 +84,12 @@ function checkCashOutEquality(
   expectedCashOut: TestCashOut,
   cashOutIndex: number
 ) {
-  if (expectedCashOut.status == CashOutStatus.Nonexistent) {
-    expect(actualOnChainCashOut.account).to.equal(
-      ADDRESS_ZERO,
-      `cashOuts[${cashOutIndex}].account is incorrect`
-    );
-    expect(actualOnChainCashOut.amount).to.equal(
-      0,
-      `cashOuts[${cashOutIndex}].amount is incorrect`
-    );
-    expect(actualOnChainCashOut.status).to.equal(
-      expectedCashOut.status,
-      `cashOut[${cashOutIndex}].status is incorrect`
-    );
-  } else {
-    expect(actualOnChainCashOut.account).to.equal(
-      expectedCashOut.account.address,
-      `cashOuts[${cashOutIndex}].account is incorrect`
-    );
-    expect(actualOnChainCashOut.amount).to.equal(
-      expectedCashOut.amount,
-      `cashOuts[${cashOutIndex}].amount is incorrect`
-    );
-    expect(actualOnChainCashOut.status).to.equal(
-      expectedCashOut.status,
-      `cashOut[${cashOutIndex}].status is incorrect`
-    );
-  }
+  const expectedCashOutObj = {
+    status: expectedCashOut.status,
+    account: expectedCashOut.status === CashOutStatus.Nonexistent ? ADDRESS_ZERO : expectedCashOut.account.address,
+    amount: expectedCashOut.status === CashOutStatus.Nonexistent ? 0 : expectedCashOut.amount
+  };
+  checkEquality(actualOnChainCashOut, expectedCashOutObj, cashOutIndex);
 }
 
 function checkCashInEquality(
@@ -118,46 +97,12 @@ function checkCashInEquality(
   expectedCashIn: TestCashIn,
   cashInIndex: number
 ) {
-  if (expectedCashIn.status == CashInStatus.Nonexistent) {
-    expect(actualOnChainCashIn.account).to.equal(
-      ADDRESS_ZERO,
-      `cashIns[${cashInIndex}].account is incorrect`
-    );
-    expect(actualOnChainCashIn.amount).to.equal(
-      0,
-      `cashIns[${cashInIndex}].amount is incorrect`
-    );
-    expect(actualOnChainCashIn.status).to.equal(
-      CashInStatus.Nonexistent,
-      `cashIns[${cashInIndex}].status is incorrect`
-    );
-  } else {
-    expect(actualOnChainCashIn.account).to.equal(
-      expectedCashIn.account.address,
-      `cashIns[${cashInIndex}].account is incorrect`
-    );
-    expect(actualOnChainCashIn.amount).to.equal(
-      expectedCashIn.amount,
-      `cashIns[${cashInIndex}].amount is incorrect`
-    );
-    expect(actualOnChainCashIn.status).to.equal(
-      expectedCashIn.status,
-      `cashIns[${cashInIndex}].status is incorrect`
-    );
-  }
-}
-
-function checkEquality<T extends Record<string, unknown>>(actualObject: T, expectedObject: T) {
-  Object.keys(expectedObject).forEach(property => {
-    const value = actualObject[property];
-    if (typeof value === "undefined" || typeof value === "function" || typeof value === "object") {
-      throw Error(`Property "${property}" is not found`);
-    }
-    expect(value).to.eq(
-      expectedObject[property],
-      `Mismatch in the "${property}" property`
-    );
-  });
+  const expectedCashInObj = {
+    status: expectedCashIn.status,
+    account: expectedCashIn.status === CashInStatus.Nonexistent ? ADDRESS_ZERO : expectedCashIn.account.address,
+    amount: expectedCashIn.status === CashInStatus.Nonexistent ? 0 : expectedCashIn.amount
+  };
+  checkEquality(actualOnChainCashIn, expectedCashInObj, cashInIndex);
 }
 
 async function getImplementationAddress(contract: Contract): Promise<string> {
@@ -176,14 +121,6 @@ async function getImplementationAddresses(contracts: Contract[]): Promise<string
 
 function defineShardIndexByTxId(txId: string, shardCount: number): number {
   return Number(BigInt(ethers.keccak256(txId)) % BigInt(shardCount));
-}
-
-async function setUpFixture<T>(func: () => Promise<T>): Promise<T> {
-  if (network.name === "hardhat") {
-    return loadFixture(func);
-  } else {
-    return func();
-  }
 }
 
 describe("Contracts 'Cashier' and `CashierShard`", async () => {
@@ -228,7 +165,6 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
   const REVERT_ERROR_IF_AMOUNT_IS_ZERO = "Cashier_AmountZero";
   const REVERT_ERROR_IF_CASH_IN_ALREADY_EXECUTED = "Cashier_CashInAlreadyExecuted";
   const REVERT_ERROR_IF_CASH_IN_STATUS_INAPPROPRIATE = "Cashier_CashInStatusInappropriate";
-  const REVERT_ERROR_IF_CASH_OUT_ACCOUNT_INAPPROPRIATE = "Cashier_CashOutAccountInappropriate";
   const REVERT_ERROR_IF_CASH_OUT_STATUS_INAPPROPRIATE = "Cashier_CashOutStatusInappropriate";
   const REVERT_ERROR_IF_IMPLEMENTATION_ADDRESS_INVALID_ON_ROOT = "Cashier_ImplementationAddressInvalid";
   const REVERT_ERROR_IF_HOOK_CALLABLE_CONTRACT_ADDRESS_ZERO = "Cashier_HookCallableContractAddressZero";
@@ -264,7 +200,6 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
   const EVENT_NAME_SHARD_ADDED = "ShardAdded";
   const EVENT_NAME_SHARD_ADMIN_CONFIGURED = "ShardAdminConfigured";
   const EVENT_NAME_SHARD_REPLACED = "ShardReplaced";
-  const EVENT_NAME_ROLE_ADMIN_CHANGED = "RoleAdminChanged";
 
   let cashierFactory: ContractFactory;
   let cashierShardFactory: ContractFactory;
@@ -278,12 +213,12 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
   let user: HardhatEthersSigner;
   let users: HardhatEthersSigner[];
 
-  const ownerRole: string = ethers.id("OWNER_ROLE");
-  const grantorRole: string = ethers.id("GRANTOR_ROLE");
-  const pauserRole: string = ethers.id("PAUSER_ROLE");
-  const rescuerRole: string = ethers.id("RESCUER_ROLE");
-  const cashierRole: string = ethers.id("CASHIER_ROLE");
-  const hookAdminRole: string = ethers.id("HOOK_ADMIN_ROLE");
+  const OWNER_ROLE: string = ethers.id("OWNER_ROLE");
+  const GRANTOR_ROLE: string = ethers.id("GRANTOR_ROLE");
+  const PAUSER_ROLE: string = ethers.id("PAUSER_ROLE");
+  const RESCUER_ROLE: string = ethers.id("RESCUER_ROLE");
+  const CASHIER_ROLE: string = ethers.id("CASHIER_ROLE");
+  const HOOK_ADMIN_ROLE: string = ethers.id("HOOK_ADMIN_ROLE");
 
   before(async () => {
     let secondUser: HardhatEthersSigner;
@@ -325,7 +260,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
   async function deployShardContracts(cashierRoot: Contract, shardCount: number = 3): Promise<Contract[]> {
     const cashierShards: Contract[] = [];
     for (let i = 0; i < shardCount; ++i) {
-      let cashierShard: Contract = await upgrades.deployProxy(cashierShardFactory, [getAddress(cashierRoot)]);
+      let cashierShard = await upgrades.deployProxy(cashierShardFactory, [getAddress(cashierRoot)]) as Contract;
       await cashierShard.waitForDeployment();
       cashierShard = connect(cashierShard, deployer); // Explicitly specifying the initial account
       cashierShards.push(cashierShard);
@@ -337,11 +272,11 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
   async function deployContracts(): Promise<Fixture> {
     const tokenMock = await deployTokenMock();
     const cashierHookMock = await deployCashierHookMock();
-    let cashierRoot: Contract = await upgrades.deployProxy(cashierFactory, [getAddress(tokenMock)]);
+    let cashierRoot = await upgrades.deployProxy(cashierFactory, [getAddress(tokenMock)]) as Contract;
     await cashierRoot.waitForDeployment();
     cashierRoot = connect(cashierRoot, deployer); // Explicitly specifying the initial account
 
-    let cashierAdmin: Contract = await upgrades.deployProxy(cashierFactory, [getAddress(tokenMock)]);
+    let cashierAdmin = await upgrades.deployProxy(cashierFactory, [getAddress(tokenMock)]) as Contract;
     await cashierAdmin.waitForDeployment();
     cashierAdmin = connect(cashierAdmin, deployer); // Explicitly specifying the initial account
 
@@ -360,12 +295,12 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
     const fixture = await deployContracts();
     const { tokenMock, cashierRoot, cashierAdmin, cashierShards } = fixture;
 
-    await proveTx(cashierRoot.grantRole(grantorRole, deployer.address));
-    await proveTx(cashierRoot.grantRole(cashierRole, cashier.address));
-    await proveTx(cashierRoot.grantRole(hookAdminRole, hookAdmin.address));
-    await proveTx(cashierAdmin.grantRole(grantorRole, deployer.address));
-    await proveTx(cashierAdmin.grantRole(cashierRole, cashier.address));
-    await proveTx(cashierAdmin.grantRole(hookAdminRole, hookAdmin.address));
+    await proveTx(cashierRoot.grantRole(GRANTOR_ROLE, deployer.address));
+    await proveTx(cashierRoot.grantRole(CASHIER_ROLE, cashier.address));
+    await proveTx(cashierRoot.grantRole(HOOK_ADMIN_ROLE, hookAdmin.address));
+    await proveTx(cashierAdmin.grantRole(GRANTOR_ROLE, deployer.address));
+    await proveTx(cashierAdmin.grantRole(CASHIER_ROLE, cashier.address));
+    await proveTx(cashierAdmin.grantRole(HOOK_ADMIN_ROLE, hookAdmin.address));
     for (const user of users) {
       await proveTx(tokenMock.mint(user.address, INITIAL_USER_BALANCE));
       await proveTx(connect(tokenMock, user).approve(getAddress(cashierRoot), ethers.MaxUint256));
@@ -382,8 +317,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
   }
 
   async function pauseContract(contract: Contract) {
-    await proveTx(contract.grantRole(grantorRole, deployer.address));
-    await proveTx(contract.grantRole(pauserRole, deployer.address));
+    await proveTx(contract.grantRole(GRANTOR_ROLE, deployer.address));
+    await proveTx(contract.grantRole(PAUSER_ROLE, deployer.address));
     await proveTx(contract.pause());
   }
 
@@ -721,25 +656,28 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       expect(await cashierRoot.underlyingToken()).to.equal(getAddress(tokenMock));
 
       // Role hashes
-      expect(await cashierRoot.OWNER_ROLE()).to.equal(ownerRole);
-      expect(await cashierRoot.PAUSER_ROLE()).to.equal(pauserRole);
-      expect(await cashierRoot.RESCUER_ROLE()).to.equal(rescuerRole);
-      expect(await cashierRoot.CASHIER_ROLE()).to.equal(cashierRole);
-      expect(await cashierRoot.HOOK_ADMIN_ROLE()).to.equal(hookAdminRole);
+      expect(await cashierRoot.OWNER_ROLE()).to.equal(OWNER_ROLE);
+      expect(await cashierRoot.GRANTOR_ROLE()).to.equal(GRANTOR_ROLE);
+      expect(await cashierRoot.PAUSER_ROLE()).to.equal(PAUSER_ROLE);
+      expect(await cashierRoot.RESCUER_ROLE()).to.equal(RESCUER_ROLE);
+      expect(await cashierRoot.CASHIER_ROLE()).to.equal(CASHIER_ROLE);
+      expect(await cashierRoot.HOOK_ADMIN_ROLE()).to.equal(HOOK_ADMIN_ROLE);
 
       // The role admins
-      expect(await cashierRoot.getRoleAdmin(ownerRole)).to.equal(ownerRole);
-      expect(await cashierRoot.getRoleAdmin(pauserRole)).to.equal(grantorRole);
-      expect(await cashierRoot.getRoleAdmin(rescuerRole)).to.equal(grantorRole);
-      expect(await cashierRoot.getRoleAdmin(cashierRole)).to.equal(grantorRole);
-      expect(await cashierRoot.getRoleAdmin(hookAdminRole)).to.equal(grantorRole);
+      expect(await cashierRoot.getRoleAdmin(OWNER_ROLE)).to.equal(OWNER_ROLE);
+      expect(await cashierRoot.getRoleAdmin(GRANTOR_ROLE)).to.equal(OWNER_ROLE);
+      expect(await cashierRoot.getRoleAdmin(PAUSER_ROLE)).to.equal(GRANTOR_ROLE);
+      expect(await cashierRoot.getRoleAdmin(RESCUER_ROLE)).to.equal(GRANTOR_ROLE);
+      expect(await cashierRoot.getRoleAdmin(CASHIER_ROLE)).to.equal(GRANTOR_ROLE);
+      expect(await cashierRoot.getRoleAdmin(HOOK_ADMIN_ROLE)).to.equal(GRANTOR_ROLE);
 
       // The deployer should have the owner role, but not the other roles
-      expect(await cashierRoot.hasRole(ownerRole, deployer.address)).to.equal(true);
-      expect(await cashierRoot.hasRole(pauserRole, deployer.address)).to.equal(false);
-      expect(await cashierRoot.hasRole(rescuerRole, deployer.address)).to.equal(false);
-      expect(await cashierRoot.hasRole(cashierRole, deployer.address)).to.equal(false);
-      expect(await cashierRoot.hasRole(hookAdminRole, deployer.address)).to.equal(false);
+      expect(await cashierRoot.hasRole(OWNER_ROLE, deployer.address)).to.equal(true);
+      expect(await cashierRoot.hasRole(GRANTOR_ROLE, deployer.address)).to.equal(false);
+      expect(await cashierRoot.hasRole(PAUSER_ROLE, deployer.address)).to.equal(false);
+      expect(await cashierRoot.hasRole(RESCUER_ROLE, deployer.address)).to.equal(false);
+      expect(await cashierRoot.hasRole(CASHIER_ROLE, deployer.address)).to.equal(false);
+      expect(await cashierRoot.hasRole(HOOK_ADMIN_ROLE, deployer.address)).to.equal(false);
 
       // The initial contract state is unpaused
       expect(await cashierRoot.paused()).to.equal(false);
@@ -777,9 +715,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
     });
 
     it("Is reverted if the passed token address is zero for the root contract", async () => {
-      const anotherCashierRoot: Contract = await upgrades.deployProxy(cashierFactory, [], {
-        initializer: false
-      });
+      const anotherCashierRoot = await upgrades.deployProxy(cashierFactory, [], { initializer: false }) as Contract;
 
       await expect(
         anotherCashierRoot.initialize(ADDRESS_ZERO)
@@ -787,9 +723,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
     });
 
     it("Is reverted if the passed owner address is zero for the shard contract", async () => {
-      const anotherCashierShard: Contract = await upgrades.deployProxy(cashierShardFactory, [], {
-        initializer: false
-      });
+      const anotherCashierShard =
+        await upgrades.deployProxy(cashierShardFactory, [], { initializer: false }) as Contract;
 
       await expect(
         anotherCashierShard.initialize(ADDRESS_ZERO)
@@ -804,7 +739,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
     });
 
     it("Executes as expected for the shard contract", async () => {
-      const anotherCashierShard: Contract = await upgrades.deployProxy(cashierShardFactory, [deployer.address]);
+      const anotherCashierShard = await upgrades.deployProxy(cashierShardFactory, [deployer.address]) as Contract;
       await checkContractUupsUpgrading(anotherCashierShard, cashierShardFactory);
     });
 
@@ -813,11 +748,11 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
 
       await expect(connect(cashierRoot, user).upgradeToAndCall(cashierRoot, "0x"))
         .to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_UNAUTHORIZED_ACCOUNT)
-        .withArgs(user.address, ownerRole);
+        .withArgs(user.address, OWNER_ROLE);
     });
 
     it("Is reverted if the caller is not the owner or an admin for the shard contract", async () => {
-      const anotherCashierShard: Contract = await upgrades.deployProxy(cashierShardFactory, [deployer.address]);
+      const anotherCashierShard = await upgrades.deployProxy(cashierShardFactory, [deployer.address]) as Contract;
 
       await expect(connect(anotherCashierShard, user).upgradeToAndCall(anotherCashierShard, "0x"))
         .to.be.revertedWithCustomError(anotherCashierShard, REVERT_ERROR_IF_UNAUTHORIZED);
@@ -833,7 +768,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
 
     it("Is reverted if the provided shard implementation is not a shard contract", async () => {
       const { cashierRoot } = await setUpFixture(deployContracts);
-      const anotherCashierShard: Contract = await upgrades.deployProxy(cashierShardFactory, [deployer.address]);
+      const anotherCashierShard = await upgrades.deployProxy(cashierShardFactory, [deployer.address]) as Contract;
       const wrongShardImplementationAddress = await getImplementationAddress(cashierRoot);
 
       await expect(anotherCashierShard.upgradeToAndCall(wrongShardImplementationAddress, "0x"))
@@ -848,7 +783,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
     });
 
     it("Executes as expected for the shard contract", async () => {
-      const anotherCashierShard: Contract = await upgrades.deployProxy(cashierShardFactory, [deployer.address]);
+      const anotherCashierShard = await upgrades.deployProxy(cashierShardFactory, [deployer.address]) as Contract;
       await checkContractUupsUpgrading(anotherCashierShard, cashierShardFactory, "upgradeTo(address)");
     });
 
@@ -858,11 +793,11 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
 
       await expect(connect(cashierRoot, user).upgradeTo(rootImplementationAddress))
         .to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_UNAUTHORIZED_ACCOUNT)
-        .withArgs(user.address, ownerRole);
+        .withArgs(user.address, OWNER_ROLE);
     });
 
     it("Is reverted if the caller is not the owner or an admin for the shard contract", async () => {
-      const anotherCashierShard: Contract = await upgrades.deployProxy(cashierShardFactory, [deployer.address]);
+      const anotherCashierShard = await upgrades.deployProxy(cashierShardFactory, [deployer.address]) as Contract;
       const shardImplementationAddress = await getImplementationAddress(anotherCashierShard);
 
       await expect(connect(anotherCashierShard, user).upgradeTo(shardImplementationAddress))
@@ -879,7 +814,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
 
     it("Is reverted if the provided shard implementation is not a shard contract", async () => {
       const { cashierRoot } = await setUpFixture(deployContracts);
-      const anotherCashierShard: Contract = await upgrades.deployProxy(cashierShardFactory, [deployer.address]);
+      const anotherCashierShard = await upgrades.deployProxy(cashierShardFactory, [deployer.address]) as Contract;
       const wrongShardImplementationAddress = await getImplementationAddress(cashierRoot);
 
       await expect(anotherCashierShard.upgradeTo(wrongShardImplementationAddress))
@@ -911,7 +846,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       ).to.be.revertedWithCustomError(
         cashierRoot,
         REVERT_ERROR_IF_UNAUTHORIZED_ACCOUNT
-      ).withArgs(cashier.address, ownerRole);
+      ).withArgs(cashier.address, OWNER_ROLE);
     });
 
     it("Is reverted if the number of shard exceeds the allowed maximum", async () => {
@@ -1013,7 +948,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       ).to.be.revertedWithCustomError(
         cashierRoot,
         REVERT_ERROR_IF_UNAUTHORIZED_ACCOUNT
-      ).withArgs(user.address, ownerRole);
+      ).withArgs(user.address, OWNER_ROLE);
     });
 
     it("Is reverted if the number of shards to replacement is greater than expected", async () => {
@@ -1079,7 +1014,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       ).to.be.revertedWithCustomError(
         cashierRoot,
         REVERT_ERROR_IF_UNAUTHORIZED_ACCOUNT
-      ).withArgs(user.address, ownerRole);
+      ).withArgs(user.address, OWNER_ROLE);
     });
 
     it("Is reverted if the shard implementation address is not a shard contract", async () => {
@@ -1145,7 +1080,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       ).to.be.revertedWithCustomError(
         cashierRoot,
         REVERT_ERROR_IF_UNAUTHORIZED_ACCOUNT
-      ).withArgs(user.address, ownerRole);
+      ).withArgs(user.address, OWNER_ROLE);
     });
 
     it("Is reverted if the provided root implementation is not a cashier root contract", async () => {
@@ -1215,7 +1150,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       ).to.be.revertedWithCustomError(
         cashierRoot,
         REVERT_ERROR_IF_UNAUTHORIZED_ACCOUNT
-      ).withArgs(user.address, ownerRole);
+      ).withArgs(user.address, OWNER_ROLE);
     });
 
     it("Is reverted if the provide account address is zero", async () => {
@@ -1252,7 +1187,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       ).to.be.revertedWithCustomError(
         cashierRoot,
         REVERT_ERROR_IF_UNAUTHORIZED_ACCOUNT
-      ).withArgs(deployer.address, cashierRole);
+      ).withArgs(deployer.address, CASHIER_ROLE);
     });
 
     it("Is reverted if the account address is zero", async () => {
@@ -1271,7 +1206,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
 
     it("Is reverted if the token amount is greater than 64-bit unsigned integer", async () => {
       const { cashierRoot } = await setUpFixture(deployAndConfigureContracts);
-      const amount = BigInt("0x10000000000000000");
+      const amount = maxUintForBits(64) + 1n;
       await expect(
         connect(cashierRoot, cashier).cashIn(user.address, amount, TRANSACTION_ID1)
       ).to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_AMOUNT_EXCESS);
@@ -1323,7 +1258,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       ).to.be.revertedWithCustomError(
         cashierRoot,
         REVERT_ERROR_IF_UNAUTHORIZED_ACCOUNT
-      ).withArgs(deployer.address, cashierRole);
+      ).withArgs(deployer.address, CASHIER_ROLE);
     });
 
     it("Is reverted if the premint release time is zero", async () => {
@@ -1364,7 +1299,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
 
     it("Is reverted if the token amount is greater than 64-bit unsigned integer", async () => {
       const { cashierRoot } = await setUpFixture(deployAndConfigureContracts);
-      const amount = BigInt("0x10000000000000000");
+      const amount = maxUintForBits(64) + 1n;
       await expect(
         connect(cashierRoot, cashier).cashInPremint(user.address, amount, TRANSACTION_ID1, RELEASE_TIMESTAMP)
       ).to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_AMOUNT_EXCESS);
@@ -1417,7 +1352,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       ).to.be.revertedWithCustomError(
         cashierRoot,
         REVERT_ERROR_IF_UNAUTHORIZED_ACCOUNT
-      ).withArgs(deployer.address, cashierRole);
+      ).withArgs(deployer.address, CASHIER_ROLE);
     });
 
     it("Is reverted if the premint release time is zero", async () => {
@@ -1484,7 +1419,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       ).to.be.revertedWithCustomError(
         cashierRoot,
         REVERT_ERROR_IF_UNAUTHORIZED_ACCOUNT
-      ).withArgs(deployer.address, cashierRole);
+      ).withArgs(deployer.address, CASHIER_ROLE);
     });
   });
 
@@ -1511,7 +1446,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       ).to.be.revertedWithCustomError(
         cashierRoot,
         REVERT_ERROR_IF_UNAUTHORIZED_ACCOUNT
-      ).withArgs(deployer.address, cashierRole);
+      ).withArgs(deployer.address, CASHIER_ROLE);
     });
 
     it("Is reverted if the account address is zero", async () => {
@@ -1530,7 +1465,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
 
     it("Is reverted if the token amount is greater than 64-bit unsigned integer", async () => {
       const { cashierRoot } = await setUpFixture(deployAndConfigureContracts);
-      const amount: bigint = BigInt("0x10000000000000000");
+      const amount: bigint = maxUintForBits(64) + 1n;
       await expect(
         connect(cashierRoot, cashier).requestCashOutFrom(user.address, amount, TRANSACTION_ID1)
       ).to.be.revertedWithCustomError(cashierRoot, REVERT_ERROR_IF_AMOUNT_EXCESS);
@@ -1626,7 +1561,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       ).to.be.revertedWithCustomError(
         cashierRoot,
         REVERT_ERROR_IF_UNAUTHORIZED_ACCOUNT
-      ).withArgs(deployer.address, cashierRole);
+      ).withArgs(deployer.address, CASHIER_ROLE);
     });
 
     it("Is reverted if the off-chain transaction ID is zero", async () => {
@@ -1707,7 +1642,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       ).to.be.revertedWithCustomError(
         cashierRoot,
         REVERT_ERROR_IF_UNAUTHORIZED_ACCOUNT
-      ).withArgs(deployer.address, cashierRole);
+      ).withArgs(deployer.address, CASHIER_ROLE);
     });
 
     it("Is reverted if the off-chain transaction ID is zero", async () => {
@@ -1818,7 +1753,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       ).to.be.revertedWithCustomError(
         cashierRoot,
         REVERT_ERROR_IF_UNAUTHORIZED_ACCOUNT
-      ).withArgs(deployer.address, cashierRole);
+      ).withArgs(deployer.address, CASHIER_ROLE);
     });
 
     it("Is reverted if the token receiver address is zero", async () => {
@@ -1854,7 +1789,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
 
     it("Is reverted if the token amount is greater than 64-bit unsigned integer", async () => {
       const { cashierRoot } = await setUpFixture(deployAndConfigureContracts);
-      const amount: bigint = BigInt("0x10000000000000000");
+      const amount: bigint = maxUintForBits(64) + 1n;
       await expect(
         connect(cashierRoot, cashier).makeInternalCashOut(
           user.address,
@@ -2034,7 +1969,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       ).to.be.revertedWithCustomError(
         cashierRoot,
         REVERT_ERROR_IF_UNAUTHORIZED_ACCOUNT
-      ).withArgs(deployer.address, cashierRole);
+      ).withArgs(deployer.address, CASHIER_ROLE);
     });
 
     it("Is reverted if the token sender address is zero", async () => {
@@ -2061,7 +1996,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
 
     it("Is reverted if the token amount is greater than 64-bit unsigned integer", async () => {
       const { cashierRoot } = await setUpFixture(deployAndConfigureContracts);
-      const amount: bigint = BigInt("0x10000000000000000");
+      const amount: bigint = maxUintForBits(64) + 1n;
       await expect(
         connect(cashierRoot, cashier).forceCashOut(
           user.address,
@@ -2284,7 +2219,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       ).to.be.revertedWithCustomError(
         cashierRoot,
         REVERT_ERROR_IF_UNAUTHORIZED_ACCOUNT
-      ).withArgs(deployer.address, hookAdminRole);
+      ).withArgs(deployer.address, HOOK_ADMIN_ROLE);
 
       await expect(
         connect(cashierRoot, cashier).configureCashOutHooks(
@@ -2295,7 +2230,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       ).to.be.revertedWithCustomError(
         cashierRoot,
         REVERT_ERROR_IF_UNAUTHORIZED_ACCOUNT
-      ).withArgs(cashier.address, hookAdminRole);
+      ).withArgs(cashier.address, HOOK_ADMIN_ROLE);
     });
 
     it("Is reverted if the off-chain transaction ID is zero", async () => {
