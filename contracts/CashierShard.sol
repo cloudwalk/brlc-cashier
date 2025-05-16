@@ -28,22 +28,8 @@ contract CashierShard is CashierShardStorage, OwnableUpgradeable, UUPSExtUpgrade
      * @param owner_ The address of the contract owner.
      */
     function initialize(address owner_) external initializer {
-        __CashierShard_init(owner_);
-    }
-
-    /**
-     * @dev Internal initializer of the upgradable contract.
-     *
-     * See details https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable.
-     *
-     * @param owner_ The address of the contract owner.
-     */
-    function __CashierShard_init(address owner_) internal onlyInitializing {
-        __Context_init_unchained();
         __Ownable_init_unchained(owner_);
-        __UUPSUpgradeable_init_unchained();
-
-        __CashierShard_init_unchained();
+        __UUPSExt_init_unchained(); // This is needed only to avoid errors during coverage assessment
     }
 
     // ----------------------- Modifiers -------------------------- //
@@ -54,13 +40,6 @@ contract CashierShard is CashierShardStorage, OwnableUpgradeable, UUPSExtUpgrade
         }
         _;
     }
-
-    /**
-     * @dev Unchained internal initializer of the upgradable contract.
-     *
-     * See details https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable.
-     */
-    function __CashierShard_init_unchained() internal onlyInitializing {}
 
     // ----------------------- Functions -------------------------- //
 

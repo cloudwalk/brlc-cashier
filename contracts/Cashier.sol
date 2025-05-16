@@ -70,46 +70,16 @@ contract Cashier is
     /**
      * @dev Initializer of the upgradable contract.
      *
-     * See details https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable.
+     * See details: https://docs.openzeppelin.com/upgrades-plugins/writing-upgradeable
      *
      * @param token_ The address of the token to set as the underlying one.
      */
     function initialize(address token_) external initializer {
-        __Cashier_init(token_);
-    }
-
-    /**
-     * @dev Internal initializer of the upgradable contract.
-     *
-     * See details https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable.
-     *
-     * @param token_ The address of the token to set as the underlying one.
-     */
-    function __Cashier_init(address token_) internal onlyInitializing {
-        __Context_init_unchained();
-        __ERC165_init_unchained();
-        __AccessControl_init_unchained();
         __AccessControlExt_init_unchained();
-        __Pausable_init_unchained();
         __PausableExt_init_unchained();
         __Rescuable_init_unchained();
-        __UUPSUpgradeable_init_unchained();
+        __UUPSExt_init_unchained(); // This is needed only to avoid errors during coverage assessment
 
-        __Cashier_init_unchained(token_);
-    }
-
-    /**
-     * @dev Unchained internal initializer of the upgradable contract.
-     *
-     * See details https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable.
-     *
-     * Requirements:
-     *
-     * - The passed address of the underlying token must not be zero.
-     *
-     * @param token_ The address of the token to set as the underlying one.
-     */
-    function __Cashier_init_unchained(address token_) internal onlyInitializing {
         if (token_ == address(0)) {
             revert Cashier_TokenAddressZero();
         }
