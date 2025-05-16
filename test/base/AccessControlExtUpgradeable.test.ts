@@ -6,6 +6,7 @@ import { connect, proveTx } from "../../test-utils/eth";
 import { setUpFixture } from "../../test-utils/common";
 
 describe("Contract 'AccessControlExtUpgradeable'", async () => {
+  const EVENT_NAME_ROLE_ADMIN_CHANGED = "RoleAdminChanged";
   const EVENT_NAME_ROLE_GRANTED = "RoleGranted";
   const EVENT_NAME_ROLE_REVOKED = "RoleRevoked";
 
@@ -13,6 +14,7 @@ describe("Contract 'AccessControlExtUpgradeable'", async () => {
   const REVERT_ERROR_CONTRACT_IS_NOT_INITIALIZING = "NotInitializing";
   const REVERT_ERROR_UNAUTHORIZED_ACCOUNT = "AccessControlUnauthorizedAccount";
 
+  const DEFAULT_ADMIN_ROLE: string = ethers.ZeroHash;
   const OWNER_ROLE: string = ethers.id("OWNER_ROLE");
   const GRANTOR_ROLE: string = ethers.id("GRANTOR_ROLE");
   const USER_ROLE: string = ethers.id("USER_ROLE");
@@ -210,6 +212,33 @@ describe("Contract 'AccessControlExtUpgradeable'", async () => {
           REVERT_ERROR_UNAUTHORIZED_ACCOUNT
         ).withArgs(attacker.address, GRANTOR_ROLE);
       });
+    });
+  });
+
+  describe("Function 'setRoleAdmin()'", async () => {
+    it("Executes as expected for a non-exiting role", async () => {
+      const { accessControlExtMock } = await setUpFixture(deployAccessControlExtMock);
+      const role = ethers.id("SOME_ROLE");
+      const tx1 = accessControlExtMock.setRoleAdmin(role, OWNER_ROLE);
+
+      await expect(tx1)
+        .to.emit(accessControlExtMock, EVENT_NAME_ROLE_ADMIN_CHANGED)
+        .withArgs(role, DEFAULT_ADMIN_ROLE, OWNER_ROLE);
+      expect(await accessControlExtMock.getRoleAdmin(role)).to.equal(OWNER_ROLE);
+
+      const tx2 = accessControlExtMock.setRoleAdmin(role, role);
+      await expect(tx2)
+        .to.emit(accessControlExtMock, EVENT_NAME_ROLE_ADMIN_CHANGED)
+        .withArgs(role, OWNER_ROLE, role);
+      expect(await accessControlExtMock.getRoleAdmin(role)).to.equal(role);
+    });
+
+    it("Is reverted if the called does not have the owner role", async () => {
+      const { accessControlExtMock } = await setUpFixture(deployAccessControlExtMock);
+      const someRole = ethers.id("SOME_ROLE");
+      await expect(connect(accessControlExtMock, attacker).setRoleAdmin(OWNER_ROLE, someRole))
+        .to.be.revertedWithCustomError(accessControlExtMock, REVERT_ERROR_UNAUTHORIZED_ACCOUNT)
+        .withArgs(attacker.address, OWNER_ROLE);
     });
   });
 });
