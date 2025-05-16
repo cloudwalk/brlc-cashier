@@ -5,19 +5,6 @@ pragma solidity ^0.8.0;
 import { ICashierTypes } from "./ICashierTypes.sol";
 
 /**
- * @title ICashierShardErrors interface
- * @author CloudWalk Inc. (See https://www.cloudwalk.io)
- * @dev Defines the custom errors used in the cashier shard contract.
- */
-interface ICashierShardErrors {
-    /// @dev Thrown if the contract is not a cashier shard contract.
-    error CashierShard_ImplementationAddressInvalid();
-
-    /// @dev Thrown if the caller is not an admin.
-    error CashierShard_Unauthorized();
-}
-
-/**
  * @title ICashierShardPrimary interface
  * @author CloudWalk Inc. (See https://www.cloudwalk.io)
  * @dev The primary part of the cashier shard contract interface.
@@ -210,8 +197,21 @@ interface ICashierShardConfiguration {
 }
 
 /**
+ * @title ICashierShardErrors interface
+ * @author CloudWalk Inc. (See https://www.cloudwalk.io)
+ * @dev Defines the custom errors used in the cashier shard contract.
+ */
+interface ICashierShardErrors {
+    /// @dev Thrown if the contract is not a cashier shard contract.
+    error CashierShard_ImplementationAddressInvalid();
+
+    /// @dev Thrown if the caller is not an admin.
+    error CashierShard_Unauthorized();
+}
+
+/**
  * @title ICashierShard interface
  * @author CloudWalk Inc. (See https://www.cloudwalk.io)
  * @dev The full interface of the cashier shard contract.
  */
-interface ICashierShard is ICashierShardErrors, ICashierShardPrimary, ICashierShardConfiguration {}
+interface ICashierShard is ICashierShardPrimary, ICashierShardConfiguration, ICashierShardErrors {}

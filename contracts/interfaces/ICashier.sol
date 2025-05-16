@@ -5,79 +5,6 @@ pragma solidity ^0.8.0;
 import { ICashierTypes } from "./ICashierTypes.sol";
 
 /**
- * @title ICashierErrors interface
- * @author CloudWalk Inc. (See https://cloudwalk.io)
- * @dev Defines the custom errors used in the cashier contract.
- */
-interface ICashierErrors {
-    /// @dev Thrown if the provided account address is zero.
-    error Cashier_AccountAddressZero();
-
-    /// @dev Thrown if the provided amount exceeds the maximum allowed value.
-    error Cashier_AmountExcess();
-
-    /// @dev Thrown if the provided amount is zero.
-    error Cashier_AmountZero();
-
-    /// @dev Thrown if the cash-in operation with the provided txId is already executed.
-    error Cashier_CashInAlreadyExecuted();
-
-    /// @dev Thrown if the cash-in operation with the provided txId has an inappropriate status.
-    error Cashier_CashInStatusInappropriate();
-
-    /// @dev Thrown if the cash-out operation with the provided txId has an inappropriate status.
-    error Cashier_CashOutStatusInappropriate();
-
-    /// @dev Thrown if the contract is not a cashier shard contract.
-    error Cashier_ContractNotShard();
-
-    /// @dev The provided address of the callable contract with the hook function is non-zero but must be.
-    error Cashier_HookCallableContractAddressNonZero();
-
-    /// @dev The provided address of the callable contract with the hook function is zero but must not be.
-    error Cashier_HookCallableContractAddressZero();
-
-    /// @dev The same hook flags for an operation are already configured.
-    error Cashier_HookFlagsAlreadyRegistered();
-
-    /// @dev The provided bit flags to configure the hook logic are invalid.
-    error Cashier_HookFlagsInvalid();
-
-    /// @dev Thrown if the contract is not a cashier root contract.
-    error Cashier_ImplementationAddressInvalid();
-
-    /// @dev Thrown if the provided release time for the premint operation is inappropriate.
-    error Cashier_PremintReleaseTimeInappropriate();
-
-    /// @dev Thrown if the provided shard address is not a contract.
-    error Cashier_ShardAddressNotContract();
-
-    /// @dev Thrown if the provided shard address is zero.
-    error Cashier_ShardAddressZero();
-
-    /// @dev Thrown if the maximum number of shards is exceeded.
-    error Cashier_ShardCountExcess();
-
-    /**
-     * @dev Thrown if the shard contract returns an unexpected error.
-     * @param err The error code returned by the shard contract.
-     */
-    error Cashier_ShardErrorUnexpected(uint256 err);
-
-    /// @dev Thrown if the number of shard contracts to replace is greater than expected.
-    error Cashier_ShardReplacementCountExcess();
-
-    /// @dev Thrown if the provided token address is zero.
-    error Cashier_TokenAddressZero();
-
-    /// @dev Thrown if the minting of tokens failed during a cash-in operation.
-    error Cashier_TokenMintingFailure();
-
-    /// @dev Thrown if the provided off-chain transaction identifier is zero.
-    error Cashier_TxIdZero();
-}
-
-/**
  * @title ICashierPrimary interface
  * @author CloudWalk Inc. (See https://www.cloudwalk.io)
  * @dev The primary part of the cashier contract interface.
@@ -475,8 +402,81 @@ interface ICashierConfiguration {
 }
 
 /**
+ * @title ICashierErrors interface
+ * @author CloudWalk Inc. (See https://cloudwalk.io)
+ * @dev Defines the custom errors used in the cashier contract.
+ */
+interface ICashierErrors {
+    /// @dev Thrown if the provided account address is zero.
+    error Cashier_AccountAddressZero();
+
+    /// @dev Thrown if the provided amount exceeds the maximum allowed value.
+    error Cashier_AmountExcess();
+
+    /// @dev Thrown if the provided amount is zero.
+    error Cashier_AmountZero();
+
+    /// @dev Thrown if the cash-in operation with the provided txId is already executed.
+    error Cashier_CashInAlreadyExecuted();
+
+    /// @dev Thrown if the cash-in operation with the provided txId has an inappropriate status.
+    error Cashier_CashInStatusInappropriate();
+
+    /// @dev Thrown if the cash-out operation with the provided txId has an inappropriate status.
+    error Cashier_CashOutStatusInappropriate();
+
+    /// @dev Thrown if the contract is not a cashier shard contract.
+    error Cashier_ContractNotShard();
+
+    /// @dev The provided address of the callable contract with the hook function is non-zero but must be.
+    error Cashier_HookCallableContractAddressNonZero();
+
+    /// @dev The provided address of the callable contract with the hook function is zero but must not be.
+    error Cashier_HookCallableContractAddressZero();
+
+    /// @dev The same hook flags for an operation are already configured.
+    error Cashier_HookFlagsAlreadyRegistered();
+
+    /// @dev The provided bit flags to configure the hook logic are invalid.
+    error Cashier_HookFlagsInvalid();
+
+    /// @dev Thrown if the contract is not a cashier root contract.
+    error Cashier_ImplementationAddressInvalid();
+
+    /// @dev Thrown if the provided release time for the premint operation is inappropriate.
+    error Cashier_PremintReleaseTimeInappropriate();
+
+    /// @dev Thrown if the provided shard address is not a contract.
+    error Cashier_ShardAddressNotContract();
+
+    /// @dev Thrown if the provided shard address is zero.
+    error Cashier_ShardAddressZero();
+
+    /// @dev Thrown if the maximum number of shards is exceeded.
+    error Cashier_ShardCountExcess();
+
+    /**
+     * @dev Thrown if the shard contract returns an unexpected error.
+     * @param err The error code returned by the shard contract.
+     */
+    error Cashier_ShardErrorUnexpected(uint256 err);
+
+    /// @dev Thrown if the number of shard contracts to replace is greater than expected.
+    error Cashier_ShardReplacementCountExcess();
+
+    /// @dev Thrown if the provided token address is zero.
+    error Cashier_TokenAddressZero();
+
+    /// @dev Thrown if the minting of tokens failed during a cash-in operation.
+    error Cashier_TokenMintingFailure();
+
+    /// @dev Thrown if the provided off-chain transaction identifier is zero.
+    error Cashier_TxIdZero();
+}
+
+/**
  * @title ICashier interface
  * @author CloudWalk Inc. (See https://cloudwalk.io)
  * @dev The full interface of the cashier contract.
  */
-interface ICashier is ICashierErrors, ICashierPrimary, ICashierConfiguration {}
+interface ICashier is ICashierPrimary, ICashierConfiguration, ICashierErrors {}
