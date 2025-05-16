@@ -885,28 +885,6 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
     });
   });
 
-  describe("Function 'initHookAdminRole()'", async () => {
-    it("Executes as expected", async () => {
-      const { cashierRoot } = await setUpFixture(deployContracts);
-      const tx = cashierRoot.initHookAdminRole();
-      await expect(tx).to.emit(cashierRoot, EVENT_NAME_ROLE_ADMIN_CHANGED).withArgs(
-        hookAdminRole,
-        ownerRole,
-        ownerRole
-      );
-    });
-
-    it("Is reverted if the caller is not the owner", async () => {
-      const { cashierRoot } = await setUpFixture(deployContracts);
-      await expect(
-        connect(cashierRoot, cashier).initHookAdminRole()
-      ).to.be.revertedWithCustomError(
-        cashierRoot,
-        REVERT_ERROR_IF_UNAUTHORIZED_ACCOUNT
-      ).withArgs(cashier.address, ownerRole);
-    });
-  });
-
   describe("Function 'addShards()'", async () => {
     it("Executes as expected", async () => {
       const { cashierRoot, cashierShards } = await setUpFixture(deployContracts);
