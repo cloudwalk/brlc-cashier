@@ -279,6 +279,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
   let users: HardhatEthersSigner[];
 
   const ownerRole: string = ethers.id("OWNER_ROLE");
+  const grantorRole: string = ethers.id("GRANTOR_ROLE");
   const pauserRole: string = ethers.id("PAUSER_ROLE");
   const rescuerRole: string = ethers.id("RESCUER_ROLE");
   const cashierRole: string = ethers.id("CASHIER_ROLE");
@@ -379,6 +380,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
   }
 
   async function pauseContract(contract: Contract) {
+    await proveTx(contract.grantRole(grantorRole, deployer.address));
     await proveTx(contract.grantRole(pauserRole, deployer.address));
     await proveTx(contract.pause());
   }
@@ -725,8 +727,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
 
       // The role admins
       expect(await cashierRoot.getRoleAdmin(ownerRole)).to.equal(ownerRole);
-      expect(await cashierRoot.getRoleAdmin(pauserRole)).to.equal(ownerRole);
-      expect(await cashierRoot.getRoleAdmin(rescuerRole)).to.equal(ownerRole);
+      expect(await cashierRoot.getRoleAdmin(pauserRole)).to.equal(grantorRole);
+      expect(await cashierRoot.getRoleAdmin(rescuerRole)).to.equal(grantorRole);
       expect(await cashierRoot.getRoleAdmin(cashierRole)).to.equal(ownerRole);
       expect(await cashierRoot.getRoleAdmin(hookAdminRole)).to.equal(ownerRole);
 

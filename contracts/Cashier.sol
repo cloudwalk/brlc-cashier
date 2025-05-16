@@ -47,9 +47,6 @@ contract Cashier is
     /// @dev The maximum number of shards.
     uint256 public constant MAX_SHARD_COUNT = 1100;
 
-    /// @dev The role of this contract owner.
-    bytes32 public constant OWNER_ROLE = keccak256("OWNER_ROLE");
-
     /// @dev The role of cashier that is allowed to execute the cash-in operations.
     bytes32 public constant CASHIER_ROLE = keccak256("CASHIER_ROLE");
 
@@ -94,8 +91,8 @@ contract Cashier is
         __AccessControl_init_unchained();
         __AccessControlExt_init_unchained();
         __Pausable_init_unchained();
-        __PausableExt_init_unchained(OWNER_ROLE);
-        __Rescuable_init_unchained(OWNER_ROLE);
+        __PausableExt_init_unchained();
+        __Rescuable_init_unchained();
         __UUPSUpgradeable_init_unchained();
 
         __Cashier_init_unchained(token_);
