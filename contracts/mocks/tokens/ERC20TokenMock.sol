@@ -48,7 +48,7 @@ contract ERC20TokenMock is ERC20, IERC20Mintable {
         mintResult = true;
     }
 
-    // ------------------ Functions ------------------------------- //
+    // ------------------ Transactional functions ----------------- //
 
     /**
      * @dev Calls the appropriate internal function to mint needed amount of tokens for an account.

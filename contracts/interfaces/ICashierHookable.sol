@@ -106,7 +106,7 @@ interface ICashierHookable is ICashierHookableTypes {
         address callableContract
     );
 
-    // ------------------ Functions ------------------------------- //
+    // ------------------ Transactional functions ----------------- //
 
     /**
      * @dev Configures the hook logic for a cash-out operation.

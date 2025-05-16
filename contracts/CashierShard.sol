@@ -41,7 +41,7 @@ contract CashierShard is CashierShardStorage, OwnableUpgradeable, UUPSExtUpgrade
         _;
     }
 
-    // ----------------------- Functions -------------------------- //
+    // ------------------ Transactional functions ----------------- //
 
     /**
      * @inheritdoc ICashierShardPrimary

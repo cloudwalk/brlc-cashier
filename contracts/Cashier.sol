@@ -39,6 +39,8 @@ contract Cashier is
     ICashierHookable,
     Versionable
 {
+    // ------------------ Types ----------------------------------- //
+
     using SafeERC20 for IERC20;
     using EnumerableSet for EnumerableSet.Bytes32Set;
 
@@ -91,7 +93,7 @@ contract Cashier is
         _grantRole(OWNER_ROLE, _msgSender());
     }
 
-    // ------------------ Functions ------------------------------- //
+    // ------------------ Transactional functions ----------------- //
 
     /**
      * @inheritdoc ICashierPrimary

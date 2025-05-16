@@ -183,7 +183,7 @@ interface ICashierPrimary is ICashierTypes {
         uint256 amount
     );
 
-    // ------------------ Functions ------------------------------- //
+    // ------------------ Transactional functions ----------------- //
 
     /**
      * @dev Executes a cash-in operation as a common mint.
@@ -433,7 +433,7 @@ interface ICashierConfiguration {
      */
     event ShardAdminConfigured(address account, bool status);
 
-    // ------------------ Functions ------------------------------- //
+    // ------------------ Transactional functions ----------------- //
 
     /**
      * @dev Sets the shards that are allowed to process cash-out operations.
@@ -479,10 +479,4 @@ interface ICashierConfiguration {
  * @author CloudWalk Inc. (See https://cloudwalk.io)
  * @dev The full interface of the cashier contract.
  */
-interface ICashier is
-    ICashierErrors, // Tools: this comment prevents Prettier from formatting into a single line.
-    ICashierPrimary,
-    ICashierConfiguration
-{
-
-}
+interface ICashier is ICashierErrors, ICashierPrimary, ICashierConfiguration {}
