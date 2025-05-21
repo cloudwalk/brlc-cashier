@@ -719,7 +719,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
 
       await expect(
         anotherCashierRoot.initialize(ADDRESS_ZERO)
-      ).to.be.revertedWithCustomError(cashierFactory, REVERT_ERROR_IF_TOKEN_ADDRESS_IS_ZERO);
+      ).to.be.revertedWithCustomError(anotherCashierRoot, REVERT_ERROR_IF_TOKEN_ADDRESS_IS_ZERO);
     });
 
     it("Is reverted if the passed owner address is zero for the shard contract", async () => {
@@ -728,7 +728,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
 
       await expect(
         anotherCashierShard.initialize(ADDRESS_ZERO)
-      ).to.be.revertedWithCustomError(cashierShardFactory, REVERT_ERROR_IF_OWNABLE_INVALID_OWNER);
+      ).to.be.revertedWithCustomError(anotherCashierShard, REVERT_ERROR_IF_OWNABLE_INVALID_OWNER);
     });
   });
 
