@@ -56,7 +56,7 @@ abstract contract AccessControlExtUpgradeable is AccessControlUpgradeable {
     }
 
     /**
-     * @dev Revokes a role to accounts in batch.
+     * @dev Revokes a role from accounts in batch.
      *
      * Emits a {RoleRevoked} event for each account that has the provided role previously.
      *
