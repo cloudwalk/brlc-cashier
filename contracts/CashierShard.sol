@@ -21,7 +21,7 @@ contract CashierShard is CashierShardStorage, OwnableUpgradeable, UUPSExtUpgrade
     // ------------------ Initializers ---------------------------- //
 
     /**
-     * @dev Initializer of the upgradable contract.
+     * @dev Initializer of the upgradeable contract.
      *
      * See details https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable.
      *

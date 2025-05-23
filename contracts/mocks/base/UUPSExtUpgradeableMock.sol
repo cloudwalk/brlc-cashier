@@ -5,9 +5,9 @@ pragma solidity ^0.8.20;
 import { UUPSExtUpgradeable } from "../../base/UUPSExtUpgradeable.sol";
 
 /**
- * @title UUPSExtUpgradableMock contract
+ * @title UUPSExtUpgradeableMock contract
  * @author CloudWalk Inc. (See https://www.cloudwalk.io)
- * @dev An implementation of the {UUPSExtUpgradable} contract for test purposes.
+ * @dev An implementation of the {UUPSExtUpgradeable} contract for test purposes.
  */
 contract UUPSExtUpgradeableMock is UUPSExtUpgradeable {
     // ------------------ Events ---------------------------------- //
@@ -18,7 +18,7 @@ contract UUPSExtUpgradeableMock is UUPSExtUpgradeable {
     // ------------------ Initializers ---------------------------- //
 
     /**
-     * @dev The initialize function of the upgradable contract.
+     * @dev The initialize function of the upgradeable contract.
      *
      * See details: https://docs.openzeppelin.com/upgrades-plugins/writing-upgradeable
      */

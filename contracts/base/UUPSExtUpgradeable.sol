@@ -21,7 +21,7 @@ abstract contract UUPSExtUpgradeable is UUPSUpgradeable {
     // ------------------ Initializers ---------------------------- //
 
     /**
-     * @dev Unchained internal initializer of the upgradable contract.
+     * @dev Unchained internal initializer of the upgradeable contract.
      *
      * See details: https://docs.openzeppelin.com/contracts/5.x/upgradeable#multiple-inheritance
      *
