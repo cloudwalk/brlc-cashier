@@ -2793,7 +2793,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
   });
 
   describe("Special scenarios for shard functions", async () => {
-    it("The 'setAdmin()' function is reverted if it is called not by the owner or an admin", async () => {
+    it("The 'setAdmin()' function is reverted if called not by the owner or an admin", async () => {
       const { cashierShards } = await setUpFixture(deployAndConfigureContracts);
       await expect(connect(cashierShards[0], deployer).setAdmin(
         user.address, // account
@@ -2801,7 +2801,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       )).to.be.revertedWithCustomError(cashierShards[0], REVERT_ERROR_UNAUTHORIZED);
     });
 
-    it("The 'registerCashIn()' function is reverted if it is called not by the owner or an admin", async () => {
+    it("The 'registerCashIn()' function is reverted if called not by the owner or an admin", async () => {
       const { cashierShards } = await setUpFixture(deployAndConfigureContracts);
       await expect(connect(cashierShards[0], deployer).registerCashIn(
         user.address, // account
@@ -2811,14 +2811,14 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       )).to.be.revertedWithCustomError(cashierShards[0], REVERT_ERROR_UNAUTHORIZED);
     });
 
-    it("The 'revokeCashIn()' function is reverted if it is called not by the owner or an admin", async () => {
+    it("The 'revokeCashIn()' function is reverted if called not by the owner or an admin", async () => {
       const { cashierShards } = await setUpFixture(deployAndConfigureContracts);
       await expect(
         connect(cashierShards[0], deployer).revokeCashIn(TRANSACTION_ID1)
       ).to.be.revertedWithCustomError(cashierShards[0], REVERT_ERROR_UNAUTHORIZED);
     });
 
-    it("The 'registerCashOut()' function is reverted if it is called not by the owner or an admin", async () => {
+    it("The 'registerCashOut()' function is reverted if called not by the owner or an admin", async () => {
       const { cashierShards } = await setUpFixture(deployAndConfigureContracts);
       await expect(
         connect(cashierShards[0], deployer).registerCashOut(
@@ -2829,7 +2829,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       ).to.be.revertedWithCustomError(cashierShards[0], REVERT_ERROR_UNAUTHORIZED);
     });
 
-    it("The 'registerInternalCashOut()' function is reverted if it is called not by the owner or an admin", async () => {
+    it("The 'registerInternalCashOut()' function is reverted if called not by the owner or an admin", async () => {
       const { cashierShards } = await setUpFixture(deployAndConfigureContracts);
       await expect(
         connect(cashierShards[0], deployer).registerInternalCashOut(
@@ -2840,7 +2840,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       ).to.be.revertedWithCustomError(cashierShards[0], REVERT_ERROR_UNAUTHORIZED);
     });
 
-    it("The 'registerForcedCashOut()' function is reverted if it is called not by the owner or an admin", async () => {
+    it("The 'registerForcedCashOut()' function is reverted if called not by the owner or an admin", async () => {
       const { cashierShards } = await setUpFixture(deployAndConfigureContracts);
       await expect(
         connect(cashierShards[0], deployer).registerForcedCashOut(
@@ -2851,7 +2851,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       ).to.be.revertedWithCustomError(cashierShards[0], REVERT_ERROR_UNAUTHORIZED);
     });
 
-    it("The 'processCashOut()' function is reverted if it is called not by the owner or an admin", async () => {
+    it("The 'processCashOut()' function is reverted if called not by the owner or an admin", async () => {
       const { cashierShards } = await setUpFixture(deployAndConfigureContracts);
       await expect(
         connect(cashierShards[0], deployer).processCashOut(
@@ -2861,7 +2861,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       ).to.be.revertedWithCustomError(cashierShards[0], REVERT_ERROR_UNAUTHORIZED);
     });
 
-    it("The 'setBitInCashOutFlags()' function is reverted if it is called not by the owner or an admin", async () => {
+    it("The 'setBitInCashOutFlags()' function is reverted if called not by the owner or an admin", async () => {
       const { cashierShards } = await setUpFixture(deployAndConfigureContracts);
       await expect(
         connect(cashierShards[0], deployer).setBitInCashOutFlags(
@@ -2871,7 +2871,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       ).to.be.revertedWithCustomError(cashierShards[0], REVERT_ERROR_UNAUTHORIZED);
     });
 
-    it("The 'resetBitInCashOutFlags()' function is reverted if it is called not by the owner or an admin", async () => {
+    it("The 'resetBitInCashOutFlags()' function is reverted if called not by the owner or an admin", async () => {
       const { cashierShards } = await setUpFixture(deployAndConfigureContracts);
       await expect(
         connect(cashierShards[0], deployer).resetBitInCashOutFlags(
