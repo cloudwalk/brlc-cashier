@@ -730,6 +730,16 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
         anotherCashierShard.initialize(ADDRESS_ZERO)
       ).to.be.revertedWithCustomError(anotherCashierShard, REVERT_ERROR_OWNABLE_INVALID_OWNER);
     });
+
+    it("Is reverted for the contract implementation if it is called even for the first time", async () => {
+      const tokenAddress = user.address;
+      const cashierImplementation = await cashierFactory.deploy() as Contract;
+      await cashierImplementation.waitForDeployment();
+
+      await expect(
+        cashierImplementation.initialize(tokenAddress)
+      ).to.be.revertedWithCustomError(cashierImplementation, REVERT_ERROR_CONTRACT_INITIALIZATION_IS_INVALID);
+    });
   });
 
   describe("Function 'upgradeToAndCall()'", async () => {
