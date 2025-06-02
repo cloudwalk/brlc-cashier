@@ -616,7 +616,7 @@ contract Cashier is
     // ------------------ Pure functions -------------------------- //
 
     /**
-     * @inheritdoc ICashierPrimary
+     * @inheritdoc ICashier
      */
     function proveCashierRoot() external pure {}
 

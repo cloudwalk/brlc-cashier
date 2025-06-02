@@ -325,11 +325,6 @@ interface ICashierPrimary is ICashierTypes {
      * @dev Returns the address of the underlying token.
      */
     function underlyingToken() external view returns (address);
-
-    /**
-     * @dev Proves that the contract is the cashier root contract.
-     */
-    function proveCashierRoot() external pure;
 }
 
 /**
@@ -479,4 +474,9 @@ interface ICashierErrors {
  * @author CloudWalk Inc. (See https://cloudwalk.io)
  * @dev The full interface of the cashier contract.
  */
-interface ICashier is ICashierPrimary, ICashierConfiguration, ICashierErrors {}
+interface ICashier is ICashierPrimary, ICashierConfiguration, ICashierErrors {
+    /**
+     * @dev Proves that the contract is the cashier root contract.
+     */
+    function proveCashierRoot() external pure;
+}

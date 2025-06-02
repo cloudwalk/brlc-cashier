@@ -265,7 +265,7 @@ contract CashierShard is CashierShardStorage, OwnableUpgradeable, UUPSExtUpgrade
     // ------------------ Pure functions -------------------------- //
 
     /**
-     * @inheritdoc ICashierShardPrimary
+     * @inheritdoc ICashierShard
      */
     function proveCashierShard() external pure {}
 

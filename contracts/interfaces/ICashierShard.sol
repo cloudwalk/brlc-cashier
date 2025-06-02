@@ -160,13 +160,6 @@ interface ICashierShardPrimary is ICashierTypes {
      * @return operations The data of the cash-out operations in the form of a structure.
      */
     function getCashOuts(bytes32[] memory txIds) external view returns (CashOutOperation[] memory operations);
-
-    // ------------------ Pure functions -------------------------- //
-
-    /**
-     * @dev Proves that the contract is the cashier shard contract.
-     */
-    function proveCashierShard() external pure;
 }
 
 /**
@@ -214,4 +207,9 @@ interface ICashierShardErrors {
  * @author CloudWalk Inc. (See https://www.cloudwalk.io)
  * @dev The full interface of the cashier shard contract.
  */
-interface ICashierShard is ICashierShardPrimary, ICashierShardConfiguration, ICashierShardErrors {}
+interface ICashierShard is ICashierShardPrimary, ICashierShardConfiguration, ICashierShardErrors {
+    /**
+     * @dev Proves that the contract is the cashier shard contract.
+     */
+    function proveCashierShard() external pure;
+}
