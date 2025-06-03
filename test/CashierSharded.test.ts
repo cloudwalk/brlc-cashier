@@ -151,38 +151,6 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
     patch: 0
   };
 
-  // Errors of the lib contracts
-  const ERROR_NAME_CONTRACT_INITIALIZATION_IS_INVALID = "InvalidInitialization";
-  const ERROR_NAME_CONTRACT_IS_PAUSED = "EnforcedPause";
-  const ERROR_NAME_ERC20_TOKEN_TRANSFER_AMOUNT_EXCEEDS_BALANCE = "ERC20InsufficientBalance";
-  const ERROR_NAME_OWNABLE_INVALID_OWNER = "OwnableInvalidOwner";
-  const ERROR_NAME_UNAUTHORIZED = "CashierShard_Unauthorized";
-  const ERROR_NAME_UNAUTHORIZED_ACCOUNT = "AccessControlUnauthorizedAccount";
-
-  // Errors of the contracts under test
-  const ERROR_NAME_ACCOUNT_ADDRESS_IS_ZERO = "Cashier_AccountAddressZero";
-  const ERROR_NAME_AMOUNT_EXCESS = "Cashier_AmountExcess";
-  const ERROR_NAME_AMOUNT_IS_ZERO = "Cashier_AmountZero";
-  const ERROR_NAME_CASH_IN_ALREADY_EXECUTED = "Cashier_CashInAlreadyExecuted";
-  const ERROR_NAME_CASH_IN_STATUS_INAPPROPRIATE = "Cashier_CashInStatusInappropriate";
-  const ERROR_NAME_CASH_OUT_STATUS_INAPPROPRIATE = "Cashier_CashOutStatusInappropriate";
-  const ERROR_NAME_IMPLEMENTATION_ADDRESS_INVALID_ON_ROOT = "Cashier_ImplementationAddressInvalid";
-  const ERROR_NAME_HOOK_CALLABLE_CONTRACT_ADDRESS_ZERO = "Cashier_HookCallableContractAddressZero";
-  const ERROR_NAME_HOOK_CALLABLE_CONTRACT_ADDRESS_NON_ZERO = "Cashier_HookCallableContractAddressNonZero";
-  const ERROR_NAME_HOOK_FLAGS_ALREADY_REGISTERED = "Cashier_HookFlagsAlreadyRegistered";
-  const ERROR_NAME_HOOK_FLAGS_INVALID = "Cashier_HookFlagsInvalid";
-  const ERROR_NAME_PREMINT_RELEASE_TIME_INAPPROPRIATE = "Cashier_PremintReleaseTimeInappropriate";
-  const ERROR_NAME_SHARD_ADDRESS_IS_NOT_CONTRACT_ON_ROOT = "Cashier_ShardAddressNotContract";
-  const ERROR_NAME_SHARD_ADDRESS_IS_ZERO_ON_ROOT = "Cashier_ShardAddressZero";
-  const ERROR_NAME_CONTRACT_NOT_SHARD_ON_ROOT = "Cashier_ContractNotShard";
-  const ERROR_NAME_CONTRACT_NOT_SHARD_ON_SHARD = "CashierShard_ImplementationAddressInvalid";
-  const ERROR_NAME_SHARD_COUNT_EXCESS = "Cashier_ShardCountExcess";
-  const ERROR_NAME_SHARD_REPLACEMENT_COUNT_EXCESS = "Cashier_ShardReplacementCountExcess";
-  const ERROR_NAME_TOKEN_ADDRESS_IS_ZERO = "Cashier_TokenAddressZero";
-  const ERROR_NAME_TOKEN_MINTING_FAILURE = "Cashier_TokenMintingFailure";
-  const ERROR_NAME_TRANSACTION_ID_IS_ZERO = "Cashier_TxIdZero";
-  const ERROR_NAME_SHARD_ERROR_UNEXPECTED = "Cashier_ShardErrorUnexpected";
-
   // Events of the contracts under test
   const EVENT_NAME_CASH_IN = "CashIn";
   const EVENT_NAME_CASH_IN_PREMINT = "CashInPremint";
@@ -200,6 +168,38 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
   const EVENT_NAME_SHARD_ADDED = "ShardAdded";
   const EVENT_NAME_SHARD_ADMIN_CONFIGURED = "ShardAdminConfigured";
   const EVENT_NAME_SHARD_REPLACED = "ShardReplaced";
+
+  // Errors of the lib contracts
+  const ERROR_NAME_CONTRACT_INITIALIZATION_IS_INVALID = "InvalidInitialization";
+  const ERROR_NAME_CONTRACT_IS_PAUSED = "EnforcedPause";
+  const ERROR_NAME_ERC20_TOKEN_TRANSFER_AMOUNT_EXCEEDS_BALANCE = "ERC20InsufficientBalance";
+  const ERROR_NAME_OWNABLE_INVALID_OWNER = "OwnableInvalidOwner";
+  const ERROR_NAME_UNAUTHORIZED = "CashierShard_Unauthorized";
+  const ERROR_NAME_UNAUTHORIZED_ACCOUNT = "AccessControlUnauthorizedAccount";
+
+  // Errors of the contracts under test
+  const ERROR_NAME_ACCOUNT_ADDRESS_IS_ZERO = "Cashier_AccountAddressZero";
+  const ERROR_NAME_AMOUNT_EXCESS = "Cashier_AmountExcess";
+  const ERROR_NAME_AMOUNT_IS_ZERO = "Cashier_AmountZero";
+  const ERROR_NAME_CASH_IN_ALREADY_EXECUTED = "Cashier_CashInAlreadyExecuted";
+  const ERROR_NAME_CASH_IN_STATUS_INAPPROPRIATE = "Cashier_CashInStatusInappropriate";
+  const ERROR_NAME_CASH_OUT_STATUS_INAPPROPRIATE = "Cashier_CashOutStatusInappropriate";
+  const ERROR_NAME_CONTRACT_NOT_SHARD_ON_ROOT = "Cashier_ContractNotShard";
+  const ERROR_NAME_CONTRACT_NOT_SHARD_ON_SHARD = "CashierShard_ImplementationAddressInvalid";
+  const ERROR_NAME_IMPLEMENTATION_ADDRESS_INVALID_ON_ROOT = "Cashier_ImplementationAddressInvalid";
+  const ERROR_NAME_HOOK_CALLABLE_CONTRACT_ADDRESS_ZERO = "Cashier_HookCallableContractAddressZero";
+  const ERROR_NAME_HOOK_CALLABLE_CONTRACT_ADDRESS_NON_ZERO = "Cashier_HookCallableContractAddressNonZero";
+  const ERROR_NAME_HOOK_FLAGS_ALREADY_REGISTERED = "Cashier_HookFlagsAlreadyRegistered";
+  const ERROR_NAME_HOOK_FLAGS_INVALID = "Cashier_HookFlagsInvalid";
+  const ERROR_NAME_PREMINT_RELEASE_TIME_INAPPROPRIATE = "Cashier_PremintReleaseTimeInappropriate";
+  const ERROR_NAME_SHARD_ADDRESS_IS_NOT_CONTRACT_ON_ROOT = "Cashier_ShardAddressNotContract";
+  const ERROR_NAME_SHARD_ADDRESS_IS_ZERO_ON_ROOT = "Cashier_ShardAddressZero";
+  const ERROR_NAME_SHARD_COUNT_EXCESS = "Cashier_ShardCountExcess";
+  const ERROR_NAME_SHARD_ERROR_UNEXPECTED = "Cashier_ShardErrorUnexpected";
+  const ERROR_NAME_SHARD_REPLACEMENT_COUNT_EXCESS = "Cashier_ShardReplacementCountExcess";
+  const ERROR_NAME_TOKEN_ADDRESS_IS_ZERO = "Cashier_TokenAddressZero";
+  const ERROR_NAME_TOKEN_MINTING_FAILURE = "Cashier_TokenMintingFailure";
+  const ERROR_NAME_TRANSACTION_ID_IS_ZERO = "Cashier_TxIdZero";
 
   let cashierFactory: ContractFactory;
   let cashierShardFactory: ContractFactory;
