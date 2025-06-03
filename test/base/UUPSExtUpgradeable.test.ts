@@ -9,12 +9,12 @@ const ADDRESS_ZERO = ethers.ZeroAddress;
 
 describe("Contracts 'UUPSExtUpgradeable'", async () => {
   // Errors of the lib contracts
-  const REVERT_ERROR_IF_CONTRACT_INITIALIZATION_IS_INVALID = "InvalidInitialization";
-  const REVERT_ERROR_IF_CONTRACT_IS_NOT_INITIALIZING = "NotInitializing";
+  const ERROR_NAME_IF_CONTRACT_INITIALIZATION_IS_INVALID = "InvalidInitialization";
+  const ERROR_NAME_IF_CONTRACT_IS_NOT_INITIALIZING = "NotInitializing";
 
   // Errors of the contract under test
-  const REVERT_ERROR_IMPLEMENTATION_ADDRESS_NOT_CONTRACT = "UUPSExtUpgradeable_ImplementationAddressNotContract";
-  const REVERT_ERROR_IMPLEMENTATION_ADDRESS_ZERO = "UUPSExtUpgradeable_ImplementationAddressZero";
+  const ERROR_NAME_IMPLEMENTATION_ADDRESS_NOT_CONTRACT = "UUPSExtUpgradeable_ImplementationAddressNotContract";
+  const ERROR_NAME_IMPLEMENTATION_ADDRESS_ZERO = "UUPSExtUpgradeable_ImplementationAddressZero";
 
   // Events of the contracts under test
   const EVENT_NAME_MOCK_VALIDATE_UPGRADE_CALL = "MockValidateUpgradeCall";
@@ -44,14 +44,14 @@ describe("Contracts 'UUPSExtUpgradeable'", async () => {
       const { uupsExtension } = await setUpFixture(deployContract);
       await expect(
         uupsExtension.initialize()
-      ).to.be.revertedWithCustomError(uupsExtension, REVERT_ERROR_IF_CONTRACT_INITIALIZATION_IS_INVALID);
+      ).to.be.revertedWithCustomError(uupsExtension, ERROR_NAME_IF_CONTRACT_INITIALIZATION_IS_INVALID);
     });
 
     it("The internal unchained initializer is reverted if it is called outside the init process", async () => {
       const { uupsExtension } = await setUpFixture(deployContract);
       await expect(
         uupsExtension.callParentInitializerUnchained()
-      ).to.be.revertedWithCustomError(uupsExtension, REVERT_ERROR_IF_CONTRACT_IS_NOT_INITIALIZING);
+      ).to.be.revertedWithCustomError(uupsExtension, ERROR_NAME_IF_CONTRACT_IS_NOT_INITIALIZING);
     });
   });
 
@@ -75,14 +75,14 @@ describe("Contracts 'UUPSExtUpgradeable'", async () => {
       const { uupsExtension } = await setUpFixture(deployContract);
       await expect(
         uupsExtension.upgradeToAndCall(ADDRESS_ZERO, "0x")
-      ).to.be.revertedWithCustomError(uupsExtension, REVERT_ERROR_IMPLEMENTATION_ADDRESS_ZERO);
+      ).to.be.revertedWithCustomError(uupsExtension, ERROR_NAME_IMPLEMENTATION_ADDRESS_ZERO);
     });
 
     it("Is reverted if the new implementation address is not a contract", async () => {
       const { uupsExtension } = await setUpFixture(deployContract);
       await expect(
         uupsExtension.upgradeToAndCall(deployer.address, "0x")
-      ).to.be.revertedWithCustomError(uupsExtension, REVERT_ERROR_IMPLEMENTATION_ADDRESS_NOT_CONTRACT);
+      ).to.be.revertedWithCustomError(uupsExtension, ERROR_NAME_IMPLEMENTATION_ADDRESS_NOT_CONTRACT);
     });
   });
 });
