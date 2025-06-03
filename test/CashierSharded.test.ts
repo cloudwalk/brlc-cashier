@@ -243,7 +243,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
     const name = "ERC20 Test";
     const symbol = "TEST";
 
-    let tokenMock: Contract = await tokenMockFactory.deploy(name, symbol) as Contract;
+    let tokenMock = await tokenMockFactory.deploy(name, symbol) as Contract;
     await tokenMock.waitForDeployment();
     tokenMock = connect(tokenMock, deployer); // Explicitly specifying the initial account
 
@@ -251,7 +251,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
   }
 
   async function deployCashierHookMock(): Promise<Contract> {
-    const cashierHookMock: Contract = await cashierHookMockFactory.deploy() as Contract;
+    const cashierHookMock = await cashierHookMockFactory.deploy() as Contract;
     await cashierHookMock.waitForDeployment();
 
     return cashierHookMock;
@@ -1004,12 +1004,12 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
     it("Executes as expected", async () => {
       const { cashierRoot, cashierAdmin, cashierShards } = await setUpFixture(deployAndConfigureContracts);
 
-      const targetShardImplementation1: Contract = await cashierShardFactory.deploy() as Contract;
+      const targetShardImplementation1 = await cashierShardFactory.deploy() as Contract;
       await targetShardImplementation1.waitForDeployment();
       const targetShardImplementationAddress1 = getAddress(targetShardImplementation1);
       await executeUpgradeShardsTo(cashierRoot, cashierShards, targetShardImplementationAddress1);
 
-      const targetShardImplementation2: Contract = await cashierShardFactory.deploy() as Contract;
+      const targetShardImplementation2 = await cashierShardFactory.deploy() as Contract;
       await targetShardImplementation2.waitForDeployment();
       const targetShardImplementationAddress2 = getAddress(targetShardImplementation2);
       await executeUpgradeShardsTo(cashierAdmin, cashierShards, targetShardImplementationAddress2);
@@ -1041,11 +1041,11 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
     it("Executes as expected", async () => {
       const { cashierRoot, cashierShards } = await setUpFixture(deployAndConfigureContracts);
 
-      const targetRootImplementation: Contract = await cashierFactory.deploy() as Contract;
+      const targetRootImplementation = await cashierFactory.deploy() as Contract;
       await targetRootImplementation.waitForDeployment();
       const targetRootImplementationAddress = getAddress(targetRootImplementation);
 
-      const targetShardImplementation: Contract = await cashierShardFactory.deploy() as Contract;
+      const targetShardImplementation = await cashierShardFactory.deploy() as Contract;
       await targetShardImplementation.waitForDeployment();
       const targetShardImplementationAddress = getAddress(targetShardImplementation);
 
