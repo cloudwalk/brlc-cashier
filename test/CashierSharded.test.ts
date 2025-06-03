@@ -731,7 +731,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       ).to.be.revertedWithCustomError(anotherCashierShard, REVERT_ERROR_OWNABLE_INVALID_OWNER);
     });
 
-    it("Is reverted for the contract implementation if it is called even for the first time", async () => {
+    it("Is reverted for the root contract implementation if it is called even for the first time", async () => {
       const tokenAddress = user.address;
       const cashierImplementation = await cashierFactory.deploy() as Contract;
       await cashierImplementation.waitForDeployment();
@@ -739,6 +739,16 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       await expect(
         cashierImplementation.initialize(tokenAddress)
       ).to.be.revertedWithCustomError(cashierImplementation, REVERT_ERROR_CONTRACT_INITIALIZATION_IS_INVALID);
+    });
+
+    it("Is reverted for the shard contract implementation if it is called even for the first time", async () => {
+      const ownerAddress = user.address;
+      const cashierShardImplementation = await cashierShardFactory.deploy() as Contract;
+      await cashierShardImplementation.waitForDeployment();
+
+      await expect(
+        cashierShardImplementation.initialize(ownerAddress)
+      ).to.be.revertedWithCustomError(cashierShardImplementation, REVERT_ERROR_CONTRACT_INITIALIZATION_IS_INVALID);
     });
   });
 
