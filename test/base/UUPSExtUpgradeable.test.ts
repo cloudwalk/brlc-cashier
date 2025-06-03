@@ -9,8 +9,8 @@ const ADDRESS_ZERO = ethers.ZeroAddress;
 
 describe("Contracts 'UUPSExtUpgradeable'", async () => {
   // Errors of the lib contracts
-  const ERROR_NAME_IF_CONTRACT_INITIALIZATION_IS_INVALID = "InvalidInitialization";
-  const ERROR_NAME_IF_CONTRACT_IS_NOT_INITIALIZING = "NotInitializing";
+  const ERROR_NAME_CONTRACT_INITIALIZATION_IS_INVALID = "InvalidInitialization";
+  const ERROR_NAME_CONTRACT_IS_NOT_INITIALIZING = "NotInitializing";
 
   // Errors of the contract under test
   const ERROR_NAME_IMPLEMENTATION_ADDRESS_NOT_CONTRACT = "UUPSExtUpgradeable_ImplementationAddressNotContract";
@@ -44,14 +44,14 @@ describe("Contracts 'UUPSExtUpgradeable'", async () => {
       const { uupsExtension } = await setUpFixture(deployContract);
       await expect(
         uupsExtension.initialize()
-      ).to.be.revertedWithCustomError(uupsExtension, ERROR_NAME_IF_CONTRACT_INITIALIZATION_IS_INVALID);
+      ).to.be.revertedWithCustomError(uupsExtension, ERROR_NAME_CONTRACT_INITIALIZATION_IS_INVALID);
     });
 
     it("The internal unchained initializer is reverted if it is called outside the init process", async () => {
       const { uupsExtension } = await setUpFixture(deployContract);
       await expect(
         uupsExtension.callParentInitializerUnchained()
-      ).to.be.revertedWithCustomError(uupsExtension, ERROR_NAME_IF_CONTRACT_IS_NOT_INITIALIZING);
+      ).to.be.revertedWithCustomError(uupsExtension, ERROR_NAME_CONTRACT_IS_NOT_INITIALIZING);
     });
   });
 
