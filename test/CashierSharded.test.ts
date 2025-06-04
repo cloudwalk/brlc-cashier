@@ -2787,9 +2787,9 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       const unexpectedError = await mockCashierShard.REGISTER_OPERATION_UNEXPECTED_ERROR();
       const mockCashierShardAddresses = Array(cashierShards.length).fill(getAddress(mockCashierShard));
       await proveTx(cashierRoot.replaceShards(0, mockCashierShardAddresses));
-      const cashierUnderCashier = connect(cashierRoot, cashier);
+      const cashierRootViaCashier = connect(cashierRoot, cashier);
 
-      await expect(cashierUnderCashier.cashIn(
+      await expect(cashierRootViaCashier.cashIn(
         operation.account,
         operation.amount,
         operation.txId
