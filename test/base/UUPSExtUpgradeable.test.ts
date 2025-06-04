@@ -8,16 +8,16 @@ import { setUpFixture } from "../../test-utils/common";
 const ADDRESS_ZERO = ethers.ZeroAddress;
 
 describe("Contracts 'UUPSExtUpgradeable'", async () => {
+  // Events of the contracts under test
+  const EVENT_NAME_MOCK_VALIDATE_UPGRADE_CALL = "MockValidateUpgradeCall";
+
   // Errors of the lib contracts
-  const ERROR_NAME_CONTRACT_INITIALIZATION_IS_INVALID = "InvalidInitialization";
-  const ERROR_NAME_CONTRACT_IS_NOT_INITIALIZING = "NotInitializing";
+  const ERROR_NAME_INVALID_INITIALIZATION = "InvalidInitialization";
+  const ERROR_NAME_NOT_INITIALIZING = "NotInitializing";
 
   // Errors of the contract under test
   const ERROR_NAME_IMPLEMENTATION_ADDRESS_NOT_CONTRACT = "UUPSExtUpgradeable_ImplementationAddressNotContract";
   const ERROR_NAME_IMPLEMENTATION_ADDRESS_ZERO = "UUPSExtUpgradeable_ImplementationAddressZero";
-
-  // Events of the contracts under test
-  const EVENT_NAME_MOCK_VALIDATE_UPGRADE_CALL = "MockValidateUpgradeCall";
 
   let uupsExtensionFactory: ContractFactory;
   let deployer: HardhatEthersSigner;
@@ -43,13 +43,13 @@ describe("Contracts 'UUPSExtUpgradeable'", async () => {
     it("The external initializer is reverted if it is called a second time", async () => {
       const { uupsExtension } = await setUpFixture(deployContract);
       await expect(uupsExtension.initialize())
-        .to.be.revertedWithCustomError(uupsExtension, ERROR_NAME_CONTRACT_INITIALIZATION_IS_INVALID);
+        .to.be.revertedWithCustomError(uupsExtension, ERROR_NAME_INVALID_INITIALIZATION);
     });
 
     it("The internal unchained initializer is reverted if it is called outside the init process", async () => {
       const { uupsExtension } = await setUpFixture(deployContract);
       await expect(uupsExtension.callParentInitializerUnchained())
-        .to.be.revertedWithCustomError(uupsExtension, ERROR_NAME_CONTRACT_IS_NOT_INITIALIZING);
+        .to.be.revertedWithCustomError(uupsExtension, ERROR_NAME_NOT_INITIALIZING);
     });
   });
 
