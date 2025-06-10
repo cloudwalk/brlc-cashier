@@ -28,7 +28,7 @@ contract UUPSExtUpgradeableMock is UUPSExtUpgradeable {
 
     // ------------------ Transactional functions ----------------- //
 
-    /// @dev Calls the parent internal unchained initializing function to verify the 'onlyInitializing' modifier.
+    /// @dev Calls the parent internal unchained initialization function to verify the 'onlyInitializing' modifier.
     function callParentInitializerUnchained() external {
         __UUPSExt_init_unchained();
     }
