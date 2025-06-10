@@ -18,7 +18,7 @@ interface ICashierHookableTypes {
      * The possible values:
      *
      * - CashInCommonBefore = 0 --------- Called before the token transfer during a common cash-in operation.
-     * - CashInCommonAfter = 1 ---------- Called before the token transfer during a common cash-in operation.
+     * - CashInCommonAfter = 1 ---------- Called after the token transfer during a common cash-in operation.
      * - CashInPremintBefore = 2 -------- Called before the token transfer during a premint cash-in operation.
      * - CashInPremintAfter = 3 --------- Called after the token transfer during a premint cash-in operation.
      * - Reserved1 = 4 ------------------ Reserved for the future.

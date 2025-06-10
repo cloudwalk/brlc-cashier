@@ -49,10 +49,10 @@ contract Cashier is
     /// @dev The maximum number of shards.
     uint256 public constant MAX_SHARD_COUNT = 1100;
 
-    /// @dev The role of cashier that is allowed to execute the cash-in operations.
+    /// @dev The role of a cashier that is allowed to execute the cash-in operations.
     bytes32 public constant CASHIER_ROLE = keccak256("CASHIER_ROLE");
 
-    /// @dev The role of hook admin that is allowed to configure hooks for operations.
+    /// @dev The role of a hook admin that is allowed to configure hooks for operations.
     bytes32 public constant HOOK_ADMIN_ROLE = keccak256("HOOK_ADMIN_ROLE");
 
     /// @dev The bit flag that indicates that at least one hook function is configured for a cash-out operation.
@@ -249,7 +249,7 @@ contract Cashier is
      * - The contract must not be paused.
      * - The caller must have the {CASHIER_ROLE} role.
      * - The provided `txId` value must not be zero.
-     * - The cash-out operation corresponded the provided `txId` value must have the pending status.
+     * - The cash-out operation corresponding to the provided `txId` value must have the pending status.
      */
     function confirmCashOut(bytes32 txId) external whenNotPaused onlyRole(CASHIER_ROLE) {
         _validateTxId(txId);
@@ -283,7 +283,7 @@ contract Cashier is
      * - The contract must not be paused.
      * - The caller must have the {CASHIER_ROLE} role.
      * - The provided `txId` value must not be zero.
-     * - The cash-out operation corresponded the provided `txId` value must have the pending status.
+     * - The cash-out operation corresponding to the provided `txId` value must have the pending status.
      */
     function reverseCashOut(bytes32 txId) external whenNotPaused onlyRole(CASHIER_ROLE) {
         _validateTxId(txId);
@@ -857,7 +857,7 @@ contract Cashier is
     }
 
     /**
-     * @dev Upgrades the range of the underlying shard contracts to the a implementation.
+     * @dev Upgrades the range of the underlying shard contracts to a new implementation.
      * @param newImplementation The address of the new shard implementation.
      */
     function upgradeShardsTo(address newImplementation) external onlyRole(OWNER_ROLE) {

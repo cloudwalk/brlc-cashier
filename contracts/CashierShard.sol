@@ -167,7 +167,7 @@ contract CashierShard is CashierShardStorage, OwnableUpgradeable, UUPSExtUpgrade
      * @dev Requirements:
      *
      * - The caller must be the owner or an admin.
-     * - The cash-out operation corresponded the provided `txId` value must have the pending status.
+     * - The cash-out operation corresponding to the provided `txId` value must have the pending status.
      */
     function processCashOut(
         bytes32 txId,

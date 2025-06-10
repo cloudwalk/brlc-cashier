@@ -184,10 +184,10 @@ interface ICashierPrimary is ICashierTypes {
      * This function is expected to be called by a limited number of accounts
      * that are allowed to process cash-out operations.
      *
-     * Emits a {CashOut} event.
+     * Emits a {RequestCashOut} event.
      *
-     * @param account The account on that behalf the operation is made.
-     * @param amount The amount of tokens to be cash-outed.
+     * @param account The account on whose behalf the operation is made.
+     * @param amount The amount of tokens to be cashed out.
      * @param txId The off-chain transaction identifier of the related operation.
      */
     function requestCashOutFrom(
@@ -203,7 +203,7 @@ interface ICashierPrimary is ICashierTypes {
      * This function is expected to be called by a limited number of accounts
      * that are allowed to process cash-out operations.
      *
-     * Emits a {CashOutConfirm} event for the operation.
+     * Emits a {ConfirmCashOut} event for the operation.
      *
      * @param txId The off-chain transaction identifier of the related operation.
      */
@@ -216,7 +216,7 @@ interface ICashierPrimary is ICashierTypes {
      * This function is expected to be called by a limited number of accounts
      * that are allowed to process cash-out operations.
      *
-     * Emits a {CashOutReverse} event for the operation.
+     * Emits a {ReverseCashOut} event for the operation.
      *
      * @param txId The off-chain transaction identifier of the related operation.
      */
@@ -233,7 +233,7 @@ interface ICashierPrimary is ICashierTypes {
      *
      * @param from The account that owns the tokens to cash-out.
      * @param to The account that will receive the tokens.
-     * @param amount The amount of tokens to be cash-outed.
+     * @param amount The amount of tokens to be cashed out.
      * @param txId The unique off-chain transaction identifier of the related operation.
      */
     function makeInternalCashOut(
@@ -252,8 +252,8 @@ interface ICashierPrimary is ICashierTypes {
      *
      * Emits a {ForcedCashOut} event.
      *
-     * @param account The account on that behalf the operation is made.
-     * @param amount The amount of tokens to be cash-outed.
+     * @param account The account on whose behalf the operation is made.
+     * @param amount The amount of tokens to be cashed out.
      * @param txId The off-chain transaction identifier of the related operation.
      */
     function forceCashOut(
@@ -329,7 +329,7 @@ interface ICashierPrimary is ICashierTypes {
 
 /**
  * @title ICashierConfiguration interface
- * @author CloudWalk Inc. (See https://cloudwalk.io)
+ * @author CloudWalk Inc. (See https://www.cloudwalk.io)
  * @dev The configuration part of the cashier contract interface.
  */
 interface ICashierConfiguration {
@@ -398,7 +398,7 @@ interface ICashierConfiguration {
 
 /**
  * @title ICashierErrors interface
- * @author CloudWalk Inc. (See https://cloudwalk.io)
+ * @author CloudWalk Inc. (See https://www.cloudwalk.io)
  * @dev Defines the custom errors used in the cashier contract.
  */
 interface ICashierErrors {
@@ -471,7 +471,7 @@ interface ICashierErrors {
 
 /**
  * @title ICashier interface
- * @author CloudWalk Inc. (See https://cloudwalk.io)
+ * @author CloudWalk Inc. (See https://www.cloudwalk.io)
  * @dev The full interface of the cashier contract.
  */
 interface ICashier is ICashierPrimary, ICashierConfiguration, ICashierErrors {
