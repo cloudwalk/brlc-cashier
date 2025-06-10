@@ -8,7 +8,7 @@ pragma solidity ^0.8.0;
  * @dev Defines code entities to get the version of a contract.
  */
 interface IVersionable {
-    // ------------------ Types ---------------------------------- //
+    // ------------------ Types ----------------------------------- //
 
     /**
      * @dev Defines the version of a contract.
