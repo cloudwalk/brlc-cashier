@@ -169,7 +169,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
   const EVENT_NAME_SHARD_ADMIN_CONFIGURED = "ShardAdminConfigured";
   const EVENT_NAME_SHARD_REPLACED = "ShardReplaced";
 
-  // Errors of the lib contracts
+  // Errors of the library contracts
   const ERROR_NAME_ACCESS_CONTROL_UNAUTHORIZED_ACCOUNT = "AccessControlUnauthorizedAccount";
   const ERROR_NAME_ENFORCED_PAUSE = "EnforcedPause";
   const ERROR_NAME_ERC20_INSUFFICIENT_BALANCE = "ERC20InsufficientBalance";
@@ -860,7 +860,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
         .withArgs(cashier.address, OWNER_ROLE);
     });
 
-    it("Is reverted if the number of shard exceeds the allowed maximum", async () => {
+    it("Is reverted if the number of shards exceeds the allowed maximum", async () => {
       const { cashierRoot, cashierShards } = await setUpFixture(deployContracts);
       const firstShardAddress = getAddress(cashierShards[0]);
       const shardAddresses: string[] = Array(MAX_SHARD_COUNT).fill(firstShardAddress);
@@ -955,7 +955,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
         .withArgs(user.address, OWNER_ROLE);
     });
 
-    it("Is reverted if the number of shards to replacement is greater than expected", async () => {
+    it("Is reverted if the number of shards for replacement exceeds the available range", async () => {
       const { cashierRoot, cashierShards } = await setUpFixture(deployContracts);
       const shardAddresses = cashierShards.map(shard => getAddress(shard));
       await proveTx(cashierRoot.addShards(shardAddresses));
@@ -1097,7 +1097,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
     });
   });
 
-  describe("Function 'configureShardAdmin()' accompanied by the 'setAdmin()' one", async () => {
+  describe("Function 'configureShardAdmin()' and 'setAdmin()'", async () => {
     it("Executes as expected", async () => {
       const { cashierRoot, cashierAdmin, cashierShards } = await setUpFixture(deployAndConfigureContracts);
 
@@ -1139,7 +1139,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
     });
   });
 
-  describe("Function 'cashIn()' accompanied by the 'registerCashIn()' one", async () => {
+  describe("Function 'cashIn()' and 'registerCashIn()'", async () => {
     it("Executes as expected", async () => {
       const { cashierRoot, cashierAdmin, tokenMock } = await setUpFixture(deployAndConfigureContracts);
       const [cashIn, cashIn2] = defineTestCashIns(2);
@@ -1201,7 +1201,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
     });
   });
 
-  describe("Functions 'cashInPremint()' accompanied by the 'registerCashIn()' one", async () => {
+  describe("Functions 'cashInPremint()' and 'registerCashIn()'", async () => {
     it("Executes as expected", async () => {
       const { cashierRoot, cashierAdmin, tokenMock } = await setUpFixture(deployAndConfigureContracts);
       const [cashIn, cashIn2] = defineTestCashIns(2, RELEASE_TIMESTAMP);
@@ -1292,7 +1292,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
     });
   });
 
-  describe("Functions 'cashInPremintRevoke()' accompanied by the 'revokeCashIn()' one", async () => {
+  describe("Functions 'cashInPremintRevoke()' and 'revokeCashIn()'", async () => {
     it("Executes as expected", async () => {
       const { cashierRoot, cashierAdmin, tokenMock } = await setUpFixture(deployAndConfigureContracts);
       const [cashIn, cashIn2] = defineTestCashIns(2, RELEASE_TIMESTAMP);
@@ -1374,7 +1374,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
     });
   });
 
-  describe("Function 'requestCashOutFrom()' accompanied by the 'registerCashOut()' one", async () => {
+  describe("Function 'requestCashOutFrom()' and 'registerCashOut()'", async () => {
     it("Executes as expected", async () => {
       const { cashierRoot, cashierAdmin, tokenMock } = await setUpFixture(deployAndConfigureContracts);
       const [cashOut, cashOut2] = defineTestCashOuts(2);
@@ -1478,7 +1478,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
     });
   });
 
-  describe("Function 'confirmCashOut()' accompanied by the 'processCashOut()' one", async () => {
+  describe("Function 'confirmCashOut()' and 'processCashOut()'", async () => {
     it("Executes as expected", async () => {
       const { cashierRoot, cashierAdmin, tokenMock } = await setUpFixture(deployAndConfigureContracts);
       const [cashOut, cashOut2] = defineTestCashOuts(2);
@@ -1554,7 +1554,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
     });
   });
 
-  describe("Function 'reverseCashOut()' accompanied by the 'processCashOut()' one", async () => {
+  describe("Function 'reverseCashOut()' and 'processCashOut()'", async () => {
     it("Executes as expected", async () => {
       const { cashierRoot, cashierAdmin, tokenMock } = await setUpFixture(deployAndConfigureContracts);
       const [cashOut, cashOut2] = defineTestCashOuts(2);
@@ -2021,7 +2021,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
     });
   });
 
-  describe("Function configureCashOutHooks()", async () => {
+  describe("Function 'configureCashOutHooks()'", async () => {
     async function checkCashOutHookConfiguring(cashierRoot: Contract, props: {
       newCallableContract: string;
       newHookFlags: number;

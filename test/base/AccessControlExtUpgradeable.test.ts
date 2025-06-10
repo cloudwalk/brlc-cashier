@@ -6,12 +6,12 @@ import { connect, proveTx } from "../../test-utils/eth";
 import { setUpFixture } from "../../test-utils/common";
 
 describe("Contract 'AccessControlExtUpgradeable'", async () => {
-  // Events of the lib contracts
+  // Events of the library contracts
   const EVENT_NAME_ROLE_ADMIN_CHANGED = "RoleAdminChanged";
   const EVENT_NAME_ROLE_GRANTED = "RoleGranted";
   const EVENT_NAME_ROLE_REVOKED = "RoleRevoked";
 
-  // Errors of the lib contracts
+  // Errors of the library contracts
   const ERROR_NAME_ACCESS_CONTROL_UNAUTHORIZED_ACCOUNT = "AccessControlUnauthorizedAccount";
   const ERROR_NAME_INVALID_INITIALIZATION = "InvalidInitialization";
   const ERROR_NAME_NOT_INITIALIZING = "NotInitializing";
@@ -202,7 +202,7 @@ describe("Contract 'AccessControlExtUpgradeable'", async () => {
   });
 
   describe("Function 'setRoleAdmin()'", async () => {
-    it("Executes as expected for a non-exiting role", async () => {
+    it("Executes as expected for a non-existing role", async () => {
       const { accessControlExtMock } = await setUpFixture(deployAccessControlExtMock);
       const role = ethers.id("SOME_ROLE");
       const tx1 = accessControlExtMock.setRoleAdmin(role, OWNER_ROLE);

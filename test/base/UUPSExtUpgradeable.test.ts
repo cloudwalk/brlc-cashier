@@ -7,11 +7,11 @@ import { setUpFixture } from "../../test-utils/common";
 
 const ADDRESS_ZERO = ethers.ZeroAddress;
 
-describe("Contracts 'UUPSExtUpgradeable'", async () => {
+describe("Contract 'UUPSExtUpgradeable'", async () => {
   // Events of the contracts under test
   const EVENT_NAME_MOCK_VALIDATE_UPGRADE_CALL = "MockValidateUpgradeCall";
 
-  // Errors of the lib contracts
+  // Errors of the library contracts
   const ERROR_NAME_INVALID_INITIALIZATION = "InvalidInitialization";
   const ERROR_NAME_NOT_INITIALIZING = "NotInitializing";
 
