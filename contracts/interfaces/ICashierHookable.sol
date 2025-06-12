@@ -61,12 +61,16 @@ interface ICashierHookableTypes {
     /**
      * @dev The hook configuration for a concrete cashier operation.
      *
-     * See notes for the {HookIndex} enumeration.
+     * The fields:
+     *
+     * - callableContract -- The address of the contract that implements the hook function.
+     * - hookFlags --------- The bit flags that define when the hook function should be called.
      */
     struct HookConfig {
-        address callableContract; // -- The address of the contract that implements the hook function.
-        uint32 hookFlags; // ---------- The bit flags that define when the hook function should be called
-        // uint64 __reserved; // ------ Reserved for future use until the end of the storage slot.
+        // Slot 1
+        address callableContract;
+        uint32 hookFlags;
+        // uint64 __reserved; // Reserved until the end of the storage slot
     }
 }
 
