@@ -59,6 +59,7 @@ contract Cashier is
     uint256 private constant CASH_OUT_FLAG_SOME_HOOK_CONFIGURED = (1 << uint256(CashOutFlagIndex.SomeHookRegistered));
 
     /// @dev The mask of all bit flags that are used for the cash-out operations.
+    // prettier-ignore
     uint256 private constant ALL_CASH_OUT_HOOK_FLAGS =
         (1 << uint256(HookIndex.CashOutRequestBefore)) +
         (1 << uint256(HookIndex.CashOutRequestAfter)) +
