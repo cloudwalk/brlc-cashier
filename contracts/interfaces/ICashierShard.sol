@@ -5,24 +5,13 @@ pragma solidity ^0.8.0;
 import { ICashierTypes } from "./ICashierTypes.sol";
 
 /**
- * @title ICashierShardErrors interface
- * @author CloudWalk Inc. (See https://www.cloudwalk.io)
- * @dev Defines the custom errors used in the cashier shard contract.
- */
-interface ICashierShardErrors {
-    /// @dev Thrown if the contract is not a cashier shard contract.
-    error CashierShard_ImplementationAddressInvalid();
-
-    /// @dev Thrown if the caller is not an admin.
-    error CashierShard_Unauthorized();
-}
-
-/**
  * @title ICashierShardPrimary interface
  * @author CloudWalk Inc. (See https://www.cloudwalk.io)
  * @dev The primary part of the cashier shard contract interface.
  */
 interface ICashierShardPrimary is ICashierTypes {
+    // ------------------ Types ----------------------------------- //
+
     /**
      * @dev Possible function errors of the shard contract.
      *
@@ -39,7 +28,7 @@ interface ICashierShardPrimary is ICashierTypes {
         InappropriateCashOutStatus
     }
 
-    // ------------------ Functions ------------------------------- //
+    // ------------------ Transactional functions ----------------- //
 
     /**
      * @dev Registers a cash-in operation.
@@ -142,6 +131,8 @@ interface ICashierShardPrimary is ICashierTypes {
         uint8 bit
     ) external returns (uint256 err);
 
+    // ------------------ View functions -------------------------- //
+
     /**
      * @dev Returns the data of a single cash-in operation.
      * @param txId The off-chain transaction identifier of the related operation.
@@ -169,11 +160,6 @@ interface ICashierShardPrimary is ICashierTypes {
      * @return operations The data of the cash-out operations in the form of a structure.
      */
     function getCashOuts(bytes32[] memory txIds) external view returns (CashOutOperation[] memory operations);
-
-    /**
-     * @dev Proves that the contract is the cashier shard contract.
-     */
-    function proveCashierShard() external pure;
 }
 
 /**
@@ -204,14 +190,26 @@ interface ICashierShardConfiguration {
 }
 
 /**
+ * @title ICashierShardErrors interface
+ * @author CloudWalk Inc. (See https://www.cloudwalk.io)
+ * @dev Defines the custom errors used in the cashier shard contract.
+ */
+interface ICashierShardErrors {
+    /// @dev Thrown if the contract is not a cashier shard contract.
+    error CashierShard_ImplementationAddressInvalid();
+
+    /// @dev Thrown if the caller is not an admin.
+    error CashierShard_Unauthorized();
+}
+
+/**
  * @title ICashierShard interface
  * @author CloudWalk Inc. (See https://www.cloudwalk.io)
  * @dev The full interface of the cashier shard contract.
  */
-interface ICashierShard is
-    ICashierShardErrors, // Tools: this comment prevents Prettier from formatting into a single line.
-    ICashierShardPrimary,
-    ICashierShardConfiguration
-{
-
+interface ICashierShard is ICashierShardPrimary, ICashierShardConfiguration, ICashierShardErrors {
+    /**
+     * @dev Proves that the contract is the cashier shard contract.
+     */
+    function proveCashierShard() external pure;
 }

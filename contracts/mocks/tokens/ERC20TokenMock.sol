@@ -40,7 +40,7 @@ contract ERC20TokenMock is ERC20, IERC20Mintable {
     // ------------------ Constructor ----------------------------- //
 
     /**
-     * @dev The initialize function of the upgradable contract.
+     * @dev The initialize function of the upgradeable contract.
      * @param name_ The name of the token to set for this ERC20-comparable contract.
      * @param symbol_ The symbol of the token to set for this ERC20-comparable contract.
      */
@@ -48,7 +48,7 @@ contract ERC20TokenMock is ERC20, IERC20Mintable {
         mintResult = true;
     }
 
-    // ------------------ Functions ------------------------------- //
+    // ------------------ Transactional functions ----------------- //
 
     /**
      * @dev Calls the appropriate internal function to mint needed amount of tokens for an account.

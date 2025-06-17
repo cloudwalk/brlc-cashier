@@ -12,49 +12,37 @@ import { RescuableUpgradeable } from "../../base/RescuableUpgradeable.sol";
  * @dev An implementation of the {RescuableUpgradeable} contract for test purposes.
  */
 contract RescuableUpgradeableMock is RescuableUpgradeable, UUPSUpgradeable {
-    /// @dev The role of this contract owner.
-    bytes32 public constant OWNER_ROLE = keccak256("OWNER_ROLE");
-
     // ------------------ Initializers ---------------------------- //
 
     /**
-     * @dev The initialize function of the upgradable contract.
+     * @dev The initialize function of the upgradeable contract.
      *
-     * See details https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable.
+     * See details: https://docs.openzeppelin.com/upgrades-plugins/writing-upgradeable
      */
     function initialize() public initializer {
-        _grantRole(OWNER_ROLE, _msgSender());
-        __Rescuable_init(OWNER_ROLE);
+        __AccessControlExt_init_unchained();
+        __Rescuable_init_unchained();
 
-        // Only to provide the 100 % test coverage
+        _grantRole(OWNER_ROLE, _msgSender());
+
+        // Only to provide 100% test coverage
         _authorizeUpgrade(address(0));
     }
 
-    // ------------------ Functions ------------------------------- //
+    // ------------------ Transactional functions ----------------- //
 
-    /**
-     * @dev Needed to check that the initialize function of the ancestor contract
-     * has the 'onlyInitializing' modifier.
-     */
-    function call_parent_initialize() public {
-        __Rescuable_init(OWNER_ROLE);
-    }
-
-    /**
-     * @dev Needed to check that the unchained initialize function of the ancestor contract
-     * has the 'onlyInitializing' modifier.
-     */
-    function call_parent_initialize_unchained() public {
-        __Rescuable_init_unchained(OWNER_ROLE);
+    /// @dev Calls the parent internal unchained initialization function to verify the 'onlyInitializing' modifier.
+    function callParentInitializerUnchained() external {
+        __Rescuable_init_unchained();
     }
 
     // ------------------ Internal functions ---------------------- //
 
     /**
-     * @dev The upgrade authorization function for UUPSProxy.
+     * @dev The implementation of the upgrade authorization function of the parent UUPSUpgradeable contract.
      * @param newImplementation The address of the new implementation.
      */
     function _authorizeUpgrade(address newImplementation) internal pure override {
-        newImplementation; // Suppresses a compiler warning about the unused variable.
+        newImplementation; // Suppresses a compiler warning about the unused variable
     }
 }

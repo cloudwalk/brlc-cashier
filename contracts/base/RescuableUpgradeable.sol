@@ -10,60 +10,52 @@ import { AccessControlExtUpgradeable } from "./AccessControlExtUpgradeable.sol";
 /**
  * @title RescuableUpgradeable base contract
  * @author CloudWalk Inc. (See https://www.cloudwalk.io)
- * @dev Allows to rescue ERC20 tokens locked up in the contract using the {RESCUER_ROLE} role.
- *
- * This contract is used through inheritance. It introduces the {RESCUER_ROLE} role that is allowed to
- * rescue tokens locked up in the contract that is inherited from this one.
+ * @dev Allows rescuing ERC20 tokens locked in the contract using the {RESCUER_ROLE} role.
  */
 abstract contract RescuableUpgradeable is AccessControlExtUpgradeable {
+    // ------------------ Types ----------------------------------- //
+
     using SafeERC20 for IERC20;
 
-    /// @dev The role of rescuer that is allowed to rescue tokens locked up in the contract.
+    // ------------------ Constants ------------------------------- //
+
+    /// @dev The role of a rescuer that is allowed to rescue tokens locked in the contract.
     bytes32 public constant RESCUER_ROLE = keccak256("RESCUER_ROLE");
 
     // ------------------ Initializers ---------------------------- //
 
     /**
-     * @dev Internal initializer of the upgradable contract.
+     * @dev The unchained internal initializer of the upgradeable contract
      *
-     * See details https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable.
+     * See details: https://docs.openzeppelin.com/contracts/5.x/upgradeable#multiple-inheritance
+     *
+     * Note: The `..._init()` initializer has not been provided as redundant.
      */
-    function __Rescuable_init(bytes32 rescuerRoleAdmin) internal onlyInitializing {
-        __Context_init_unchained();
-        __ERC165_init_unchained();
-        __AccessControl_init_unchained();
-        __AccessControlExt_init_unchained();
-
-        __Rescuable_init_unchained(rescuerRoleAdmin);
+    function __Rescuable_init_unchained() internal onlyInitializing {
+        _setRoleAdmin(RESCUER_ROLE, GRANTOR_ROLE);
     }
 
+    // ------------------ Transactional functions ----------------- //
+
     /**
-     * @dev Unchained internal initializer of the upgradable contract.
+     * @dev Rescues tokens that were accidentally transferred to this contract.
      *
-     * See details https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable.
-     */
-    function __Rescuable_init_unchained(bytes32 rescuerRoleAdmin) internal onlyInitializing {
-        _setRoleAdmin(RESCUER_ROLE, rescuerRoleAdmin);
-    }
-
-    // ------------------ Functions ------------------------------- //
-
-    /**
-     * @dev Withdraws ERC20 tokens locked up in the contract.
+     * Does not emit special events except ones related to the token transfer.
      *
      * Requirements:
      *
      * - The caller must have the {RESCUER_ROLE} role.
+     * - The provided account address must not be zero. It is usually checked inside the token smart-contract.
      *
-     * @param token The address of the ERC20 token contract.
-     * @param to The address of the recipient of tokens.
-     * @param amount The amount of tokens to withdraw.
+     * @param token The address of the token smart contract to rescue its coins from this smart contract's account.
+     * @param account The account to transfer the rescued tokens to.
+     * @param amount The amount of tokens to rescue.
      */
     function rescueERC20(
-        address token, // Tools: This comment prevents Prettier from formatting into a single line.
-        address to,
+        address token, // Tools: this comment prevents Prettier from formatting into a single line
+        address account,
         uint256 amount
     ) public onlyRole(RESCUER_ROLE) {
-        IERC20(token).safeTransfer(to, amount);
+        IERC20(token).safeTransfer(account, amount);
     }
 }

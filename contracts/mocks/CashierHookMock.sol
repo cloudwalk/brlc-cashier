@@ -20,7 +20,7 @@ contract CashierHookMock {
         uint256 hookCallCounter
     );
 
-    // ------------------ Functions ------------------------------- //
+    // ------------------ Transactional functions ----------------- //
 
     /// @dev Imitates the same-name function of the {ICashierHook} interface.
     function onCashierHook(uint256 hookIndex, bytes32 txId) external {

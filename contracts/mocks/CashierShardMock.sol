@@ -12,6 +12,8 @@ import { ICashierTypes } from "../interfaces/ICashierTypes.sol";
 contract CashierShardMock is ICashierTypes {
     uint8 public constant REGISTER_OPERATION_UNEXPECTED_ERROR = 0xFF;
 
+    // ------------------ Transactional functions ----------------- //
+
     /**
      * @dev Simulates the "registerOperation()" function of the real contract but always returns unexpected error.
      *
@@ -33,6 +35,8 @@ contract CashierShardMock is ICashierTypes {
         targetStatus; // Silence the compilation warning about unused variable
         err = REGISTER_OPERATION_UNEXPECTED_ERROR;
     }
+
+    // ------------------ Pure functions -------------------------- //
 
     /**
      * @dev Simulates real CashierShard contract.

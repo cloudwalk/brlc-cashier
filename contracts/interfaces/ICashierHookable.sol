@@ -18,7 +18,7 @@ interface ICashierHookableTypes {
      * The possible values:
      *
      * - CashInCommonBefore = 0 --------- Called before the token transfer during a common cash-in operation.
-     * - CashInCommonAfter = 1 ---------- Called before the token transfer during a common cash-in operation.
+     * - CashInCommonAfter = 1 ---------- Called after the token transfer during a common cash-in operation.
      * - CashInPremintBefore = 2 -------- Called before the token transfer during a premint cash-in operation.
      * - CashInPremintAfter = 3 --------- Called after the token transfer during a premint cash-in operation.
      * - Reserved1 = 4 ------------------ Reserved for the future.
@@ -61,12 +61,16 @@ interface ICashierHookableTypes {
     /**
      * @dev The hook configuration for a concrete cashier operation.
      *
-     * See notes for the {HookIndex} enumeration.
+     * The fields:
+     *
+     * - callableContract -- The address of the contract that implements the hook function.
+     * - hookFlags --------- The bit flags that define when the hook function should be called.
      */
     struct HookConfig {
-        address callableContract; // -- The address of the contract that implements the hook function.
-        uint32 hookFlags; // ---------- The bit flags that define when the hook function should be called
-        // uint64 __reserved; // ------ Reserved for future use until the end of the storage slot.
+        // Slot 1
+        address callableContract;
+        uint32 hookFlags;
+        // uint64 __reserved; // Reserved until the end of the storage slot
     }
 }
 
@@ -106,7 +110,7 @@ interface ICashierHookable is ICashierHookableTypes {
         address callableContract
     );
 
-    // ------------------ Functions ------------------------------- //
+    // ------------------ Transactional functions ----------------- //
 
     /**
      * @dev Configures the hook logic for a cash-out operation.

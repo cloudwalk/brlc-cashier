@@ -39,6 +39,8 @@ contract Cashier is
     ICashierHookable,
     Versionable
 {
+    // ------------------ Types ----------------------------------- //
+
     using SafeERC20 for IERC20;
     using EnumerableSet for EnumerableSet.Bytes32Set;
 
@@ -47,19 +49,17 @@ contract Cashier is
     /// @dev The maximum number of shards.
     uint256 public constant MAX_SHARD_COUNT = 1100;
 
-    /// @dev The role of this contract owner.
-    bytes32 public constant OWNER_ROLE = keccak256("OWNER_ROLE");
-
-    /// @dev The role of cashier that is allowed to execute the cash-in operations.
+    /// @dev The role of a cashier that is allowed to execute the cash-in operations.
     bytes32 public constant CASHIER_ROLE = keccak256("CASHIER_ROLE");
 
-    /// @dev The role of hook admin that is allowed to configure hooks for operations.
+    /// @dev The role of a hook admin that is allowed to configure hooks for operations.
     bytes32 public constant HOOK_ADMIN_ROLE = keccak256("HOOK_ADMIN_ROLE");
 
     /// @dev The bit flag that indicates that at least one hook function is configured for a cash-out operation.
     uint256 private constant CASH_OUT_FLAG_SOME_HOOK_CONFIGURED = (1 << uint256(CashOutFlagIndex.SomeHookRegistered));
 
     /// @dev The mask of all bit flags that are used for the cash-out operations.
+    // prettier-ignore
     uint256 private constant ALL_CASH_OUT_HOOK_FLAGS =
         (1 << uint256(HookIndex.CashOutRequestBefore)) +
         (1 << uint256(HookIndex.CashOutRequestAfter)) +
@@ -68,71 +68,47 @@ contract Cashier is
         (1 << uint256(HookIndex.CashOutReversalBefore)) +
         (1 << uint256(HookIndex.CashOutReversalAfter));
 
+    // ------------------ Constructor ----------------------------- //
+
+    /**
+     * @dev Constructor that prohibits the initialization of the implementation of the upgradeable contract.
+     *
+     * See details
+     * https://docs.openzeppelin.com/upgrades-plugins/writing-upgradeable#initializing_the_implementation_contract
+     *
+     * @custom:oz-upgrades-unsafe-allow constructor
+     */
+    constructor() {
+        _disableInitializers();
+    }
+
     // ------------------ Initializers ---------------------------- //
 
     /**
-     * @dev Initializer of the upgradable contract.
+     * @dev Initializer of the upgradeable contract.
      *
-     * See details https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable.
+     * See details: https://docs.openzeppelin.com/upgrades-plugins/writing-upgradeable
      *
      * @param token_ The address of the token to set as the underlying one.
      */
     function initialize(address token_) external initializer {
-        __Cashier_init(token_);
-    }
-
-    /**
-     * @dev Internal initializer of the upgradable contract.
-     *
-     * See details https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable.
-     *
-     * @param token_ The address of the token to set as the underlying one.
-     */
-    function __Cashier_init(address token_) internal onlyInitializing {
-        __Context_init_unchained();
-        __ERC165_init_unchained();
-        __AccessControl_init_unchained();
         __AccessControlExt_init_unchained();
-        __Pausable_init_unchained();
-        __PausableExt_init_unchained(OWNER_ROLE);
-        __Rescuable_init_unchained(OWNER_ROLE);
-        __UUPSUpgradeable_init_unchained();
+        __PausableExt_init_unchained();
+        __Rescuable_init_unchained();
+        __UUPSExt_init_unchained(); // This is needed only to avoid errors during coverage assessment
 
-        __Cashier_init_unchained(token_);
-    }
-
-    /**
-     * @dev Unchained internal initializer of the upgradable contract.
-     *
-     * See details https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable.
-     *
-     * Requirements:
-     *
-     * - The passed address of the underlying token must not be zero.
-     *
-     * @param token_ The address of the token to set as the underlying one.
-     */
-    function __Cashier_init_unchained(address token_) internal onlyInitializing {
         if (token_ == address(0)) {
             revert Cashier_TokenAddressZero();
         }
 
         _token = token_;
 
-        _setRoleAdmin(OWNER_ROLE, OWNER_ROLE);
-        _setRoleAdmin(CASHIER_ROLE, OWNER_ROLE);
-        _setRoleAdmin(HOOK_ADMIN_ROLE, OWNER_ROLE);
+        _setRoleAdmin(CASHIER_ROLE, GRANTOR_ROLE);
+        _setRoleAdmin(HOOK_ADMIN_ROLE, GRANTOR_ROLE);
         _grantRole(OWNER_ROLE, _msgSender());
     }
 
-    /**
-     * @dev Sets {OWNER_ROLE} role as the admin role for the {HOOK_ADMIN_ROLE} role.
-     */
-    function initHookAdminRole() external onlyRole(OWNER_ROLE) {
-        _setRoleAdmin(HOOK_ADMIN_ROLE, OWNER_ROLE);
-    }
-
-    // ------------------ Functions ------------------------------- //
+    // ------------------ Transactional functions ----------------- //
 
     /**
      * @inheritdoc ICashierPrimary
@@ -274,7 +250,7 @@ contract Cashier is
      * - The contract must not be paused.
      * - The caller must have the {CASHIER_ROLE} role.
      * - The provided `txId` value must not be zero.
-     * - The cash-out operation corresponded the provided `txId` value must have the pending status.
+     * - The cash-out operation corresponding to the provided `txId` value must have the pending status.
      */
     function confirmCashOut(bytes32 txId) external whenNotPaused onlyRole(CASHIER_ROLE) {
         _validateTxId(txId);
@@ -308,7 +284,7 @@ contract Cashier is
      * - The contract must not be paused.
      * - The caller must have the {CASHIER_ROLE} role.
      * - The provided `txId` value must not be zero.
-     * - The cash-out operation corresponded the provided `txId` value must have the pending status.
+     * - The cash-out operation corresponding to the provided `txId` value must have the pending status.
      */
     function reverseCashOut(bytes32 txId) external whenNotPaused onlyRole(CASHIER_ROLE) {
         _validateTxId(txId);
@@ -641,7 +617,7 @@ contract Cashier is
     // ------------------ Pure functions -------------------------- //
 
     /**
-     * @inheritdoc ICashierPrimary
+     * @inheritdoc ICashier
      */
     function proveCashierRoot() external pure {}
 
@@ -882,7 +858,7 @@ contract Cashier is
     }
 
     /**
-     * @dev Upgrades the range of the underlying shard contracts to the a implementation.
+     * @dev Upgrades the range of the underlying shard contracts to a new implementation.
      * @param newImplementation The address of the new shard implementation.
      */
     function upgradeShardsTo(address newImplementation) external onlyRole(OWNER_ROLE) {

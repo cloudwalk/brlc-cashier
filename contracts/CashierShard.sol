@@ -18,32 +18,32 @@ import { Versionable } from "./base/Versionable.sol";
  * @dev The contract responsible for storing sharded cash-in and cash-out operations.
  */
 contract CashierShard is CashierShardStorage, OwnableUpgradeable, UUPSExtUpgradeable, ICashierShard, Versionable {
+    // ------------------ Constructor ----------------------------- //
+
+    /**
+     * @dev Constructor that prohibits the initialization of the implementation of the upgradeable contract.
+     *
+     * See details
+     * https://docs.openzeppelin.com/upgrades-plugins/writing-upgradeable#initializing_the_implementation_contract
+     *
+     * @custom:oz-upgrades-unsafe-allow constructor
+     */
+    constructor() {
+        _disableInitializers();
+    }
+
     // ------------------ Initializers ---------------------------- //
 
     /**
-     * @dev Initializer of the upgradable contract.
+     * @dev Initializer of the upgradeable contract.
      *
      * See details https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable.
      *
      * @param owner_ The address of the contract owner.
      */
     function initialize(address owner_) external initializer {
-        __CashierShard_init(owner_);
-    }
-
-    /**
-     * @dev Internal initializer of the upgradable contract.
-     *
-     * See details https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable.
-     *
-     * @param owner_ The address of the contract owner.
-     */
-    function __CashierShard_init(address owner_) internal onlyInitializing {
-        __Context_init_unchained();
         __Ownable_init_unchained(owner_);
-        __UUPSUpgradeable_init_unchained();
-
-        __CashierShard_init_unchained();
+        __UUPSExt_init_unchained(); // This is needed only to avoid errors during coverage assessment
     }
 
     // ----------------------- Modifiers -------------------------- //
@@ -55,14 +55,7 @@ contract CashierShard is CashierShardStorage, OwnableUpgradeable, UUPSExtUpgrade
         _;
     }
 
-    /**
-     * @dev Unchained internal initializer of the upgradable contract.
-     *
-     * See details https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable.
-     */
-    function __CashierShard_init_unchained() internal onlyInitializing {}
-
-    // ----------------------- Functions -------------------------- //
+    // ------------------ Transactional functions ----------------- //
 
     /**
      * @inheritdoc ICashierShardPrimary
@@ -174,7 +167,7 @@ contract CashierShard is CashierShardStorage, OwnableUpgradeable, UUPSExtUpgrade
      * @dev Requirements:
      *
      * - The caller must be the owner or an admin.
-     * - The cash-out operation corresponded the provided `txId` value must have the pending status.
+     * - The cash-out operation corresponding to the provided `txId` value must have the pending status.
      */
     function processCashOut(
         bytes32 txId,
@@ -286,7 +279,7 @@ contract CashierShard is CashierShardStorage, OwnableUpgradeable, UUPSExtUpgrade
     // ------------------ Pure functions -------------------------- //
 
     /**
-     * @inheritdoc ICashierShardPrimary
+     * @inheritdoc ICashierShard
      */
     function proveCashierShard() external pure {}
 
