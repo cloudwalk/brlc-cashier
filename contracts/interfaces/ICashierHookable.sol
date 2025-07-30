@@ -91,7 +91,7 @@ interface ICashierHookable is ICashierHookableTypes {
      * @param oldHookFlags The old bit flags of the hook configuration.
      */
     event CashOutHooksConfigured(
-        bytes32 indexed txId, // Tools: this comment prevents Prettier from formatting into a single line.
+        bytes32 indexed txId, // Tools: prevent Prettier one-liner
         address newCallableContract,
         address oldCallableContract,
         uint256 newHookFlags,
@@ -105,7 +105,7 @@ interface ICashierHookable is ICashierHookableTypes {
      * @param callableContract The address of the contract that implements the hook function.
      */
     event HookInvoked(
-        bytes32 indexed txId, // Tools: this comment prevents Prettier from formatting into a single line.
+        bytes32 indexed txId, // Tools: prevent Prettier one-liner
         uint256 indexed hookIndex,
         address callableContract
     );

@@ -295,7 +295,7 @@ contract CashierShard is CashierShardStorage, OwnableUpgradeable, UUPSExtUpgrade
      * @return The flags field of the stored cash-out operation structure.
      */
     function _registerCashOut(
-        address account, // Tools: this comment prevents Prettier from formatting into a single line.
+        address account, // Tools: prevent Prettier one-liner
         uint256 amount,
         bytes32 txId,
         CashOutStatus newStatus

@@ -322,7 +322,7 @@ contract Cashier is
      * - If the cash-out operation has the `Reversed` status its account address must equal the `from` argument.
      */
     function makeInternalCashOut(
-        address from, // Tools: this comment prevents Prettier from formatting into a single line.
+        address from, // Tools: prevent Prettier one-liner
         address to,
         uint256 amount,
         bytes32 txId
