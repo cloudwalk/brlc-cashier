@@ -61,7 +61,7 @@ interface ICashierHookableTypes {
     /**
      * @dev The hook configuration for a concrete cashier operation.
      *
-     * The fields:
+     * Fields:
      *
      * - callableContract -- The address of the contract that implements the hook function.
      * - hookFlags --------- The bit flags that define when the hook function should be called.

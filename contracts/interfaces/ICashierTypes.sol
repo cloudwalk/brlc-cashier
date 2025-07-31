@@ -103,7 +103,7 @@ interface ICashierTypes {
     /**
      * @dev The data of a single cash-in operation.
      *
-     * The fields:
+     * Fields:
      *
      * - status --- The status of the cash-in operation according to the {CashInStatus} enum.
      * - account -- The owner of tokens to cash-in.
@@ -122,7 +122,7 @@ interface ICashierTypes {
     /**
      * @dev The data of a single cash-out operation.
      *
-     * The fields:
+     * Fields:
      *
      * - status --- The status of the cash-out operation according to the {CashOutStatus} enum.
      * - account -- The owner of tokens to cash-out.
