@@ -19,7 +19,7 @@ interface ICashierPrimary is ICashierTypes {
      * @param txId The off-chain transaction identifier.
      */
     event CashIn(
-        address indexed account, // Tools: this comment prevents Prettier from formatting into a single line.
+        address indexed account, // Tools: prevent Prettier one-liner
         uint256 amount,
         bytes32 indexed txId
     );
@@ -64,7 +64,7 @@ interface ICashierPrimary is ICashierTypes {
      * @param txId The off-chain transaction identifier.
      */
     event ConfirmCashOut(
-        address indexed account, // Tools: this comment prevents Prettier from formatting into a single line.
+        address indexed account, // Tools: prevent Prettier one-liner
         uint256 amount,
         uint256 balance,
         bytes32 indexed txId
@@ -78,7 +78,7 @@ interface ICashierPrimary is ICashierTypes {
      * @param txId The off-chain transaction identifier.
      */
     event ReverseCashOut(
-        address indexed account, // Tools: this comment prevents Prettier from formatting into a single line.
+        address indexed account, // Tools: prevent Prettier one-liner
         uint256 amount,
         uint256 balance,
         bytes32 indexed txId
@@ -92,7 +92,7 @@ interface ICashierPrimary is ICashierTypes {
      * @param amount The amount of tokens to cash-out.
      */
     event InternalCashOut(
-        address indexed from, // Tools: this comment prevents Prettier from formatting into a single line.
+        address indexed from, // Tools: prevent Prettier one-liner
         bytes32 indexed txId,
         address indexed to,
         uint256 amount
@@ -237,7 +237,7 @@ interface ICashierPrimary is ICashierTypes {
      * @param txId The unique off-chain transaction identifier of the related operation.
      */
     function makeInternalCashOut(
-        address from, // Tools: this comment prevents Prettier from formatting into a single line.
+        address from, // Tools: prevent Prettier one-liner
         address to,
         uint256 amount,
         bytes32 txId

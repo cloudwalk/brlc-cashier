@@ -73,7 +73,7 @@ contract Cashier is
     /**
      * @dev Constructor that prohibits the initialization of the implementation of the upgradeable contract.
      *
-     * See details
+     * See details:
      * https://docs.openzeppelin.com/upgrades-plugins/writing-upgradeable#initializing_the_implementation_contract
      *
      * @custom:oz-upgrades-unsafe-allow constructor
@@ -322,7 +322,7 @@ contract Cashier is
      * - If the cash-out operation has the `Reversed` status its account address must equal the `from` argument.
      */
     function makeInternalCashOut(
-        address from, // Tools: this comment prevents Prettier from formatting into a single line.
+        address from, // Tools: prevent Prettier one-liner
         address to,
         uint256 amount,
         bytes32 txId

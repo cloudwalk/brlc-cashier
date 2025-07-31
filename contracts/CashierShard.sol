@@ -23,7 +23,7 @@ contract CashierShard is CashierShardStorage, OwnableUpgradeable, UUPSExtUpgrade
     /**
      * @dev Constructor that prohibits the initialization of the implementation of the upgradeable contract.
      *
-     * See details
+     * See details:
      * https://docs.openzeppelin.com/upgrades-plugins/writing-upgradeable#initializing_the_implementation_contract
      *
      * @custom:oz-upgrades-unsafe-allow constructor
@@ -37,7 +37,7 @@ contract CashierShard is CashierShardStorage, OwnableUpgradeable, UUPSExtUpgrade
     /**
      * @dev Initializer of the upgradeable contract.
      *
-     * See details https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable.
+     * See details https://docs.openzeppelin.com/upgrades-plugins/writing-upgradeable.
      *
      * @param owner_ The address of the contract owner.
      */
@@ -295,7 +295,7 @@ contract CashierShard is CashierShardStorage, OwnableUpgradeable, UUPSExtUpgrade
      * @return The flags field of the stored cash-out operation structure.
      */
     function _registerCashOut(
-        address account, // Tools: this comment prevents Prettier from formatting into a single line.
+        address account, // Tools: prevent Prettier one-liner
         uint256 amount,
         bytes32 txId,
         CashOutStatus newStatus
