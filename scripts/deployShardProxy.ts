@@ -1,9 +1,9 @@
 import { ethers, upgrades } from "hardhat";
 
 async function main() {
-  const CONTRACT_NAME: string = ""; // TBD: Enter contract name
-  const ROOT_ADDRESS: string = ""; // TBD: Enter token contract address
-  const SHARD_COUNTER: number = 0; // TBD Enter the shard counter
+  const CONTRACT_NAME = ""; // TBD: Enter contract name
+  const ROOT_ADDRESS = ""; // TBD: Enter token contract address
+  const SHARD_COUNTER = 0; // TBD Enter the shard counter
 
   const factory = await ethers.getContractFactory(CONTRACT_NAME);
 
@@ -11,7 +11,7 @@ async function main() {
     const proxy = await upgrades.deployProxy(
       factory,
       [ROOT_ADDRESS],
-      { kind: "uups" }
+      { kind: "uups" },
     );
 
     await proxy.waitForDeployment();
@@ -21,6 +21,6 @@ async function main() {
   }
 }
 
-main().then().catch(err => {
+main().catch((err) => {
   throw err;
 });

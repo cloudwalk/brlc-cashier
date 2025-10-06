@@ -6,7 +6,7 @@ import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 export async function checkContractUupsUpgrading(
   contract: Contract,
   contractFactory: ContractFactory,
-  upgradeFunctionSignature: string = "upgradeToAndCall(address,bytes)"
+  upgradeFunctionSignature = "upgradeToAndCall(address,bytes)",
 ) {
   const contractAddress = await contract.getAddress();
   const oldImplementationAddress = await upgrades.erc1967.getImplementationAddress(contractAddress);
