@@ -8,10 +8,10 @@ export function checkEquality<T extends Record<string, unknown>>(
   index?: number,
   props: {
     ignoreObjects: boolean;
-  } = { ignoreObjects: false }
+  } = { ignoreObjects: false },
 ) {
   const indexString = index == null ? "" : ` with index: ${index}`;
-  Object.keys(expectedObject).forEach(property => {
+  Object.keys(expectedObject).forEach((property) => {
     const value = actualObject[property];
     if (typeof value === "undefined" || typeof value === "function") {
       throw Error(`Property "${property}" is not found in the actual object` + indexString);
@@ -21,7 +21,7 @@ export function checkEquality<T extends Record<string, unknown>>(
     }
     expect(value).to.eq(
       expectedObject[property],
-      `Mismatch in the "${property}" property between the actual object and expected one` + indexString
+      `Mismatch in the "${property}" property between the actual object and expected one` + indexString,
     );
   });
 }

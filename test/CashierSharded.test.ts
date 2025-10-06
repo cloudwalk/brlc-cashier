@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 import { ethers, upgrades } from "hardhat";
 import { expect } from "chai";
 import { Contract, ContractFactory, TransactionResponse } from "ethers";
@@ -10,7 +11,7 @@ const ADDRESS_ZERO = ethers.ZeroAddress;
 enum CashInStatus {
   Nonexistent = 0,
   Executed = 1,
-  PremintExecuted = 2
+  PremintExecuted = 2,
 }
 
 enum CashOutStatus {
@@ -19,7 +20,7 @@ enum CashOutStatus {
   Reversed = 2,
   Confirmed = 3,
   Internal = 4,
-  Forced = 5
+  Forced = 5,
 }
 
 enum HookIndex {
@@ -30,7 +31,7 @@ enum HookIndex {
   CashOutConfirmationAfter = 9,
   CashOutReversalBefore = 10,
   CashOutReversalAfter = 11,
-  UnusedHigher = 12
+  UnusedHigher = 12,
 }
 
 interface TestCashIn {
@@ -82,12 +83,12 @@ interface Version {
 function checkCashOutEquality(
   actualOnChainCashOut: Record<string, unknown>,
   expectedCashOut: TestCashOut,
-  cashOutIndex: number
+  cashOutIndex: number,
 ) {
   const expectedCashOutObj = {
     status: expectedCashOut.status,
     account: expectedCashOut.status === CashOutStatus.Nonexistent ? ADDRESS_ZERO : expectedCashOut.account.address,
-    amount: expectedCashOut.status === CashOutStatus.Nonexistent ? 0 : expectedCashOut.amount
+    amount: expectedCashOut.status === CashOutStatus.Nonexistent ? 0 : expectedCashOut.amount,
   };
   checkEquality(actualOnChainCashOut, expectedCashOutObj, cashOutIndex);
 }
@@ -95,12 +96,12 @@ function checkCashOutEquality(
 function checkCashInEquality(
   actualOnChainCashIn: Record<string, unknown>,
   expectedCashIn: TestCashIn,
-  cashInIndex: number
+  cashInIndex: number,
 ) {
   const expectedCashInObj = {
     status: expectedCashIn.status,
     account: expectedCashIn.status === CashInStatus.Nonexistent ? ADDRESS_ZERO : expectedCashIn.account.address,
-    amount: expectedCashIn.status === CashInStatus.Nonexistent ? 0 : expectedCashIn.amount
+    amount: expectedCashIn.status === CashInStatus.Nonexistent ? 0 : expectedCashIn.amount,
   };
   checkEquality(actualOnChainCashIn, expectedCashInObj, cashInIndex);
 }
@@ -148,7 +149,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
   const EXPECTED_VERSION: Version = {
     major: 4,
     minor: 3,
-    patch: 0
+    patch: 0,
   };
 
   // Events of the contracts under test
@@ -257,7 +258,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
     return cashierHookMock;
   }
 
-  async function deployShardContracts(cashierRoot: Contract, shardCount: number = 3): Promise<Contract[]> {
+  async function deployShardContracts(cashierRoot: Contract, shardCount = 3): Promise<Contract[]> {
     const cashierShards: Contract[] = [];
     for (let i = 0; i < shardCount; ++i) {
       let cashierShard = await upgrades.deployProxy(cashierShardFactory, [getAddress(cashierRoot)]) as Contract;
@@ -287,7 +288,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       cashierAdmin,
       cashierShards,
       tokenMock,
-      cashierHookMock
+      cashierHookMock,
     };
   }
 
@@ -341,7 +342,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
         cashOut.account.address, // from
         receiver.address, // to
         cashOut.amount,
-        cashOut.txId
+        cashOut.txId,
       );
       txs.push(tx);
       cashOut.status = CashOutStatus.Internal;
@@ -355,7 +356,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       const tx = connect(cashierRoot, cashier).forceCashOut(
         cashOut.account.address,
         cashOut.amount,
-        cashOut.txId
+        cashOut.txId,
       );
       txs.push(tx);
       cashOut.status = CashOutStatus.Forced;
@@ -364,8 +365,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
   }
 
   function defineExpectedCashierState(cashOuts: TestCashOut[]): CashierState {
-    let tokenBalance: number = 0;
-    let pendingCashOutCounter: number = 0;
+    let tokenBalance = 0;
+    let pendingCashOutCounter = 0;
     const pendingCashOutTxIds: string[] = [];
     const cashOutBalancePerAccount: Map<string, number> = new Map<string, number>();
 
@@ -384,7 +385,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       tokenBalance,
       pendingCashOutCounter,
       pendingCashOutTxIds,
-      cashOutBalancePerAccount
+      cashOutBalancePerAccount,
     };
   }
 
@@ -413,27 +414,27 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
   async function checkCashierState(
     tokenMock: Contract,
     cashierRoot: Contract,
-    cashOuts: TestCashOut[]
+    cashOuts: TestCashOut[],
   ) {
     const expectedState: CashierState = defineExpectedCashierState(cashOuts);
     await checkCashOutStructuresOnBlockchain(cashierRoot, cashOuts);
 
     expect(await tokenMock.balanceOf(getAddress(cashierRoot))).to.equal(
       expectedState.tokenBalance,
-      `The cashier total balance is wrong`
+      `The cashier total balance is wrong`,
     );
 
     const actualPendingCashOutCounter = await cashierRoot.pendingCashOutCounter();
     expect(actualPendingCashOutCounter).to.equal(
       expectedState.pendingCashOutCounter,
-      `The pending cash-out counter is wrong`
+      `The pending cash-out counter is wrong`,
     );
 
     const actualPendingCashOutTxIds: string[] =
       await cashierRoot.getPendingCashOutTxIds(0, actualPendingCashOutCounter);
     expect(actualPendingCashOutTxIds).to.deep.equal(
       expectedState.pendingCashOutTxIds,
-      `The pending cash-out tx ids are wrong`
+      `The pending cash-out tx ids are wrong`,
     );
 
     for (const account of expectedState.cashOutBalancePerAccount.keys()) {
@@ -443,12 +444,12 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       }
       expect(await cashierRoot.cashOutBalanceOf(account)).to.equal(
         expectedCashOutBalance,
-        `The cash-out balance for account ${account} is wrong`
+        `The cash-out balance for account ${account} is wrong`,
       );
     }
   }
 
-  function defineTestCashIns(num: number = 1, releaseTimestamp: number | undefined = undefined): TestCashIn[] {
+  function defineTestCashIns(num = 1, releaseTimestamp: number | undefined = undefined): TestCashIn[] {
     const cashIns: TestCashIn[] = [];
     if (num > 3) {
       throw new Error("The requested number of test cash-in structures is greater than 3");
@@ -459,13 +460,13 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
         amount: TOKEN_AMOUNTS[i],
         txId: TRANSACTIONS_ARRAY[i],
         status: CashInStatus.Nonexistent,
-        releaseTimestamp: releaseTimestamp
+        releaseTimestamp: releaseTimestamp,
       });
     }
     return cashIns;
   }
 
-  function defineTestCashOuts(num: number = 1): TestCashOut[] {
+  function defineTestCashOuts(num = 1): TestCashOut[] {
     const cashOuts: TestCashOut[] = [];
     if (num > 3) {
       throw new Error("The requested number of test cash-out structures is greater than 3");
@@ -475,7 +476,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
         account: users[i],
         amount: TOKEN_AMOUNTS[i],
         txId: TRANSACTIONS_ARRAY[i],
-        status: CashOutStatus.Nonexistent
+        status: CashOutStatus.Nonexistent,
       });
     }
     return cashOuts;
@@ -485,17 +486,17 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
     const tx = connect(cashierRoot, cashier).cashIn(
       cashIn.account.address,
       cashIn.amount,
-      cashIn.txId
+      cashIn.txId,
     );
     await expect(tx).to.changeTokenBalances(
       tokenMock,
       [cashierRoot, cashIn.account],
-      [0, +cashIn.amount]
+      [0, +cashIn.amount],
     );
     await expect(tx).to.emit(cashierRoot, EVENT_NAME_CASH_IN).withArgs(
       cashIn.account.address,
       cashIn.amount,
-      cashIn.txId
+      cashIn.txId,
     );
     cashIn.status = CashInStatus.Executed;
     await checkCashInStructuresOnBlockchain(cashierRoot, [cashIn]);
@@ -506,19 +507,19 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       cashIn.account.address,
       cashIn.amount,
       cashIn.txId,
-      cashIn.releaseTimestamp
+      cashIn.releaseTimestamp,
     );
     await expect(tx).to.emit(cashierRoot, EVENT_NAME_CASH_IN_PREMINT).withArgs(
       cashIn.account.address,
       cashIn.amount, // newAmount
       TOKEN_AMOUNT_ZERO, // oldAmount
       cashIn.txId,
-      cashIn.releaseTimestamp
+      cashIn.releaseTimestamp,
     );
     await expect(tx).to.emit(tokenMock, EVENT_NAME_MOCK_PREMINT_INCREASING).withArgs(
       cashIn.account.address,
       cashIn.amount,
-      cashIn.releaseTimestamp
+      cashIn.releaseTimestamp,
     );
     cashIn.status = CashInStatus.PremintExecuted;
     await checkCashInStructuresOnBlockchain(cashierRoot, [cashIn]);
@@ -529,7 +530,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
 
     const tx = connect(cashierRoot, cashier).cashInPremintRevoke(
       cashIn.txId,
-      cashIn.releaseTimestamp
+      cashIn.releaseTimestamp,
     );
     cashIn.oldAmount = cashIn.amount;
     cashIn.amount = 0;
@@ -540,12 +541,12 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       cashIn.amount,
       cashIn.oldAmount ?? 0,
       cashIn.txId,
-      cashIn.releaseTimestamp
+      cashIn.releaseTimestamp,
     );
     await expect(tx).to.emit(tokenMock, EVENT_NAME_MOCK_PREMINT_DECREASING).withArgs(
       cashIn.account.address,
       cashIn.oldAmount,
-      cashIn.releaseTimestamp
+      cashIn.releaseTimestamp,
     );
     await checkCashInStructuresOnBlockchain(cashierRoot, [cashIn]);
   }
@@ -553,25 +554,25 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
   async function executeRequestCashOut(
     cashierRoot: Contract,
     tokenMock: Contract,
-    cashOut: TestCashOut
+    cashOut: TestCashOut,
   ): Promise<void> {
     await checkCashierState(tokenMock, cashierRoot, [cashOut]);
     const tx = connect(cashierRoot, cashier).requestCashOutFrom(
       cashOut.account.address,
       cashOut.amount,
-      cashOut.txId
+      cashOut.txId,
     );
     await expect(tx).to.changeTokenBalances(
       tokenMock,
       [cashierRoot, cashier, cashOut.account],
-      [+cashOut.amount, 0, -cashOut.amount]
+      [+cashOut.amount, 0, -cashOut.amount],
     );
     await expect(tx).to.emit(cashierRoot, EVENT_NAME_CASH_OUT_REQUESTING).withArgs(
       cashOut.account.address,
       cashOut.amount, // amount
       cashOut.amount, // balance
       cashOut.txId,
-      cashier.address
+      cashier.address,
     );
     cashOut.status = CashOutStatus.Pending;
     await checkCashierState(tokenMock, cashierRoot, [cashOut]);
@@ -580,7 +581,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
   async function executeCashOutConfirm(
     cashierRoot: Contract,
     tokenMock: Contract,
-    cashOut: TestCashOut
+    cashOut: TestCashOut,
   ): Promise<void> {
     await requestCashOuts(cashierRoot, [cashOut]);
     await checkCashierState(tokenMock, cashierRoot, [cashOut]);
@@ -589,13 +590,13 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
     await expect(tx).to.changeTokenBalances(
       tokenMock,
       [cashierRoot, cashOut.account],
-      [-cashOut.amount, 0]
+      [-cashOut.amount, 0],
     );
     await expect(tx).to.emit(cashierRoot, EVENT_NAME_CASH_OUT_CONFIRMATION).withArgs(
       cashOut.account.address,
       cashOut.amount,
       BALANCE_ZERO,
-      cashOut.txId
+      cashOut.txId,
     );
     cashOut.status = CashOutStatus.Confirmed;
     await checkCashierState(tokenMock, cashierRoot, [cashOut]);
@@ -604,7 +605,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
   async function executeReverseCashOut(
     cashierRoot: Contract,
     tokenMock: Contract,
-    cashOut: TestCashOut
+    cashOut: TestCashOut,
   ): Promise<void> {
     await requestCashOuts(cashierRoot, [cashOut]);
     await checkCashierState(tokenMock, cashierRoot, [cashOut]);
@@ -612,13 +613,13 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
     await expect(tx).to.changeTokenBalances(
       tokenMock,
       [cashOut.account, cashierRoot, cashier],
-      [+cashOut.amount, -cashOut.amount, 0]
+      [+cashOut.amount, -cashOut.amount, 0],
     );
     await expect(tx).to.emit(cashierRoot, EVENT_NAME_CASH_OUT_REVERSING).withArgs(
       cashOut.account.address,
       cashOut.amount,
       BALANCE_ZERO,
-      cashOut.txId
+      cashOut.txId,
     );
     cashOut.status = CashOutStatus.Reversed;
     await checkCashierState(tokenMock, cashierRoot, [cashOut]);
@@ -627,13 +628,13 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
   async function executeUpgradeShardsTo(
     cashierRoot: Contract,
     cashierShards: Contract[],
-    targetShardImplementationAddress: string
+    targetShardImplementationAddress: string,
   ) {
     const oldImplementationAddresses: string[] = await getImplementationAddresses(cashierShards);
     oldImplementationAddresses.forEach((_, i) => {
       expect(oldImplementationAddresses[i]).to.not.eq(
         targetShardImplementationAddress,
-        `oldImplementationAddresses[${i}] is wrong`
+        `oldImplementationAddresses[${i}] is wrong`,
       );
     });
 
@@ -643,7 +644,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
     newImplementationAddresses.forEach((_, i) => {
       expect(newImplementationAddresses[i]).to.eq(
         targetShardImplementationAddress,
-        `newImplementationAddresses[${i}] is wrong`
+        `newImplementationAddresses[${i}] is wrong`,
       );
     });
   }
@@ -914,7 +915,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       const tx3 = cashierRoot.replaceShards(0, [newShardAddresses[0]]);
       await expect(tx3).to.emit(cashierRoot, EVENT_NAME_SHARD_REPLACED).withArgs(
         newShardAddresses[0],
-        oldShardAddresses[0]
+        oldShardAddresses[0],
       );
       oldShardAddresses[0] = newShardAddresses[0];
       expect(await cashierRoot.getShardRange(0, oldShardAddresses.length)).to.deep.eq(oldShardAddresses);
@@ -923,11 +924,11 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       const tx4 = cashierRoot.replaceShards(1, [newShardAddresses[1], newShardAddresses[2]]);
       await expect(tx4).to.emit(cashierRoot, EVENT_NAME_SHARD_REPLACED).withArgs(
         newShardAddresses[1],
-        oldShardAddresses[1]
+        oldShardAddresses[1],
       );
       await expect(tx4).to.emit(cashierRoot, EVENT_NAME_SHARD_REPLACED).withArgs(
         newShardAddresses[2],
-        oldShardAddresses[2]
+        oldShardAddresses[2],
       );
       oldShardAddresses[1] = newShardAddresses[1];
       oldShardAddresses[2] = newShardAddresses[2];
@@ -940,7 +941,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       for (let i = 1; i < oldShardAddresses.length; ++i) {
         await expect(tx5).to.emit(cashierRoot, EVENT_NAME_SHARD_REPLACED).withArgs(
           newShardAddresses[i - 1],
-          oldShardAddresses[i]
+          oldShardAddresses[i],
         );
         oldShardAddresses[i] = newShardAddresses[i - 1];
       }
@@ -1042,13 +1043,13 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       oldShardImplementationAddresses.forEach((_, i) => {
         expect(oldShardImplementationAddresses[i]).to.not.eq(
           targetShardImplementationAddress,
-          `oldShardImplementationAddresses[${i}] is wrong`
+          `oldShardImplementationAddresses[${i}] is wrong`,
         );
       });
 
       await proveTx(cashierRoot.upgradeRootAndShardsTo(
         targetRootImplementationAddress,
-        targetShardImplementationAddress
+        targetShardImplementationAddress,
       ));
 
       const newRootImplementationAddress = await getImplementationAddress(cashierRoot);
@@ -1058,7 +1059,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       newShardImplementationAddresses.forEach((_, i) => {
         expect(newShardImplementationAddresses[i]).to.eq(
           targetShardImplementationAddress,
-          `newShardImplementationAddresses[${i}] is wrong`
+          `newShardImplementationAddresses[${i}] is wrong`,
         );
       });
     });
@@ -1070,7 +1071,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
 
       const tx = connect(cashierRoot, user).upgradeRootAndShardsTo(
         targetRootImplementationAddress,
-        targetShardImplementationAddress
+        targetShardImplementationAddress,
       );
       await expect(tx)
         .to.be.revertedWithCustomError(cashierRoot, ERROR_NAME_ACCESS_CONTROL_UNAUTHORIZED_ACCOUNT)
@@ -1213,17 +1214,17 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       const { cashierRoot } = await setUpFixture(deployAndConfigureContracts);
       await pauseContract(cashierRoot);
       await expect(
-        connect(cashierRoot, cashier).cashInPremint(user.address, TOKEN_AMOUNT, TRANSACTION_ID1, RELEASE_TIMESTAMP)
+        connect(cashierRoot, cashier).cashInPremint(user.address, TOKEN_AMOUNT, TRANSACTION_ID1, RELEASE_TIMESTAMP),
       ).to.be.revertedWithCustomError(cashierRoot, ERROR_NAME_ENFORCED_PAUSE);
     });
 
     it("Is reverted if the caller does not have the cashier role", async () => {
       const { cashierRoot } = await setUpFixture(deployAndConfigureContracts);
       await expect(
-        connect(cashierRoot, deployer).cashInPremint(user.address, TOKEN_AMOUNT, TRANSACTION_ID1, RELEASE_TIMESTAMP)
+        connect(cashierRoot, deployer).cashInPremint(user.address, TOKEN_AMOUNT, TRANSACTION_ID1, RELEASE_TIMESTAMP),
       ).to.be.revertedWithCustomError(
         cashierRoot,
-        ERROR_NAME_ACCESS_CONTROL_UNAUTHORIZED_ACCOUNT
+        ERROR_NAME_ACCESS_CONTROL_UNAUTHORIZED_ACCOUNT,
       ).withArgs(deployer.address, CASHIER_ROLE);
     });
 
@@ -1234,8 +1235,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
           user.address,
           TOKEN_AMOUNT,
           TRANSACTION_ID1,
-          RELEASE_TIMESTAMP_ZERO
-        )
+          RELEASE_TIMESTAMP_ZERO,
+        ),
       ).to.be.revertedWithCustomError(cashierRoot, ERROR_NAME_PREMINT_RELEASE_TIME_INAPPROPRIATE);
     });
 
@@ -1246,8 +1247,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
           ADDRESS_ZERO,
           TOKEN_AMOUNT,
           TRANSACTION_ID1,
-          RELEASE_TIMESTAMP
-        )
+          RELEASE_TIMESTAMP,
+        ),
       ).to.be.revertedWithCustomError(cashierRoot, ERROR_NAME_ACCOUNT_ADDRESS_IS_ZERO);
     });
 
@@ -1258,8 +1259,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
           user.address,
           TOKEN_AMOUNT_ZERO,
           TRANSACTION_ID1,
-          RELEASE_TIMESTAMP
-        )
+          RELEASE_TIMESTAMP,
+        ),
       ).to.be.revertedWithCustomError(cashierRoot, ERROR_NAME_AMOUNT_IS_ZERO);
     });
 
@@ -1267,7 +1268,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       const { cashierRoot } = await setUpFixture(deployAndConfigureContracts);
       const amount = maxUintForBits(64) + 1n;
       await expect(
-        connect(cashierRoot, cashier).cashInPremint(user.address, amount, TRANSACTION_ID1, RELEASE_TIMESTAMP)
+        connect(cashierRoot, cashier).cashInPremint(user.address, amount, TRANSACTION_ID1, RELEASE_TIMESTAMP),
       ).to.be.revertedWithCustomError(cashierRoot, ERROR_NAME_AMOUNT_EXCESS);
     });
 
@@ -1278,8 +1279,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
           user.address,
           TOKEN_AMOUNT,
           TRANSACTION_ID_ZERO,
-          RELEASE_TIMESTAMP
-        )
+          RELEASE_TIMESTAMP,
+        ),
       ).to.be.revertedWithCustomError(cashierRoot, ERROR_NAME_TX_ID_ZERO);
     });
 
@@ -1287,7 +1288,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       const { cashierRoot } = await setUpFixture(deployAndConfigureContracts);
       await proveTx(connect(cashierRoot, cashier).cashIn(user.address, TOKEN_AMOUNT, TRANSACTION_ID1));
       await expect(
-        connect(cashierRoot, cashier).cashInPremint(user.address, TOKEN_AMOUNT, TRANSACTION_ID1, RELEASE_TIMESTAMP)
+        connect(cashierRoot, cashier).cashInPremint(user.address, TOKEN_AMOUNT, TRANSACTION_ID1, RELEASE_TIMESTAMP),
       ).to.be.revertedWithCustomError(cashierRoot, ERROR_NAME_CASH_IN_ALREADY_EXECUTED);
     });
   });
@@ -1341,7 +1342,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       const { cashierRoot, tokenMock } = await setUpFixture(deployAndConfigureContracts);
       const tx: TransactionResponse = await connect(cashierRoot, cashier).reschedulePremintRelease(
         originalReleaseTimestamp,
-        targetReleaseTimestamp
+        targetReleaseTimestamp,
       );
 
       await expect(tx)
@@ -1355,8 +1356,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       await expect(
         connect(cashierRoot, cashier).reschedulePremintRelease(
           originalReleaseTimestamp,
-          targetReleaseTimestamp
-        )
+          targetReleaseTimestamp,
+        ),
       ).to.be.revertedWithCustomError(cashierRoot, ERROR_NAME_ENFORCED_PAUSE);
     });
 
@@ -1365,11 +1366,11 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       await expect(
         connect(cashierRoot, deployer).reschedulePremintRelease(
           originalReleaseTimestamp,
-          targetReleaseTimestamp
-        )
+          targetReleaseTimestamp,
+        ),
       ).to.be.revertedWithCustomError(
         cashierRoot,
-        ERROR_NAME_ACCESS_CONTROL_UNAUTHORIZED_ACCOUNT
+        ERROR_NAME_ACCESS_CONTROL_UNAUTHORIZED_ACCOUNT,
       ).withArgs(deployer.address, CASHIER_ROLE);
     });
   });
@@ -1450,7 +1451,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
         user.address,
         receiver.address,
         TOKEN_AMOUNT,
-        TRANSACTION_ID1
+        TRANSACTION_ID1,
       );
       await proveTx(tx);
       await expect(connect(cashierRoot, cashier).requestCashOutFrom(user.address, TOKEN_AMOUNT, TRANSACTION_ID1))
@@ -1462,7 +1463,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       const tx = connect(cashierRoot, cashier).forceCashOut(
         user.address,
         TOKEN_AMOUNT,
-        TRANSACTION_ID1
+        TRANSACTION_ID1,
       );
       await proveTx(tx);
       await expect(connect(cashierRoot, cashier).requestCashOutFrom(user.address, TOKEN_AMOUNT, TRANSACTION_ID1))
@@ -1534,7 +1535,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
         user.address,
         receiver.address,
         TOKEN_AMOUNT,
-        TRANSACTION_ID1
+        TRANSACTION_ID1,
       );
       await proveTx(tx);
       await expect(connect(cashierRoot, cashier).confirmCashOut(TRANSACTION_ID1))
@@ -1546,7 +1547,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       const tx = connect(cashierRoot, cashier).forceCashOut(
         user.address,
         TOKEN_AMOUNT,
-        TRANSACTION_ID1
+        TRANSACTION_ID1,
       );
       await proveTx(tx);
       await expect(connect(cashierRoot, cashier).confirmCashOut(TRANSACTION_ID1))
@@ -1610,7 +1611,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
         user.address,
         receiver.address,
         TOKEN_AMOUNT,
-        TRANSACTION_ID1
+        TRANSACTION_ID1,
       );
       await proveTx(tx);
       await expect(connect(cashierRoot, cashier).reverseCashOut(TRANSACTION_ID1))
@@ -1622,7 +1623,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       const tx = connect(cashierRoot, cashier).forceCashOut(
         user.address,
         TOKEN_AMOUNT,
-        TRANSACTION_ID1
+        TRANSACTION_ID1,
       );
       await proveTx(tx);
       await expect(connect(cashierRoot, cashier).reverseCashOut(TRANSACTION_ID1))
@@ -1641,18 +1642,18 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
         cashOut.account.address,
         receiver.address,
         cashOut.amount,
-        cashOut.txId
+        cashOut.txId,
       );
       await expect(tx).to.changeTokenBalances(
         tokenMock,
         [cashierRoot, cashier, cashOut.account, receiver.address],
-        [0, 0, -cashOut.amount, +cashOut.amount]
+        [0, 0, -cashOut.amount, +cashOut.amount],
       );
       await expect(tx).to.emit(cashierRoot, EVENT_NAME_INTERNAL_CASH_OUT).withArgs(
         cashOut.account.address, // from
         cashOut.txId,
         receiver.address, // to
-        cashOut.amount
+        cashOut.amount,
       );
       cashOut.status = CashOutStatus.Internal;
       await checkCashierState(tokenMock, cashierRoot, [cashOut]);
@@ -1666,8 +1667,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
           user.address,
           receiver.address,
           TOKEN_AMOUNT,
-          TRANSACTION_ID1
-        )
+          TRANSACTION_ID1,
+        ),
       ).to.be.revertedWithCustomError(cashierRoot, ERROR_NAME_ENFORCED_PAUSE);
     });
 
@@ -1678,18 +1679,18 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
           user.address,
           receiver.address,
           TOKEN_AMOUNT,
-          TRANSACTION_ID1
-        )
+          TRANSACTION_ID1,
+        ),
       ).to.be.revertedWithCustomError(
         cashierRoot,
-        ERROR_NAME_ACCESS_CONTROL_UNAUTHORIZED_ACCOUNT
+        ERROR_NAME_ACCESS_CONTROL_UNAUTHORIZED_ACCOUNT,
       ).withArgs(deployer.address, CASHIER_ROLE);
     });
 
     it("Is reverted if the token receiver address is zero", async () => {
       const { cashierRoot } = await setUpFixture(deployAndConfigureContracts);
       await expect(
-        connect(cashierRoot, cashier).makeInternalCashOut(user.address, ADDRESS_ZERO, TOKEN_AMOUNT, TRANSACTION_ID1)
+        connect(cashierRoot, cashier).makeInternalCashOut(user.address, ADDRESS_ZERO, TOKEN_AMOUNT, TRANSACTION_ID1),
       ).to.be.revertedWithCustomError(cashierRoot, ERROR_NAME_ACCOUNT_ADDRESS_IS_ZERO);
     });
 
@@ -1700,8 +1701,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
           ADDRESS_ZERO,
           receiver.address,
           TOKEN_AMOUNT,
-          TRANSACTION_ID1
-        )
+          TRANSACTION_ID1,
+        ),
       ).to.be.revertedWithCustomError(cashierRoot, ERROR_NAME_ACCOUNT_ADDRESS_IS_ZERO);
     });
 
@@ -1712,8 +1713,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
           user.address,
           receiver.address,
           TOKEN_AMOUNT_ZERO,
-          TRANSACTION_ID1
-        )
+          TRANSACTION_ID1,
+        ),
       ).to.be.revertedWithCustomError(cashierRoot, ERROR_NAME_AMOUNT_IS_ZERO);
     });
 
@@ -1725,8 +1726,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
           user.address,
           receiver.address,
           amount,
-          TRANSACTION_ID1
-        )
+          TRANSACTION_ID1,
+        ),
       ).to.be.revertedWithCustomError(cashierRoot, ERROR_NAME_AMOUNT_EXCESS);
     });
 
@@ -1737,8 +1738,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
           user.address,
           receiver.address,
           TOKEN_AMOUNT,
-          TRANSACTION_ID_ZERO
-        )
+          TRANSACTION_ID_ZERO,
+        ),
       ).to.be.revertedWithCustomError(cashierRoot, ERROR_NAME_TX_ID_ZERO);
     });
 
@@ -1750,8 +1751,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
           user.address,
           receiver.address,
           TOKEN_AMOUNT,
-          TRANSACTION_ID1
-        )
+          TRANSACTION_ID1,
+        ),
       ).to.be.revertedWithCustomError(cashierRoot, ERROR_NAME_CASH_OUT_STATUS_INAPPROPRIATE);
     });
 
@@ -1764,8 +1765,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
           user.address,
           receiver.address,
           TOKEN_AMOUNT,
-          TRANSACTION_ID1
-        )
+          TRANSACTION_ID1,
+        ),
       ).to.be.revertedWithCustomError(cashierRoot, ERROR_NAME_CASH_OUT_STATUS_INAPPROPRIATE);
     });
 
@@ -1778,8 +1779,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
           user.address,
           receiver.address,
           TOKEN_AMOUNT,
-          TRANSACTION_ID1
-        )
+          TRANSACTION_ID1,
+        ),
       ).to.be.revertedWithCustomError(cashierRoot, ERROR_NAME_CASH_OUT_STATUS_INAPPROPRIATE);
     });
 
@@ -1789,7 +1790,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
         user.address,
         receiver.address,
         TOKEN_AMOUNT,
-        TRANSACTION_ID1
+        TRANSACTION_ID1,
       );
       await proveTx(tx);
       await expect(
@@ -1797,8 +1798,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
           user.address,
           receiver.address,
           TOKEN_AMOUNT,
-          TRANSACTION_ID1
-        )
+          TRANSACTION_ID1,
+        ),
       ).to.be.revertedWithCustomError(cashierRoot, ERROR_NAME_CASH_OUT_STATUS_INAPPROPRIATE);
     });
 
@@ -1807,7 +1808,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       const tx = connect(cashierRoot, cashier).forceCashOut(
         user.address,
         TOKEN_AMOUNT,
-        TRANSACTION_ID1
+        TRANSACTION_ID1,
       );
       await proveTx(tx);
       await expect(
@@ -1815,8 +1816,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
           user.address,
           receiver.address,
           TOKEN_AMOUNT,
-          TRANSACTION_ID1
-        )
+          TRANSACTION_ID1,
+        ),
       ).to.be.revertedWithCustomError(cashierRoot, ERROR_NAME_CASH_OUT_STATUS_INAPPROPRIATE);
     });
 
@@ -1828,11 +1829,11 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
           user.address,
           receiver.address,
           tokenAmount,
-          TRANSACTION_ID1
-        )
+          TRANSACTION_ID1,
+        ),
       ).to.be.revertedWithCustomError(
         tokenMock,
-        ERROR_NAME_ERC20_INSUFFICIENT_BALANCE
+        ERROR_NAME_ERC20_INSUFFICIENT_BALANCE,
       ).withArgs(user.address, INITIAL_USER_BALANCE, tokenAmount);
     });
   });
@@ -1845,17 +1846,17 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       const tx = connect(cashierRoot, cashier).forceCashOut(
         cashOut.account.address,
         cashOut.amount,
-        cashOut.txId
+        cashOut.txId,
       );
       await expect(tx).to.changeTokenBalances(
         tokenMock,
         [cashierRoot, cashier, cashOut.account],
-        [0, 0, -cashOut.amount]
+        [0, 0, -cashOut.amount],
       );
       await expect(tx).to.emit(cashierRoot, EVENT_NAME_FORCED_CASH_OUT).withArgs(
         cashOut.account.address, // from
         cashOut.txId,
-        cashOut.amount
+        cashOut.amount,
       );
       cashOut.status = CashOutStatus.Forced;
       await checkCashierState(tokenMock, cashierRoot, [cashOut]);
@@ -1868,8 +1869,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
         connect(cashierRoot, cashier).forceCashOut(
           user.address,
           TOKEN_AMOUNT,
-          TRANSACTION_ID1
-        )
+          TRANSACTION_ID1,
+        ),
       ).to.be.revertedWithCustomError(cashierRoot, ERROR_NAME_ENFORCED_PAUSE);
     });
 
@@ -1879,11 +1880,11 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
         connect(cashierRoot, deployer).forceCashOut(
           user.address,
           TOKEN_AMOUNT,
-          TRANSACTION_ID1
-        )
+          TRANSACTION_ID1,
+        ),
       ).to.be.revertedWithCustomError(
         cashierRoot,
-        ERROR_NAME_ACCESS_CONTROL_UNAUTHORIZED_ACCOUNT
+        ERROR_NAME_ACCESS_CONTROL_UNAUTHORIZED_ACCOUNT,
       ).withArgs(deployer.address, CASHIER_ROLE);
     });
 
@@ -1893,8 +1894,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
         connect(cashierRoot, cashier).forceCashOut(
           ADDRESS_ZERO,
           TOKEN_AMOUNT,
-          TRANSACTION_ID1
-        )
+          TRANSACTION_ID1,
+        ),
       ).to.be.revertedWithCustomError(cashierRoot, ERROR_NAME_ACCOUNT_ADDRESS_IS_ZERO);
     });
 
@@ -1904,8 +1905,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
         connect(cashierRoot, cashier).forceCashOut(
           user.address,
           TOKEN_AMOUNT_ZERO,
-          TRANSACTION_ID1
-        )
+          TRANSACTION_ID1,
+        ),
       ).to.be.revertedWithCustomError(cashierRoot, ERROR_NAME_AMOUNT_IS_ZERO);
     });
 
@@ -1916,8 +1917,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
         connect(cashierRoot, cashier).forceCashOut(
           user.address,
           amount,
-          TRANSACTION_ID1
-        )
+          TRANSACTION_ID1,
+        ),
       ).to.be.revertedWithCustomError(cashierRoot, ERROR_NAME_AMOUNT_EXCESS);
     });
 
@@ -1927,8 +1928,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
         connect(cashierRoot, cashier).forceCashOut(
           user.address,
           TOKEN_AMOUNT,
-          TRANSACTION_ID_ZERO
-        )
+          TRANSACTION_ID_ZERO,
+        ),
       ).to.be.revertedWithCustomError(cashierRoot, ERROR_NAME_TX_ID_ZERO);
     });
 
@@ -1939,8 +1940,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
         connect(cashierRoot, cashier).forceCashOut(
           user.address,
           TOKEN_AMOUNT,
-          TRANSACTION_ID1
-        )
+          TRANSACTION_ID1,
+        ),
       ).to.be.revertedWithCustomError(cashierRoot, ERROR_NAME_CASH_OUT_STATUS_INAPPROPRIATE);
     });
 
@@ -1952,8 +1953,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
         connect(cashierRoot, cashier).forceCashOut(
           user.address,
           TOKEN_AMOUNT,
-          TRANSACTION_ID1
-        )
+          TRANSACTION_ID1,
+        ),
       ).to.be.revertedWithCustomError(cashierRoot, ERROR_NAME_CASH_OUT_STATUS_INAPPROPRIATE);
     });
 
@@ -1965,8 +1966,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
         connect(cashierRoot, cashier).forceCashOut(
           user.address,
           TOKEN_AMOUNT,
-          TRANSACTION_ID1
-        )
+          TRANSACTION_ID1,
+        ),
       ).to.be.revertedWithCustomError(cashierRoot, ERROR_NAME_CASH_OUT_STATUS_INAPPROPRIATE);
     });
 
@@ -1976,15 +1977,15 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
         user.address,
         receiver.address,
         TOKEN_AMOUNT,
-        TRANSACTION_ID1
+        TRANSACTION_ID1,
       );
       await proveTx(tx);
       await expect(
         connect(cashierRoot, cashier).forceCashOut(
           user.address,
           TOKEN_AMOUNT,
-          TRANSACTION_ID1
-        )
+          TRANSACTION_ID1,
+        ),
       ).to.be.revertedWithCustomError(cashierRoot, ERROR_NAME_CASH_OUT_STATUS_INAPPROPRIATE);
     });
 
@@ -1993,15 +1994,15 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       const tx = connect(cashierRoot, cashier).forceCashOut(
         user.address,
         TOKEN_AMOUNT,
-        TRANSACTION_ID1
+        TRANSACTION_ID1,
       );
       await proveTx(tx);
       await expect(
         connect(cashierRoot, cashier).forceCashOut(
           user.address,
           TOKEN_AMOUNT,
-          TRANSACTION_ID1
-        )
+          TRANSACTION_ID1,
+        ),
       ).to.be.revertedWithCustomError(cashierRoot, ERROR_NAME_CASH_OUT_STATUS_INAPPROPRIATE);
     });
 
@@ -2012,11 +2013,11 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
         connect(cashierRoot, cashier).forceCashOut(
           user.address,
           tokenAmount,
-          TRANSACTION_ID1
-        )
+          TRANSACTION_ID1,
+        ),
       ).to.be.revertedWithCustomError(
         tokenMock,
-        ERROR_NAME_ERC20_INSUFFICIENT_BALANCE
+        ERROR_NAME_ERC20_INSUFFICIENT_BALANCE,
       ).withArgs(user.address, INITIAL_USER_BALANCE, tokenAmount);
     });
   });
@@ -2037,18 +2038,18 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       const tx = await connect(cashierRoot, hookAdmin).configureCashOutHooks(
         txId,
         newCallableContract,
-        newHookFlags
+        newHookFlags,
       );
       await expect(tx).to.emit(cashierRoot, EVENT_NAME_CASH_OUT_HOOKS_CONFIGURED).withArgs(
         txId,
         newCallableContract,
         oldCallableContract,
         newHookFlags,
-        oldHookFlags
+        oldHookFlags,
       );
       const expectedHookConfig: HookConfig = {
         callableContract: newCallableContract,
-        hookFlags: newHookFlags
+        hookFlags: newHookFlags,
       };
       const actualHookConfig = await cashierRoot.getCashOutHookConfig(TRANSACTION_ID1);
       checkEquality(actualHookConfig, expectedHookConfig);
@@ -2067,7 +2068,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       // Configure hooks
       await checkCashOutHookConfiguring(cashierRoot, {
         newCallableContract: user.address,
-        newHookFlags: ALL_CASH_OUT_HOOK_FLAGS
+        newHookFlags: ALL_CASH_OUT_HOOK_FLAGS,
       });
 
       // Change the hook flags only
@@ -2076,7 +2077,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
         newCallableContract: user.address,
         newHookFlags: hookFlags,
         oldCallableContract: user.address,
-        oldHookFlags: ALL_CASH_OUT_HOOK_FLAGS
+        oldHookFlags: ALL_CASH_OUT_HOOK_FLAGS,
       });
 
       // Change the contract address only
@@ -2084,7 +2085,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
         newCallableContract: deployer.address,
         newHookFlags: hookFlags,
         oldCallableContract: user.address,
-        oldHookFlags: hookFlags
+        oldHookFlags: hookFlags,
       });
 
       // Remove hooks
@@ -2092,7 +2093,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
         newCallableContract: ADDRESS_ZERO,
         newHookFlags: 0,
         oldCallableContract: deployer.address,
-        oldHookFlags: hookFlags
+        oldHookFlags: hookFlags,
       });
     });
 
@@ -2103,8 +2104,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
         connect(cashierRoot, hookAdmin).configureCashOutHooks(
           TRANSACTION_ID1,
           user.address, // newCallableContract
-          ALL_CASH_OUT_HOOK_FLAGS // newHookFlags
-        )
+          ALL_CASH_OUT_HOOK_FLAGS, // newHookFlags
+        ),
       ).to.be.revertedWithCustomError(cashierRoot, ERROR_NAME_ENFORCED_PAUSE);
     });
 
@@ -2114,22 +2115,22 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
         connect(cashierRoot, deployer).configureCashOutHooks(
           TRANSACTION_ID1,
           user.address, // newCallableContract
-          ALL_CASH_OUT_HOOK_FLAGS // newHookFlags
-        )
+          ALL_CASH_OUT_HOOK_FLAGS, // newHookFlags
+        ),
       ).to.be.revertedWithCustomError(
         cashierRoot,
-        ERROR_NAME_ACCESS_CONTROL_UNAUTHORIZED_ACCOUNT
+        ERROR_NAME_ACCESS_CONTROL_UNAUTHORIZED_ACCOUNT,
       ).withArgs(deployer.address, HOOK_ADMIN_ROLE);
 
       await expect(
         connect(cashierRoot, cashier).configureCashOutHooks(
           TRANSACTION_ID1,
           user.address, // newCallableContract
-          ALL_CASH_OUT_HOOK_FLAGS // newHookFlags
-        )
+          ALL_CASH_OUT_HOOK_FLAGS, // newHookFlags
+        ),
       ).to.be.revertedWithCustomError(
         cashierRoot,
-        ERROR_NAME_ACCESS_CONTROL_UNAUTHORIZED_ACCOUNT
+        ERROR_NAME_ACCESS_CONTROL_UNAUTHORIZED_ACCOUNT,
       ).withArgs(cashier.address, HOOK_ADMIN_ROLE);
     });
 
@@ -2139,8 +2140,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
         connect(cashierRoot, hookAdmin).configureCashOutHooks(
           TRANSACTION_ID_ZERO,
           user.address, // newCallableContract
-          ALL_CASH_OUT_HOOK_FLAGS // newHookFlags
-        )
+          ALL_CASH_OUT_HOOK_FLAGS, // newHookFlags
+        ),
       ).to.be.revertedWithCustomError(cashierRoot, ERROR_NAME_TX_ID_ZERO);
     });
 
@@ -2152,8 +2153,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
         connect(cashierRoot, hookAdmin).configureCashOutHooks(
           TRANSACTION_ID1,
           user.address, // newCallableContract
-          ALL_CASH_OUT_HOOK_FLAGS + (1 << HookIndex.UnusedLower) // newHookFlags
-        )
+          ALL_CASH_OUT_HOOK_FLAGS + (1 << HookIndex.UnusedLower), // newHookFlags
+        ),
       ).to.be.revertedWithCustomError(cashierRoot, ERROR_NAME_HOOK_FLAGS_INVALID);
 
       // Try a hook flag with the index higher than the valid range of indexes
@@ -2161,8 +2162,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
         connect(cashierRoot, hookAdmin).configureCashOutHooks(
           TRANSACTION_ID1,
           user.address, // newCallableContract
-          ALL_CASH_OUT_HOOK_FLAGS + (1 << HookIndex.UnusedHigher) // newHookFlags
-        )
+          ALL_CASH_OUT_HOOK_FLAGS + (1 << HookIndex.UnusedHigher), // newHookFlags
+        ),
       ).to.be.revertedWithCustomError(cashierRoot, ERROR_NAME_HOOK_FLAGS_INVALID);
     });
 
@@ -2174,22 +2175,22 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
         connect(cashierRoot, hookAdmin).configureCashOutHooks(
           TRANSACTION_ID1,
           ADDRESS_ZERO, // newCallableContract
-          0 // newHookFlags
-        )
+          0, // newHookFlags
+        ),
       ).to.be.revertedWithCustomError(cashierRoot, ERROR_NAME_HOOK_FLAGS_ALREADY_REGISTERED);
 
       // Try previously configured callable contract address and flags
       await proveTx(connect(cashierRoot, hookAdmin).configureCashOutHooks(
         TRANSACTION_ID1,
         user.address, // newCallableContract
-        ALL_CASH_OUT_HOOK_FLAGS // newHookFlags
+        ALL_CASH_OUT_HOOK_FLAGS, // newHookFlags
       ));
       await expect(
         connect(cashierRoot, hookAdmin).configureCashOutHooks(
           TRANSACTION_ID1,
           user.address, // newCallableContract
-          ALL_CASH_OUT_HOOK_FLAGS // newHookFlags
-        )
+          ALL_CASH_OUT_HOOK_FLAGS, // newHookFlags
+        ),
       ).to.be.revertedWithCustomError(cashierRoot, ERROR_NAME_HOOK_FLAGS_ALREADY_REGISTERED);
     });
 
@@ -2201,8 +2202,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
         connect(cashierRoot, hookAdmin).configureCashOutHooks(
           TRANSACTION_ID1,
           ADDRESS_ZERO, // newCallableContract
-          ALL_CASH_OUT_HOOK_FLAGS // newHookFlags
-        )
+          ALL_CASH_OUT_HOOK_FLAGS, // newHookFlags
+        ),
       ).to.be.revertedWithCustomError(cashierRoot, ERROR_NAME_HOOK_CALLABLE_CONTRACT_ADDRESS_ZERO);
     });
 
@@ -2211,7 +2212,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       await proveTx(connect(cashierRoot, hookAdmin).configureCashOutHooks(
         TRANSACTION_ID1,
         user.address, // newCallableContract
-        ALL_CASH_OUT_HOOK_FLAGS // newHookFlags
+        ALL_CASH_OUT_HOOK_FLAGS, // newHookFlags
       ));
 
       // Try the default callable contract address and hook flags
@@ -2219,8 +2220,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
         connect(cashierRoot, hookAdmin).configureCashOutHooks(
           TRANSACTION_ID1,
           user.address, // newCallableContract
-          0 // newHookFlags
-        )
+          0, // newHookFlags
+        ),
       ).to.be.revertedWithCustomError(cashierRoot, ERROR_NAME_HOOK_CALLABLE_CONTRACT_ADDRESS_NON_ZERO);
     });
   });
@@ -2268,7 +2269,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
         const expectedShardAddress = expectedShardAddresses[i];
         expect(await cashierRoot.getShardByTxId(txId)).to.eq(
           expectedShardAddress,
-          `Shard address for transaction ID ${txId}`
+          `Shard address for transaction ID ${txId}`,
         );
       }
     });
@@ -2345,12 +2346,12 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       await expect(tx).to.emit(cashierRoot, EVENT_NAME_HOOK_INVOKED).withArgs(
         txId,
         hookIndex,
-        getAddress(cashierHookMock) // callableContract
+        getAddress(cashierHookMock), // callableContract
       );
       await expect(tx).to.emit(cashierHookMock, EVENT_NAME_MOCK_CASHIER_HOOK_CALLED).withArgs(
         txId,
         hookIndex,
-        hookCounter
+        hookCounter,
       );
     }
 
@@ -2367,7 +2368,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
         await proveTx(connect(cashierRoot, hookAdmin).configureCashOutHooks(
           cashOut.txId,
           getAddress(cashierHookMock), // newCallableContract,
-          ALL_CASH_OUT_HOOK_FLAGS // newHookFlags
+          ALL_CASH_OUT_HOOK_FLAGS, // newHookFlags
         ));
       }
       await checkHookTotalCalls(fixture, 0);
@@ -2408,7 +2409,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
         await proveTx(connect(cashierRoot, hookAdmin).configureCashOutHooks(
           cashOut.txId,
           getAddress(cashierHookMock), // newCallableContract,
-          hookFlags // newHookFlags
+          hookFlags, // newHookFlags
         ));
       }
       await checkHookTotalCalls(fixture, 0);
@@ -2445,7 +2446,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
         await proveTx(connect(cashierRoot, hookAdmin).configureCashOutHooks(
           cashOut.txId,
           getAddress(cashierHookMock), // newCallableContract,
-          hookFlags // newHookFlags
+          hookFlags, // newHookFlags
         ));
       }
       expect(await cashierHookMock.hookCallCounter()).to.eq(0);
@@ -2478,7 +2479,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       await proveTx(connect(cashierRoot, hookAdmin).configureCashOutHooks(
         cashOut.txId,
         getAddress(cashierHookMock), // newCallableContract,
-        ALL_CASH_OUT_HOOK_FLAGS // newHookFlags
+        ALL_CASH_OUT_HOOK_FLAGS, // newHookFlags
       ));
       expect(await cashierHookMock.hookCallCounter()).to.eq(0);
 
@@ -2501,7 +2502,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       await proveTx(connect(cashierRoot, hookAdmin).configureCashOutHooks(
         cashOut.txId,
         getAddress(cashierHookMock), // newCallableContract,
-        hookFlags // newHookFlags
+        hookFlags, // newHookFlags
       ));
       expect(await cashierHookMock.hookCallCounter()).to.eq(0);
 
@@ -2523,7 +2524,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       await proveTx(connect(cashierRoot, hookAdmin).configureCashOutHooks(
         cashOut.txId,
         getAddress(cashierHookMock), // newCallableContract,
-        hookFlags // newHookFlags
+        hookFlags, // newHookFlags
       ));
       expect(await cashierHookMock.hookCallCounter()).to.eq(0);
 
@@ -2541,7 +2542,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       await proveTx(connect(cashierRoot, hookAdmin).configureCashOutHooks(
         cashOut.txId,
         getAddress(cashierHookMock), // newCallableContract,
-        ALL_CASH_OUT_HOOK_FLAGS // newHookFlags
+        ALL_CASH_OUT_HOOK_FLAGS, // newHookFlags
       ));
       expect(await cashierHookMock.hookCallCounter()).to.eq(0);
 
@@ -2565,7 +2566,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       await proveTx(connect(cashierRoot, hookAdmin).configureCashOutHooks(
         cashOut.txId,
         getAddress(cashierHookMock), // newCallableContract,
-        hookFlags // newHookFlags
+        hookFlags, // newHookFlags
       ));
       expect(await cashierHookMock.hookCallCounter()).to.eq(0);
 
@@ -2587,7 +2588,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       await proveTx(connect(cashierRoot, hookAdmin).configureCashOutHooks(
         cashOut.txId,
         getAddress(cashierHookMock), // newCallableContract,
-        hookFlags // newHookFlags
+        hookFlags, // newHookFlags
       ));
       expect(await cashierHookMock.hookCallCounter()).to.eq(0);
 
@@ -2631,13 +2632,13 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
         account: user,
         amount: i + 1,
         txId,
-        status: CashInStatus.Executed
+        status: CashInStatus.Executed,
       }));
       for (const cashIn of cashIns) {
         await proveTx(connect(cashierRoot, cashier).cashIn(
           cashIn.account.address,
           cashIn.amount,
-          cashIn.txId
+          cashIn.txId,
         ));
       }
       // Get and check structures one by one
@@ -2667,7 +2668,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
         account: user,
         amount: i + 1,
         txId,
-        status: CashOutStatus.Pending
+        status: CashOutStatus.Pending,
       }));
       await requestCashOuts(cashierRoot, cashOuts);
 
@@ -2697,7 +2698,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       const { cashierShards } = await setUpFixture(deployAndConfigureContracts);
       await expect(connect(cashierShards[0], deployer).setAdmin(
         user.address, // account
-        true // status
+        true, // status
       )).to.be.revertedWithCustomError(cashierShards[0], ERROR_NAME_UNAUTHORIZED);
     });
 
@@ -2707,7 +2708,7 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
         user.address, // account
         1, // amount
         TRANSACTION_ID1,
-        CashInStatus.Executed
+        CashInStatus.Executed,
       )).to.be.revertedWithCustomError(cashierShards[0], ERROR_NAME_UNAUTHORIZED);
     });
 
@@ -2723,8 +2724,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
         connect(cashierShards[0], deployer).registerCashOut(
           user.address, // account
           1, // amount
-          TRANSACTION_ID1
-        )
+          TRANSACTION_ID1,
+        ),
       ).to.be.revertedWithCustomError(cashierShards[0], ERROR_NAME_UNAUTHORIZED);
     });
 
@@ -2734,8 +2735,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
         connect(cashierShards[0], deployer).registerInternalCashOut(
           user.address, // account
           1, // amount
-          TRANSACTION_ID1
-        )
+          TRANSACTION_ID1,
+        ),
       ).to.be.revertedWithCustomError(cashierShards[0], ERROR_NAME_UNAUTHORIZED);
     });
 
@@ -2745,8 +2746,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
         connect(cashierShards[0], deployer).registerForcedCashOut(
           user.address, // account
           1, // amount
-          TRANSACTION_ID1
-        )
+          TRANSACTION_ID1,
+        ),
       ).to.be.revertedWithCustomError(cashierShards[0], ERROR_NAME_UNAUTHORIZED);
     });
 
@@ -2755,8 +2756,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       await expect(
         connect(cashierShards[0], deployer).processCashOut(
           TRANSACTION_ID1,
-          CashOutStatus.Confirmed
-        )
+          CashOutStatus.Confirmed,
+        ),
       ).to.be.revertedWithCustomError(cashierShards[0], ERROR_NAME_UNAUTHORIZED);
     });
 
@@ -2765,8 +2766,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       await expect(
         connect(cashierShards[0], deployer).setBitInCashOutFlags(
           TRANSACTION_ID1,
-          0 // flags
-        )
+          0, // flags
+        ),
       ).to.be.revertedWithCustomError(cashierShards[0], ERROR_NAME_UNAUTHORIZED);
     });
 
@@ -2775,8 +2776,8 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       await expect(
         connect(cashierShards[0], deployer).resetBitInCashOutFlags(
           TRANSACTION_ID1,
-          0 // flags
-        )
+          0, // flags
+        ),
       ).to.be.revertedWithCustomError(cashierShards[0], ERROR_NAME_UNAUTHORIZED);
     });
 
@@ -2793,10 +2794,10 @@ describe("Contracts 'Cashier' and `CashierShard`", async () => {
       await expect(cashierRootViaCashier.cashIn(
         operation.account,
         operation.amount,
-        operation.txId
+        operation.txId,
       )).to.be.revertedWithCustomError(
         cashierRoot,
-        ERROR_NAME_SHARD_ERROR_UNEXPECTED
+        ERROR_NAME_SHARD_ERROR_UNEXPECTED,
       ).withArgs(unexpectedError);
     });
   });
